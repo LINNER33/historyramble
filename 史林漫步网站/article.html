@@ -1,0 +1,66 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">文章 — 史林漫步</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="site-title">史林漫步 <small>历史学读书与思考</small></div>
+        <nav>
+            <a href="index.html">首页</a>
+            <a href="articles.html">文章</a>
+            <a href="books.html">书单</a>
+            <a href="about.html">关于</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="wrapper">
+        <div class="article-page" id="articleContent">
+            <p style="color:#8a7a6a;">加载中...</p>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="wrapper">
+        <p>© 2026 史林漫步 · Powered by pure static web</p>
+    </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    const article = articles.find(a => a.id === id);
+    const container = document.getElementById('articleContent');
+    const titleEl = document.getElementById('pageTitle');
+    if (!article) {
+        container.innerHTML = '<h1>文章未找到</h1><p style="color:#8a7a6a;">请返回<a href="articles.html">文章列表</a>。</p>';
+        return;
+    }
+    titleEl.textContent = article.title + ' — 史林漫步';
+    container.innerHTML = `
+        <h1>${article.title}</h1>
+        <div class="article-meta">
+            <span>${article.date}</span>
+            <span>${article.category}</span>
+            <span>${article.tags.map(t => `<span class="tag">${t}</span>`).join('')}</span>
+        </div>
+        <div class="article-body">${article.content}</div>
+        <div style="margin-top:40px;padding-top:20px;border-top:1px solid #d4c5a9;">
+            <a href="articles.html">← 返回文章列表</a>
+        </div>
+    `;
+});
+</script>
+</body>
+</html>
