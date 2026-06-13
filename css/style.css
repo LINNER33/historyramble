@@ -138,3 +138,22 @@ footer {
 
 /* ===== Active nav highlight ===== */
 nav a.active { background: #8b4513; color: #f5f0e8; }
+
+/* ===== Homepage combined grid ===== */
+.home-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+.home-row .article-card {
+    height: 100%;
+}
+.home-empty-col {
+    visibility: hidden;
+}
+@media (max-width: 700px) {
+    .home-row {
+        grid-template-columns: 1fr;
+    }
+}

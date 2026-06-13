@@ -29,21 +29,11 @@
 
 <main>
     <div class="wrapper">
-        <div class="home-grid">
-            <div>
-                <h2 class="section-title">最新文章</h2>
-                <div class="article-list" id="recentArticles"></div>
-                <div style="margin-top:20px;text-align:right;">
-                    <a href="articles.html" style="font-size:14px;color:#8b4513;">查看全部文章 →</a>
-                </div>
-            </div>
-            <div>
-                <h2 class="section-title">推荐书目</h2>
-                <div class="article-list" id="recentBooks"></div>
-                <div style="margin-top:20px;text-align:right;">
-                    <a href="books.html" style="font-size:14px;color:#8b4513;">查看全部书单 →</a>
-                </div>
-            </div>
+        <h2 class="section-title">最新动态</h2>
+        <div id="homeGrid"></div>
+        <div style="margin-top:24px;display:flex;justify-content:space-between;">
+            <a href="articles.html" style="font-size:14px;color:#8b4513;">查看全部文章 →</a>
+            <a href="books.html" style="font-size:14px;color:#8b4513;">查看全部书单 →</a>
         </div>
     </div>
 </main>
@@ -58,8 +48,7 @@
 <script src="js/main.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    renderArticles(document.getElementById('recentArticles'), 5);
-    renderSimpleBooks(document.getElementById('recentBooks'), 5);
+    renderHomeGrid(document.getElementById('homeGrid'), 5);
 });
 </script>
 </body>

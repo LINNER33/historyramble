@@ -43,24 +43,48 @@ function renderBooks(container, count) {
     container.innerHTML = html;
 }
 
-// Simplified book cards for homepage (matches article card style)
-function renderSimpleBooks(container, count) {
+// Homepage combined grid: articles and books side by side, aligned by row
+function renderHomeGrid(container, count) {
     const stars = n => '★'.repeat(n) + '☆'.repeat(5-n);
     let html = '';
-    const list = count ? books.slice(0, count) : books;
-    list.forEach(b => {
-        html += `
-            <div class="article-card">
-                <h3>${b.title}</h3>
-                <div class="article-meta">
-                    <span>${b.author}</span>
-                    <span style="color:#c49a3c;">${stars(b.rating)}</span>
+    const articleList = count ? articles.slice(0, count) : articles;
+    const bookList = count ? books.slice(0, count) : books;
+    const maxLen = Math.max(articleList.length, bookList.length);
+    for (let i = 0; i < maxLen; i++) {
+        html += '<div class="home-row">';
+        if (i < articleList.length) {
+            const a = articleList[i];
+            html += `
+                <div class="article-card">
+                    <h3><a href="article.html?id=${a.id}">${a.title}</a></h3>
+                    <div class="article-meta">
+                        <span>${a.date}</span>
+                        <span>${a.category}</span>
+                        <span>${a.tags.map(t => `<span class="tag">${t}</span>`).join('')}</span>
+                    </div>
+                    <p>${a.summary}</p>
                 </div>
-                <p>${b.desc}</p>
-            </div>
-        `;
-    });
-    if (!list.length) html = '<div class="empty-state">还没有推荐书目</div>';
+            `;
+        } else {
+            html += '<div class="article-card home-empty-col"></div>';
+        }
+        if (i < bookList.length) {
+            const b = bookList[i];
+            html += `
+                <div class="article-card">
+                    <h3>${b.title}</h3>
+                    <div class="article-meta">
+                        <span>${b.author}</span>
+                        <span style="color:#c49a3c;">${stars(b.rating)}</span>
+                    </div>
+                    <p>${b.desc}</p>
+                </div>
+            `;
+        } else {
+            html += '<div class="article-card home-empty-col"></div>';
+        }
+        html += '</div>';
+    }
     container.innerHTML = html;
 }
 
