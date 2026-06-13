@@ -43,6 +43,27 @@ function renderBooks(container, count) {
     container.innerHTML = html;
 }
 
+// Simplified book cards for homepage (matches article card style)
+function renderSimpleBooks(container, count) {
+    const stars = n => '★'.repeat(n) + '☆'.repeat(5-n);
+    let html = '';
+    const list = count ? books.slice(0, count) : books;
+    list.forEach(b => {
+        html += `
+            <div class="article-card">
+                <h3>${b.title}</h3>
+                <div class="article-meta">
+                    <span>${b.author}</span>
+                    <span style="color:#c49a3c;">${stars(b.rating)}</span>
+                </div>
+                <p>${b.desc}</p>
+            </div>
+        `;
+    });
+    if (!list.length) html = '<div class="empty-state">还没有推荐书目</div>';
+    container.innerHTML = html;
+}
+
 // Highlight current page in nav
 document.addEventListener('DOMContentLoaded', () => {
     const page = location.pathname.split('/').pop() || 'index.html';
