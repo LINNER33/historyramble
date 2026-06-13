@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Favicon 方案预览</title>
+<style>
+body { background: #f5f0e8; font-family: "Noto Serif SC", serif; text-align: center; padding: 40px; color: #2c2416; }
+h1 { font-size: 24px; margin-bottom: 10px; }
+p { color: #8a7a6a; margin-bottom: 40px; }
+.grid { display: flex; justify-content: center; gap: 60px; flex-wrap: wrap; }
+.card { background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.card svg { display: block; margin: 0 auto 16px; width: 128px; height: 128px; }
+.card .label { font-size: 14px; color: #8a7a6a; }
+</style>
+</head>
+<body>
+<h1>📌 Favicon 设计方案</h1>
+<p>实际使用时会缩放到 32×32，以下展示 128×128 效果</p>
+<div class="grid">
+
+<!-- 方案 A: 纯「史」字 -->
+<div class="card">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
+  <rect width="64" height="64" rx="12" fill="#2c2416"/>
+  <text x="32" y="46" font-family="'Noto Serif SC','STSong','SimSun',serif" font-size="36" font-weight="bold" fill="#d4c5a9" text-anchor="middle">史</text>
+</svg>
+<div class="label">A · 纯文字「史」</div>
+</div>
+
+<!-- 方案 B: 书 + 史 -->
+<div class="card">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
+  <rect width="64" height="64" rx="12" fill="#2c2416"/>
+  <path d="M14 20 L50 20 L50 48 L14 48 Z" fill="none" stroke="#d4c5a9" stroke-width="2.5" rx="2"/>
+  <line x1="32" y1="20" x2="32" y2="48" stroke="#8b4513" stroke-width="2"/>
+  <text x="32" y="42" font-family="'Noto Serif SC',serif" font-size="18" font-weight="bold" fill="#d4c5a9" text-anchor="middle">史</text>
+</svg>
+<div class="label">B · 书本 + 史</div>
+</div>
+
+<!-- 方案 C: 卷轴 -->
+<div class="card">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
+  <rect width="64" height="64" rx="12" fill="#2c2416"/>
+  <rect x="12" y="18" width="40" height="28" rx="3" fill="#d4c5a9"/>
+  <rect x="12" y="18" width="40" height="6" rx="2" fill="#8b4513"/>
+  <rect x="12" y="40" width="40" height="6" rx="2" fill="#8b4513"/>
+  <text x="32" y="37" font-family="'Noto Serif SC',serif" font-size="15" font-weight="bold" fill="#2c2416" text-anchor="middle">史</text>
+</svg>
+<div class="label">C · 卷轴</div>
+</div>
+
+<!-- 方案 D: 笔/墨 -->
+<div class="card">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
+  <rect width="64" height="64" rx="12" fill="#2c2416"/>
+  <circle cx="32" cy="32" r="18" fill="none" stroke="#8b4513" stroke-width="2.5"/>
+  <text x="32" y="38" font-family="'Noto Serif SC',serif" font-size="20" font-weight="bold" fill="#d4c5a9" text-anchor="middle">史</text>
+</svg>
+<div class="label">D · 圆环 + 史</div>
+</div>
+
+<!-- 方案 E: 毛笔「史」 -->
+<div class="card">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
+  <rect width="64" height="64" rx="12" fill="#2c2416"/>
+  <text x="32" y="46" font-family="'STKaiti','KaiTi','Noto Serif SC',serif" font-size="38" font-weight="normal" fill="#d4c5a9" text-anchor="middle">史</text>
+</svg>
+<div class="label">E · 楷体「史」</div>
+</div>
+
+<!-- 方案 F: 简约书 -->
+<div class="card">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="128" height="128">
+  <rect width="64" height="64" rx="12" fill="#2c2416"/>
+  <path d="M16 14 L32 20 L48 14 L48 50 L32 44 L16 50 Z" fill="#d4c5a9" opacity="0.9"/>
+  <path d="M32 20 L32 44" stroke="#8b4513" stroke-width="2" fill="none"/>
+  <text x="32" y="36" font-family="'Noto Serif SC',serif" font-size="13" font-weight="bold" fill="#2c2416" text-anchor="middle">史</text>
+</svg>
+<div class="label">F · 打开的书</div>
+</div>
+
+</div>
+</body>
+</html>
