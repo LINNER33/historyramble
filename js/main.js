@@ -19,10 +19,11 @@ function renderArticles(container, count) {
     container.innerHTML = html;
 }
 
-function renderBooks(container) {
+function renderBooks(container, count) {
     const stars = n => '★'.repeat(n) + '☆'.repeat(5-n);
     let html = '';
-    books.forEach(b => {
+    const list = count ? books.slice(0, count) : books;
+    list.forEach(b => {
         const coverHtml = b.cover
             ? `<img src="${b.cover}" alt="${b.title}">`
             : `<span style="text-align:center;padding:10px;color:#8a7a6a;">暂无<br>封面</span>`;
@@ -38,7 +39,7 @@ function renderBooks(container) {
             </div>
         `;
     });
-    if (!books.length) html = '<div class="empty-state">还没有推荐书目</div>';
+    if (!list.length) html = '<div class="empty-state">还没有推荐书目</div>';
     container.innerHTML = html;
 }
 
