@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>书单 — 史林漫步</title>
+<title>历史人物小传 — 史林漫步</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
@@ -11,8 +11,7 @@
 
 <header>
     <div class="header-inner">
-        <div class="site-title">史林漫步 <small>历史学读书与思考</small></div>
-        <nav>
+        <div class="site-title">史林漫步 <small>历史学读书与思考</small></div>        <nav>
             <a href="index.html">首页</a>
             <a href="articles.html">文章</a>
             <a href="books.html">书单</a>
@@ -20,14 +19,14 @@
             <a href="biographies.html">人物</a>
             <a href="resources.html">资源</a>
             <a href="about.html">关于</a>
-        </nav>
-    </div>
+        </nav>    </div>
 </header>
 
 <main>
     <div class="wrapper">
-        <h2 class="section-title">推荐书单</h2>
-        <div class="book-grid" id="allBooks"></div>
+        <h2 class="section-title">👤 历史人物小传</h2>
+        <p style="margin-bottom:24px;color:#8a7a6a;">那些不被教科书提及的人物，同样值得被记住</p>
+        <div class="bio-list" id="allBiographies"></div>
     </div>
 </main>
 
@@ -39,8 +38,6 @@
 
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
-<script>document.addEventListener('DOMContentLoaded', () => renderBooks(document.getElementById('allBooks')));</script>
+<script>document.addEventListener('DOMContentLoaded', () => renderBiographies(document.getElementById('allBiographies')));</script>
 </body>
 </html>
-
-

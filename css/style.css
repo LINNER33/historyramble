@@ -157,3 +157,41 @@ nav a.active { background: #8b4513; color: #f5f0e8; }
         grid-template-columns: 1fr;
     }
 }
+
+/* ===== 史料拾遗 ===== */
+.snippet-card {
+    background: #fff; border-radius: 6px; padding: 24px 28px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px;
+    border-left: 3px solid #8b4513;
+}
+.snippet-card h3 { font-size: 18px; margin-bottom: 8px; color: #2c2416; }
+.snippet-meta { font-size: 13px; color: #8a7a6a; margin-bottom: 12px; font-family: sans-serif; display: flex; gap: 16px; flex-wrap: wrap; }
+.snippet-source { font-style: italic; }
+.snippet-quote {
+    border-left: 3px solid #c49a3c; margin: 12px 0; padding: 12px 20px;
+    background: #faf6ee; color: #4a3a2a; font-style: italic; line-height: 1.8;
+    font-size: 15px;
+}
+.snippet-commentary { color: #4a3a2a; font-size: 15px; line-height: 1.8; }
+
+/* ===== 人物小传 ===== */
+.bio-card {
+    background: #fff; border-radius: 6px; padding: 24px 28px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px;
+    border-left: 3px solid #8b4513;
+}
+.bio-card h3 { font-size: 18px; margin-bottom: 8px; color: #2c2416; }
+.bio-meta { font-size: 13px; color: #8a7a6a; margin-bottom: 12px; font-family: sans-serif; display: flex; gap: 16px; flex-wrap: wrap; }
+.bio-summary { font-size: 15px; color: #4a3a2a; line-height: 1.8; margin-bottom: 8px; }
+.read-more { font-size: 14px; color: #8b4513; }
+.read-more:hover { color: #a0522d; }
+
+/* ===== 学术资源 ===== */
+.resource-container { display: flex; flex-direction: column; gap: 28px; }
+.resource-group { background: #fff; border-radius: 6px; padding: 24px 28px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.resource-category { font-size: 16px; font-weight: bold; color: #2c2416; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #d4c5a9; }
+.resource-list { display: flex; flex-direction: column; gap: 12px; }
+.resource-item { padding: 8px 0; }
+.resource-name a { font-size: 15px; font-weight: bold; color: #8b4513; }
+.resource-name a:hover { color: #a0522d; text-decoration: underline; }
+.resource-desc { font-size: 14px; color: #4a3a2a; margin-top: 4px; line-height: 1.6; }

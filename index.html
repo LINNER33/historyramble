@@ -16,6 +16,9 @@
             <a href="index.html">首页</a>
             <a href="articles.html">文章</a>
             <a href="books.html">书单</a>
+            <a href="snippets.html">史料</a>
+            <a href="biographies.html">人物</a>
+            <a href="resources.html">资源</a>
             <a href="about.html">关于</a>
         </nav>
     </div>
@@ -37,6 +40,27 @@
             <a href="books.html" style="font-size:14px;color:#8b4513;">查看全部书单 →</a>
         </div>
     </div>
+
+    <!-- 史料拾遗预览 -->
+    <div class="wrapper" style="margin-top:48px;">
+        <h2 class="section-title">📜 史料拾遗</h2>
+        <div id="homeSnippets"></div>
+        <div style="margin-top:12px;"><a href="snippets.html" style="font-size:14px;color:#8b4513;">查看全部史料 →</a></div>
+    </div>
+
+    <!-- 人物小传预览 -->
+    <div class="wrapper" style="margin-top:48px;">
+        <h2 class="section-title">👤 历史人物小传</h2>
+        <div id="homeBiographies"></div>
+        <div style="margin-top:12px;"><a href="biographies.html" style="font-size:14px;color:#8b4513;">查看全部人物 →</a></div>
+    </div>
+
+    <!-- 学术资源预览 -->
+    <div class="wrapper" style="margin-top:48px;">
+        <h2 class="section-title">🔗 学术资源</h2>
+        <div id="homeResources"></div>
+        <div style="margin-top:12px;"><a href="resources.html" style="font-size:14px;color:#8b4513;">查看全部资源 →</a></div>
+    </div>
 </main>
 
 <footer>
@@ -50,8 +74,13 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     renderHomeGrid(document.getElementById('homeGrid'), 5);
+    renderSnippets(document.getElementById('homeSnippets'), 2);
+    renderBiographies(document.getElementById('homeBiographies'), 2);
+    renderResources(document.getElementById('homeResources'));
 });
 </script>
 </body>
 </html>
+
+
 

@@ -88,6 +88,74 @@ function renderHomeGrid(container, count) {
     container.innerHTML = html;
 }
 
+/* ===== 史料拾遗渲染 ===== */
+function renderSnippets(container, count) {
+    let html = '';
+    const list = count ? snippets.slice(0, count) : snippets;
+    list.forEach(s => {
+        html += `
+            <div class="snippet-card">
+                <h3>${s.title}</h3>
+                <div class="snippet-meta">
+                    <span class="snippet-source">📜 ${s.source}</span>
+                    <span>${s.date}</span>
+                    <span>${s.tags.map(t => `<span class="tag">${t}</span>`).join('')}</span>
+                </div>
+                <blockquote class="snippet-quote">${s.excerpt}</blockquote>
+                <p class="snippet-commentary">${s.commentary}</p>
+            </div>
+        `;
+    });
+    if (!list.length) html = '<div class="empty-state">还没有史料</div>';
+    container.innerHTML = html;
+}
+
+/* ===== 人物小传渲染 ===== */
+function renderBiographies(container, count) {
+    let html = '';
+    const list = count ? biographies.slice(0, count) : biographies;
+    list.forEach(b => {
+        html += `
+            <div class="bio-card">
+                <h3>${b.title}</h3>
+                <div class="bio-meta">
+                    <span>${b.period}</span>
+                    <span>${b.tags.map(t => `<span class="tag">${t}</span>`).join('')}</span>
+                </div>
+                <p class="bio-summary">${b.summary}</p>
+                <a href="biographies.html#${b.id}" class="read-more">阅读全文 →</a>
+            </div>
+        `;
+    });
+    if (!list.length) html = '<div class="empty-state">还没有人物小传</div>';
+    container.innerHTML = html;
+}
+
+/* ===== 学术资源渲染 ===== */
+function renderResources(container) {
+    let html = '';
+    resources.forEach(r => {
+        html += `
+            <div class="resource-group">
+                <h3 class="resource-category">${r.category}</h3>
+                <div class="resource-list">
+        `;
+        r.items.forEach(item => {
+            const linkHtml = item.url
+                ? `<a href="${item.url}" target="_blank" rel="noopener">${item.name} ↗</a>`
+                : `<span>${item.name}</span>`;
+            html += `
+                <div class="resource-item">
+                    <div class="resource-name">${linkHtml}</div>
+                    <div class="resource-desc">${item.desc}</div>
+                </div>
+            `;
+        });
+        html += `</div></div>`;
+    });
+    container.innerHTML = html;
+}
+
 // Highlight current page in nav
 document.addEventListener('DOMContentLoaded', () => {
     const page = location.pathname.split('/').pop() || 'index.html';
@@ -95,3 +163,4 @@ document.addEventListener('DOMContentLoaded', () => {
         if (a.getAttribute('href') === page) a.classList.add('active');
     });
 });
+
