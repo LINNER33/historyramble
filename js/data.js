@@ -360,8 +360,27 @@ const downloads = [
         link: "https://drive.google.com/file/d/17UbxDyKt3AVLZVtUMD1ydrzlB6Nj7-cP/view?usp=drive_link",
         category: "书籍",
         date: "2025"
+    },
+    {
+        id: "goguryeo-war-study",
+        title: "高句丽战争史研究",
+        author: "杨军 / 王柏",
+        desc: "聚焦高句丽对外战争史，系统考察了高句丽与中原王朝、百济、新罗、倭国之间的军事冲突与外交博弈。",
+        link: "https://drive.google.com/file/d/1KYxVMXunbQ_P3JOkpvf7Pvi_Tbir0KDV/view?usp=drive_link",
+        category: "书籍",
+        date: "2020"
+    },
+    {
+        id: "china-goguryeo-history",
+        title: "中国高句丽史",
+        author: "耿铁华",
+        desc: "全面论述高句丽民族与政权的历史演变，涵盖高句丽的起源、疆域拓展、制度建设、文化成就及其在东北亚历史中的地位。",
+        link: "https://drive.google.com/file/d/1fI-k9mO3_A-pEiK8oMwugbSWz0dampiC/view?usp=drive_link",
+        category: "书籍",
+        date: "2020"
     }
 ];
+
 
 // ===== 专题研究 =====
 const research = [
