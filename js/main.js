@@ -156,6 +156,26 @@ function renderResources(container) {
     container.innerHTML = html;
 }
 
+/* ===== 专题研究渲染 ===== */
+function renderResearch(container, count) {
+    let html = '';
+    const list = count ? research.slice(0, count) : research;
+    list.forEach(function(r) {
+        html += [
+            '<div class="article-card">',
+            '<h3><a href="research-note.html?id=' + r.id + '">' + r.title + '</a></h3>',
+            '<div class="article-meta">',
+            '<span>' + r.date + '</span>',
+            '<span>' + r.tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join('') + '</span>',
+            '</div>',
+            '<p>' + r.summary + '</p>',
+            '</div>'
+        ].join('\n');
+    });
+    if (!list.length) html = '<div class="empty-state">还没有专题研究</div>';
+    container.innerHTML = html;
+}
+
 // Highlight current page in nav
 document.addEventListener('DOMContentLoaded', () => {
     const page = location.pathname.split('/').pop() || 'index.html';
@@ -163,4 +183,5 @@ document.addEventListener('DOMContentLoaded', () => {
         if (a.getAttribute('href') === page) a.classList.add('active');
     });
 });
+
 

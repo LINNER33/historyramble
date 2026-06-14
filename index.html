@@ -16,6 +16,7 @@
             <a href="index.html">首页</a>
             <a href="articles.html">文章</a>
             <a href="books.html">书单</a>
+            <a href="research.html">专题</a>
             <a href="snippets.html">史料</a>
             <a href="biographies.html">人物</a>
             <a href="resources.html">资源</a>
@@ -55,6 +56,14 @@
         <div style="margin-top:12px;"><a href="biographies.html" style="font-size:14px;color:#8b4513;">查看全部人物 →</a></div>
     </div>
 
+    <!-- 专题研究预览 -->
+    <div class="wrapper" style="margin-top:48px;">
+        <h2 class="section-title">专题研究</h2>
+        <p style="margin-bottom:16px;color:#8a7a6a;font-size:14px;">唐与高句丽战争研究 · 论文写作过程中的史料分析与思路梳理</p>
+        <div id="homeResearch"></div>
+        <div style="margin-top:12px;"><a href="research.html" style="font-size:14px;color:#8b4513;">查看全部专题 →</a></div>
+    </div>
+
     <!-- 学术资源预览 -->
     <div class="wrapper" style="margin-top:48px;">
         <h2 class="section-title">🔗 学术资源</h2>
@@ -76,11 +85,14 @@ document.addEventListener('DOMContentLoaded', () => {
     renderHomeGrid(document.getElementById('homeGrid'), 5);
     renderSnippets(document.getElementById('homeSnippets'), 2);
     renderBiographies(document.getElementById('homeBiographies'), 2);
+    renderResearch(document.getElementById('homeResearch'), 3);
     renderResources(document.getElementById('homeResources'));
 });
 </script>
 </body>
 </html>
+
+
 
 
 

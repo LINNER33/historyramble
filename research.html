@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>文章列表 — 史林漫步</title>
+<title>专题研究 — 史林漫步</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
@@ -27,8 +27,13 @@
 
 <main>
     <div class="wrapper">
-        <h2 class="section-title">全部文章</h2>
-        <div class="article-list" id="allArticles"></div>
+        <h2 class="section-title">专题研究</h2>
+        <p style="margin-bottom:24px;color:#8a7a6a;">论文写作过程中的史料分析、思路梳理与观点讨论</p>
+        <div style="margin-bottom:20px;padding:12px 16px;background:#fff;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,0.06);">
+            <span style="font-size:13px;color:#8a7a6a;">当前专题：</span>
+            <span style="font-size:14px;font-weight:bold;color:#2c2416;">唐与高句丽战争研究</span>
+        </div>
+        <div class="article-list" id="allResearch"></div>
     </div>
 </main>
 
@@ -40,9 +45,10 @@
 
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
-<script>document.addEventListener('DOMContentLoaded', () => renderArticles(document.getElementById('allArticles')));</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    renderResearch(document.getElementById('allResearch'));
+});
+</script>
 </body>
 </html>
-
-
-
