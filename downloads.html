@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>史料拾遗 — 循史漫记</title>
+<title>下载 — 循史漫记</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
@@ -11,7 +11,8 @@
 
 <header>
     <div class="header-inner">
-        <div class="site-title">循史漫记 <small>历史学读书与思考</small></div>                <nav>
+        <div class="site-title">循史漫记 <small>历史学读书与思考</small></div>
+        <nav>
             <a href="index.html">首页</a>
             <a href="articles.html">文章</a>
             <a href="books.html">书单</a>
@@ -21,14 +22,15 @@
             <a href="resources.html">资源</a>
             <a href="downloads.html">下载</a>
             <a href="about.html">关于</a>
-        </nav>    </div>
+        </nav>
+    </div>
 </header>
 
 <main>
     <div class="wrapper">
-        <h2 class="section-title">📜 史料拾遗</h2>
-        <p style="margin-bottom:24px;color:#8a7a6a;">原始史料片段摘录与点评，从细微处触摸历史的温度</p>
-        <div class="snippet-list" id="allSnippets"></div>
+        <h2 class="section-title">⬇ 下载资源</h2>
+        <p style="margin-bottom:24px;color:#8a7a6a;">分享历史学相关的 PDF 书籍与论文，供学习研究使用</p>
+        <div class="download-grid" id="allDownloads"></div>
     </div>
 </main>
 
@@ -40,15 +42,6 @@
 
 <script src="js/data.js"></script>
 <script src="js/main.js"></script>
-<script>document.addEventListener('DOMContentLoaded', () => renderSnippets(document.getElementById('allSnippets')));</script>
+<script>document.addEventListener('DOMContentLoaded', () => renderDownloads(document.getElementById('allDownloads')));</script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-

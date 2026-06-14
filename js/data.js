@@ -349,6 +349,20 @@ const resources = [
 
 
 
+
+// ===== 下载资源 =====
+const downloads = [
+    {
+        id: "goguryeo-history",
+        title: "高句丽史",
+        author: "孙玉良 / 刘炬",
+        desc: "本书系统梳理了高句丽从建国到灭亡七百余年的历史进程，涵盖政治制度、军事外交、社会经济、文化宗教等方面，是研究高句丽史的重要参考著作。",
+        link: "https://drive.google.com/file/d/17UbxDyKt3AVLZVtUMD1ydrzlB6Nj7-cP/view?usp=drive_link",
+        category: "书籍",
+        date: "2025"
+    }
+];
+
 // ===== 专题研究 =====
 const research = [
     {

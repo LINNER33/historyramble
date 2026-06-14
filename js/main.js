@@ -176,6 +176,32 @@ function renderResearch(container, count) {
     container.innerHTML = html;
 }
 
+
+/* ===== 下载资源渲染 ===== */
+function renderDownloads(container, count) {
+    var html = '';
+    var list = count ? downloads.slice(0, count) : downloads;
+    list.forEach(function(d) {
+        var icon = d.category === "书籍" ? "\u{1F4D6}" : "\u{1F4C4}";
+        html += [
+            '<div class="download-card">',
+            '<div class="download-icon">' + icon + '</div>',
+            '<div class="download-info">',
+            '<h4>' + d.title + '</h4>',
+            '<div class="download-meta">',
+            '<span class="download-author">' + d.author + '</span>',
+            '<span class="download-category">' + d.category + '</span>',
+            '</div>',
+            '<p class="download-desc">' + d.desc + '</p>',
+            '<a class="download-btn" href="' + d.link + '" target="_blank" rel="noopener">前往下载 →</a>',
+            '</div>',
+            '</div>'
+        ].join('');
+    });
+    if (!list.length) html = '<div class="empty-state">还没有可下载的资源</div>';
+    container.innerHTML = html;
+}
+
 // Highlight current page in nav
 document.addEventListener('DOMContentLoaded', () => {
     const page = location.pathname.split('/').pop() || 'index.html';
@@ -183,5 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (a.getAttribute('href') === page) a.classList.add('active');
     });
 });
+
+
+
 
 
