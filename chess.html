@@ -1,0 +1,622 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中国象棋</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    min-height: 100vh;
+    background: #263238;
+    color: #2a1b0a;
+    font-family: "Microsoft YaHei", "SimSun", sans-serif;
+    user-select: none;
+}
+.app {
+    width: min(96vw, 1060px);
+    display: grid;
+    grid-template-columns: minmax(330px, 680px) 300px;
+    gap: 18px;
+    align-items: start;
+    padding: 18px;
+}
+.board-shell {
+    background: #7a451e;
+    border: 6px solid #4d2a13;
+    border-radius: 8px;
+    box-shadow: 0 16px 40px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.1);
+    padding: 18px;
+    aspect-ratio: 9 / 10;
+    max-height: calc(100vh - 36px);
+}
+.board {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    background: #d9a456;
+    border: 2px solid #5b3517;
+    overflow: hidden;
+}
+.canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+.piece {
+    position: absolute;
+    width: calc(100% / 9 * .82);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: clamp(22px, 4.5vw, 42px);
+    font-weight: 800;
+    font-family: "KaiTi", "STKaiti", "SimSun", serif;
+    background: radial-gradient(circle at 35% 28%, #fff3cf 0 12%, #ead197 52%, #b17836 100%);
+    border: 3px solid #6b3b14;
+    box-shadow: 0 4px 7px rgba(0,0,0,.28), inset 0 2px 3px rgba(255,255,255,.55);
+    cursor: pointer;
+    transition: box-shadow .12s, transform .12s;
+    z-index: 3;
+}
+.piece.red { color: #b71922; border-color: #7d1619; }
+.piece.black { color: #111; }
+.piece.selected {
+    box-shadow: 0 0 0 4px #f3d35c, 0 5px 10px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.6);
+    transform: translate(-50%, -50%) scale(1.06);
+}
+.point {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    background: rgba(43, 112, 58, .34);
+    border: 2px solid rgba(34, 83, 44, .65);
+    z-index: 2;
+    cursor: pointer;
+}
+.point.capture {
+    background: rgba(187, 43, 39, .28);
+    border-color: rgba(147, 21, 18, .72);
+}
+.side-panel {
+    background: #f2dfbd;
+    border: 3px solid #7a451e;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 12px 32px rgba(0,0,0,.25);
+}
+.side-panel h1 {
+    font-size: 24px;
+    color: #5b2c14;
+    margin-bottom: 12px;
+    letter-spacing: 2px;
+}
+.status {
+    background: #fff8e8;
+    border: 1px solid #d4b47d;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 12px;
+    min-height: 70px;
+    line-height: 1.6;
+}
+.turn { font-weight: 700; font-size: 18px; }
+.turn.red { color: #b71922; }
+.turn.black { color: #111; }
+.alert { color: #b71922; font-weight: 700; }
+.controls {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+button {
+    height: 38px;
+    border: 0;
+    border-radius: 6px;
+    background: #7a451e;
+    color: #fff8e8;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+button:hover { background: #5b2c14; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+.legend {
+    font-size: 13px;
+    color: #5f4a32;
+    line-height: 1.7;
+    padding: 10px 0 0;
+    border-top: 1px solid #d4b47d;
+}
+.moves {
+    margin-top: 12px;
+    max-height: 210px;
+    overflow: auto;
+    background: #fff8e8;
+    border: 1px solid #d4b47d;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    line-height: 1.7;
+}
+.move-line { color: #5f4a32; }
+@media (max-width: 850px) {
+    body { align-items: start; }
+    .app { grid-template-columns: 1fr; padding: 10px; }
+    .board-shell { padding: 10px; max-height: none; }
+    .side-panel { order: -1; }
+}
+</style>
+</head>
+<body>
+<header>
+    <div class="header-inner">
+        <div class="site-title">循史漫记 <small>历史学读书与思考</small></div>
+        <nav>
+            <a href="index.html">首页</a>
+            <a href="articles.html">文章</a>
+            <a href="books.html">书单</a>
+            <a href="research.html">专题</a>
+            <a href="snippets.html">史料</a>
+            <a href="biographies.html">人物</a>
+            <a href="resources.html">资源</a>
+            <a href="downloads.html">下载</a>
+            <div class="nav-dropdown">
+                <a href="javascript:void(0)" class="dropbtn">闲暇</a>
+                <div class="dropdown-content">
+                    <a href="chess.html">中国象棋</a>
+                </div>
+            </div>
+            <a href="about.html">关于</a>
+        </nav>
+    </div>
+</header>
+
+<div class="wrapper" style="padding-top:80px;">
+<div class="app">
+    <div class="board-shell">
+        <div class="board" id="board">
+            <canvas class="canvas" id="grid"></canvas>
+            <div id="points"></div>
+            <div id="pieces"></div>
+        </div>
+    </div>
+    <aside class="side-panel">
+        <h1>中国象棋</h1>
+        <div class="status" id="status"></div>
+        <div class="controls">
+            <button id="undoBtn">悔棋</button>
+            <button id="restartBtn">重新开始</button>
+        </div>
+        <div class="legend">
+            你执红先行，电脑执黑。点击棋子后再点落点即可走棋。支持车、马、炮、相、仕、帅、兵全部基本规则，并会阻止走出被将军的棋。
+        </div>
+        <div class="moves" id="moves"></div>
+    </aside>
+</div>
+<script>
+const boardEl = document.getElementById('board');
+const canvas = document.getElementById('grid');
+const ctx = canvas.getContext('2d');
+const piecesEl = document.getElementById('pieces');
+const pointsEl = document.getElementById('points');
+const statusEl = document.getElementById('status');
+const movesEl = document.getElementById('moves');
+const undoBtn = document.getElementById('undoBtn');
+const restartBtn = document.getElementById('restartBtn');
+
+const FILES = 9;
+const RANKS = 10;
+const names = {
+    red: { K: '帅', A: '仕', B: '相', N: '马', R: '车', C: '炮', P: '兵' },
+    black: { K: '将', A: '士', B: '象', N: '马', R: '车', C: '炮', P: '卒' }
+};
+let board = [];
+let pieces = [];
+let turn = 'red';
+let selected = null;
+let legalTargets = [];
+let history = [];
+let gameOver = false;
+let aiThinking = false;
+const humanSide = 'red';
+const aiSide = 'black';
+
+function initialPieces() {
+    return [
+        p('black','R',0,0), p('black','N',1,0), p('black','B',2,0), p('black','A',3,0), p('black','K',4,0), p('black','A',5,0), p('black','B',6,0), p('black','N',7,0), p('black','R',8,0),
+        p('black','C',1,2), p('black','C',7,2),
+        p('black','P',0,3), p('black','P',2,3), p('black','P',4,3), p('black','P',6,3), p('black','P',8,3),
+        p('red','R',0,9), p('red','N',1,9), p('red','B',2,9), p('red','A',3,9), p('red','K',4,9), p('red','A',5,9), p('red','B',6,9), p('red','N',7,9), p('red','R',8,9),
+        p('red','C',1,7), p('red','C',7,7),
+        p('red','P',0,6), p('red','P',2,6), p('red','P',4,6), p('red','P',6,6), p('red','P',8,6)
+    ];
+}
+function p(side, type, x, y) { return { id: side + type + x + y + Math.random().toString(36).slice(2,6), side, type, x, y }; }
+function other(side) { return side === 'red' ? 'black' : 'red'; }
+function inBoard(x,y) { return x >= 0 && x < 9 && y >= 0 && y < 10; }
+function inPalace(side, x, y) { return x >= 3 && x <= 5 && (side === 'red' ? y >= 7 && y <= 9 : y >= 0 && y <= 2); }
+function crossedRiver(side, y) { return side === 'red' ? y <= 4 : y >= 5; }
+function getPiece(x,y) { return board[y]?.[x] || null; }
+function rebuildBoard() {
+    board = Array.from({ length: 10 }, () => Array(9).fill(null));
+    pieces.forEach(pc => board[pc.y][pc.x] = pc);
+}
+function cloneState() { return JSON.stringify({ pieces, turn, gameOver }); }
+function restoreState(state) {
+    const parsed = JSON.parse(state);
+    pieces = parsed.pieces;
+    turn = parsed.turn;
+    gameOver = parsed.gameOver;
+    aiThinking = false;
+    selected = null;
+    legalTargets = [];
+    rebuildBoard();
+    render();
+}
+
+function reset() {
+    pieces = initialPieces();
+    turn = 'red';
+    selected = null;
+    legalTargets = [];
+    history = [];
+    gameOver = false;
+    aiThinking = false;
+    rebuildBoard();
+    render();
+}
+
+function drawGrid() {
+    const rect = boardEl.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.round(rect.width * dpr);
+    canvas.height = Math.round(rect.height * dpr);
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = rect.height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, rect.width, rect.height);
+    const { ox, oy, gap } = metrics();
+    ctx.strokeStyle = '#5b3517';
+    ctx.lineWidth = Math.max(1.5, gap * .018);
+    ctx.lineCap = 'round';
+
+    for (let x = 0; x < 9; x++) {
+        ctx.beginPath();
+        ctx.moveTo(ox + x * gap, oy);
+        if (x === 0 || x === 8) ctx.lineTo(ox + x * gap, oy + 9 * gap);
+        else {
+            ctx.lineTo(ox + x * gap, oy + 4 * gap);
+            ctx.moveTo(ox + x * gap, oy + 5 * gap);
+            ctx.lineTo(ox + x * gap, oy + 9 * gap);
+        }
+        ctx.stroke();
+    }
+    for (let y = 0; y < 10; y++) {
+        ctx.beginPath();
+        ctx.moveTo(ox, oy + y * gap);
+        ctx.lineTo(ox + 8 * gap, oy + y * gap);
+        ctx.stroke();
+    }
+    drawPalace(ox, oy, gap, 0);
+    drawPalace(ox, oy, gap, 7);
+    ctx.font = `${Math.floor(gap * .42)}px KaiTi, SimSun, serif`;
+    ctx.fillStyle = 'rgba(91,53,23,.55)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('楚 河', ox + 2.1 * gap, oy + 4.5 * gap);
+    ctx.fillText('汉 界', ox + 5.9 * gap, oy + 4.5 * gap);
+    drawStarPoints(ox, oy, gap);
+}
+function drawPalace(ox, oy, gap, topY) {
+    ctx.beginPath(); ctx.moveTo(ox + 3*gap, oy + topY*gap); ctx.lineTo(ox + 5*gap, oy + (topY+2)*gap); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(ox + 5*gap, oy + topY*gap); ctx.lineTo(ox + 3*gap, oy + (topY+2)*gap); ctx.stroke();
+}
+function drawStarPoints(ox, oy, gap) {
+    const pts = [[1,2],[7,2],[0,3],[2,3],[4,3],[6,3],[8,3],[1,7],[7,7],[0,6],[2,6],[4,6],[6,6],[8,6]];
+    ctx.strokeStyle = '#5b3517';
+    ctx.lineWidth = 1;
+    pts.forEach(([x,y]) => {
+        const px = ox + x*gap, py = oy + y*gap, s = gap * .1, m = gap * .05;
+        [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(([sx,sy]) => {
+            if ((x === 0 && sx < 0) || (x === 8 && sx > 0)) return;
+            ctx.beginPath();
+            ctx.moveTo(px + sx*m, py + sy*s);
+            ctx.lineTo(px + sx*s, py + sy*s);
+            ctx.lineTo(px + sx*s, py + sy*m);
+            ctx.stroke();
+        });
+    });
+}
+function metrics() {
+    const rect = boardEl.getBoundingClientRect();
+    const gap = Math.min(rect.width / 9.7, rect.height / 10.7);
+    return { gap, ox: (rect.width - gap * 8) / 2, oy: (rect.height - gap * 9) / 2 };
+}
+function posToCss(x,y) {
+    const { ox, oy, gap } = metrics();
+    return { left: ox + x * gap, top: oy + y * gap };
+}
+
+function render() {
+    drawGrid();
+    piecesEl.innerHTML = '';
+    pointsEl.innerHTML = '';
+    const legalSet = new Set(legalTargets.map(t => t.x + ',' + t.y));
+    pieces.forEach(pc => {
+        const el = document.createElement('div');
+        el.className = `piece ${pc.side}` + (selected?.id === pc.id ? ' selected' : '');
+        el.textContent = names[pc.side][pc.type];
+        const pos = posToCss(pc.x, pc.y);
+        el.style.left = pos.left + 'px';
+        el.style.top = pos.top + 'px';
+        el.addEventListener('click', e => { e.stopPropagation(); clickPiece(pc); });
+        piecesEl.appendChild(el);
+    });
+    legalTargets.forEach(t => {
+        const el = document.createElement('div');
+        el.className = 'point' + (getPiece(t.x,t.y) ? ' capture' : '');
+        const pos = posToCss(t.x, t.y);
+        el.style.left = pos.left + 'px';
+        el.style.top = pos.top + 'px';
+        el.addEventListener('click', e => { e.stopPropagation(); moveSelected(t.x, t.y); });
+        pointsEl.appendChild(el);
+    });
+    renderStatus();
+    undoBtn.disabled = history.length === 0;
+}
+function renderStatus() {
+    const sideName = turn === 'red' ? '红方' : '黑方';
+    const check = isInCheck(turn);
+    let html = `<div>当前回合：<span class="turn ${turn}">${sideName}</span></div>`;
+    if (gameOver) html = `<div class="alert">${sideName}无合法着法，${other(turn) === 'red' ? '红方' : '黑方'}获胜。</div>`;
+    else if (aiThinking) html += `<div>电脑正在思考...</div>`;
+    else if (check) html += `<div class="alert">将军！</div>`;
+    else if (turn === humanSide) html += `<div>请选择红方棋子。</div>`;
+    else html += `<div>电脑回合。</div>`;
+    statusEl.innerHTML = html;
+    movesEl.innerHTML = history.slice(-12).map((h, idx) => `<div class="move-line">${history.length - Math.min(history.length,12) + idx + 1}. ${h.note}</div>`).join('') || '<div class="move-line">暂无走棋记录</div>';
+}
+
+function clickPiece(pc) {
+    if (gameOver || aiThinking || turn !== humanSide) return;
+    if (pc.side === turn) {
+        selected = pc;
+        legalTargets = legalMoves(pc, true);
+        render();
+        return;
+    }
+    if (selected && legalTargets.some(t => t.x === pc.x && t.y === pc.y)) moveSelected(pc.x, pc.y);
+}
+boardEl.addEventListener('click', e => {
+    if (!selected || gameOver || aiThinking || turn !== humanSide) return;
+    const rect = boardEl.getBoundingClientRect();
+    const { ox, oy, gap } = metrics();
+    const x = Math.round((e.clientX - rect.left - ox) / gap);
+    const y = Math.round((e.clientY - rect.top - oy) / gap);
+    if (legalTargets.some(t => t.x === x && t.y === y)) moveSelected(x,y);
+    else { selected = null; legalTargets = []; render(); }
+});
+function moveSelected(x,y) {
+    const pc = selected;
+    if (!pc) return;
+    performMove(pc, x, y, false);
+}
+function performMove(pc, x, y, isAi) {
+    const target = getPiece(x,y);
+    const before = cloneState();
+    const from = { x: pc.x, y: pc.y };
+    if (target) pieces = pieces.filter(item => item.id !== target.id);
+    pc.x = x; pc.y = y;
+    turn = other(turn);
+    selected = null;
+    legalTargets = [];
+    rebuildBoard();
+    const prefix = isAi ? '电脑' : (pc.side === 'red' ? '红' : '黑');
+    history.push({ state: before, note: `${prefix}${names[pc.side][pc.type]} ${coord(from)} → ${coord({x,y})}${target ? ' 吃' + names[target.side][target.type] : ''}` });
+    if (!hasAnyLegalMove(turn)) gameOver = true;
+    render();
+    if (!gameOver && turn === aiSide) scheduleAiMove();
+}
+function coord(pos) { return `${pos.x + 1},${pos.y + 1}`; }
+
+const pieceValue = { K: 10000, R: 520, C: 360, N: 300, B: 150, A: 150, P: 80 };
+function scheduleAiMove() {
+    aiThinking = true;
+    selected = null;
+    legalTargets = [];
+    render();
+    setTimeout(makeAiMove, 450);
+}
+function makeAiMove() {
+    if (gameOver || turn !== aiSide) {
+        aiThinking = false;
+        render();
+        return;
+    }
+    const move = chooseAiMove();
+    aiThinking = false;
+    if (!move) {
+        gameOver = true;
+        render();
+        return;
+    }
+    performMove(move.piece, move.x, move.y, true);
+}
+function chooseAiMove() {
+    const candidates = [];
+    pieces.filter(pc => pc.side === aiSide).forEach(pc => {
+        legalMoves(pc, true).forEach(m => candidates.push({ piece: pc, x: m.x, y: m.y, score: evaluateMove(pc, m.x, m.y) }));
+    });
+    if (!candidates.length) return null;
+    candidates.sort((a,b) => b.score - a.score);
+    const bestScore = candidates[0].score;
+    const best = candidates.filter(m => m.score >= bestScore - 18);
+    return best[Math.floor(Math.random() * best.length)];
+}
+function evaluateMove(pc, x, y) {
+    const target = getPiece(x,y);
+    let score = Math.random() * 8;
+    if (target) score += pieceValue[target.type] - pieceValue[pc.type] * 0.08;
+    const oldX = pc.x, oldY = pc.y;
+    const captured = target;
+    if (captured) pieces = pieces.filter(p => p.id !== captured.id);
+    pc.x = x;
+    pc.y = y;
+    rebuildBoard();
+    if (isInCheck(humanSide)) score += 90;
+    score += positionScore(pc);
+    if (isSquareAttackedBy(humanSide, x, y)) score -= pieceValue[pc.type] * 0.45;
+    pc.x = oldX;
+    pc.y = oldY;
+    if (captured) pieces.push(captured);
+    rebuildBoard();
+    return score;
+}
+function positionScore(pc) {
+    if (pc.type === 'P') return pc.side === 'black' ? pc.y * 8 : (9 - pc.y) * 8;
+    if (pc.type === 'N' || pc.type === 'C') return 18 - (Math.abs(pc.x - 4) + Math.abs(pc.y - 5)) * 3;
+    if (pc.type === 'R') return 10 - Math.abs(pc.x - 4);
+    return 0;
+}
+function isSquareAttackedBy(side, x, y) {
+    return pieces.some(pc => pc.side === side && pseudoMoves(pc).some(m => m.x === x && m.y === y));
+}
+
+function legalMoves(pc, filterCheck) {
+    let moves = pseudoMoves(pc);
+    if (!filterCheck) return moves;
+    return moves.filter(m => !wouldBeInCheck(pc, m.x, m.y));
+}
+function pseudoMoves(pc) {
+    const moves = [];
+    const push = (x,y) => { if (!inBoard(x,y)) return; const t = getPiece(x,y); if (!t || t.side !== pc.side) moves.push({x,y}); };
+    const emptyOrEnemy = (x,y) => inBoard(x,y) && (!getPiece(x,y) || getPiece(x,y).side !== pc.side);
+    if (pc.type === 'R') {
+        [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy]) => {
+            let x = pc.x + dx, y = pc.y + dy;
+            while (inBoard(x,y)) {
+                const t = getPiece(x,y);
+                if (!t) moves.push({x,y});
+                else { if (t.side !== pc.side) moves.push({x,y}); break; }
+                x += dx; y += dy;
+            }
+        });
+    }
+    if (pc.type === 'C') {
+        [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy]) => {
+            let x = pc.x + dx, y = pc.y + dy, screen = false;
+            while (inBoard(x,y)) {
+                const t = getPiece(x,y);
+                if (!screen) {
+                    if (!t) moves.push({x,y}); else screen = true;
+                } else if (t) {
+                    if (t.side !== pc.side) moves.push({x,y});
+                    break;
+                }
+                x += dx; y += dy;
+            }
+        });
+    }
+    if (pc.type === 'N') {
+        const opts = [
+            [2,1,1,0],[2,-1,1,0],[-2,1,-1,0],[-2,-1,-1,0],
+            [1,2,0,1],[-1,2,0,1],[1,-2,0,-1],[-1,-2,0,-1]
+        ];
+        opts.forEach(([dx,dy,lx,ly]) => { if (!getPiece(pc.x+lx, pc.y+ly)) push(pc.x+dx, pc.y+dy); });
+    }
+    if (pc.type === 'B') {
+        [[2,2],[2,-2],[-2,2],[-2,-2]].forEach(([dx,dy]) => {
+            const x = pc.x + dx, y = pc.y + dy;
+            const eye = getPiece(pc.x + dx/2, pc.y + dy/2);
+            const ownSide = pc.side === 'red' ? y >= 5 : y <= 4;
+            if (!eye && ownSide) push(x,y);
+        });
+    }
+    if (pc.type === 'A') {
+        [[1,1],[1,-1],[-1,1],[-1,-1]].forEach(([dx,dy]) => {
+            const x = pc.x + dx, y = pc.y + dy;
+            if (inPalace(pc.side, x, y)) push(x,y);
+        });
+    }
+    if (pc.type === 'K') {
+        [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy]) => {
+            const x = pc.x + dx, y = pc.y + dy;
+            if (inPalace(pc.side, x, y)) push(x,y);
+        });
+        const enemyK = pieces.find(p => p.side !== pc.side && p.type === 'K');
+        if (enemyK && enemyK.x === pc.x && clearBetween(pc.x, pc.y, enemyK.y)) push(enemyK.x, enemyK.y);
+    }
+    if (pc.type === 'P') {
+        const forward = pc.side === 'red' ? -1 : 1;
+        push(pc.x, pc.y + forward);
+        if (crossedRiver(pc.side, pc.y)) {
+            push(pc.x + 1, pc.y);
+            push(pc.x - 1, pc.y);
+        }
+    }
+    return moves.filter(m => emptyOrEnemy(m.x,m.y));
+}
+function clearBetween(x, y1, y2) {
+    const min = Math.min(y1,y2), max = Math.max(y1,y2);
+    for (let y = min + 1; y < max; y++) if (getPiece(x,y)) return false;
+    return true;
+}
+function wouldBeInCheck(pc, x, y) {
+    const oldX = pc.x, oldY = pc.y;
+    const captured = getPiece(x,y);
+    if (captured) pieces = pieces.filter(p => p.id !== captured.id);
+    pc.x = x; pc.y = y; rebuildBoard();
+    const result = isInCheck(pc.side);
+    pc.x = oldX; pc.y = oldY;
+    if (captured) pieces.push(captured);
+    rebuildBoard();
+    return result;
+}
+function isInCheck(side) {
+    const king = pieces.find(p => p.side === side && p.type === 'K');
+    if (!king) return true;
+    return pieces.some(pc => pc.side !== side && pseudoMoves(pc).some(m => m.x === king.x && m.y === king.y));
+}
+function hasAnyLegalMove(side) {
+    return pieces.some(pc => pc.side === side && legalMoves(pc, true).length > 0);
+}
+
+undoBtn.addEventListener('click', () => {
+    if (aiThinking) return;
+    let item = history.pop();
+    if (item && item.note.startsWith('电脑')) item = history.pop();
+    if (item) restoreState(item.state);
+});
+restartBtn.addEventListener('click', reset);
+window.addEventListener('resize', render);
+if (!CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
+        this.beginPath();
+        this.moveTo(x + r, y);
+        this.arcTo(x + w, y, x + w, y + h, r);
+        this.arcTo(x + w, y + h, x, y + h, r);
+        this.arcTo(x, y + h, x, y, r);
+        this.arcTo(x, y, x + w, y, r);
+        this.closePath();
+        return this;
+    };
+}
+reset();
+</script>
+
+<footer>
+    <div class="wrapper">
+        <p>© 2026 循史漫记 · Powered by pure static web</p>
+    </div>
+</footer>
+
+</body>
+</html>

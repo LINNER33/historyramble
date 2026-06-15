@@ -235,3 +235,20 @@ nav a.active { background: #8b4513; color: #f5f0e8; }
 
 /* Homepage section spacing */
 #homeResearch, #homeDownloads, #homeResources { display: flex; flex-direction: column; gap: 20px; }
+
+/* ===== 导航下拉菜单 ===== */
+.nav-dropdown { position: relative; display: inline-block; }
+.nav-dropdown .dropbtn { cursor: pointer; }
+.dropdown-content {
+    display: none;
+    position: absolute; top: 100%; left: 0; z-index: 100;
+    background: #3a2a1a; min-width: 120px;
+    border-radius: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    padding: 4px 0;
+}
+.dropdown-content a {
+    display: block; padding: 8px 16px; color: #d4c5a9;
+    font-size: 14px; white-space: nowrap;
+}
+.dropdown-content a:hover { background: #8b4513; color: #f5f0e8; }
+.nav-dropdown:hover .dropdown-content { display: block; }
