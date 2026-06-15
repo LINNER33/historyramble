@@ -252,3 +252,11 @@ nav a.active { background: #8b4513; color: #f5f0e8; }
 }
 .dropdown-content a:hover { background: #8b4513; color: #f5f0e8; }
 .nav-dropdown:hover .dropdown-content { display: block; }
+
+/* Fix dropdown alignment with nav links */
+.nav-dropdown .dropbtn {
+    color: #d4c5a9; padding: 6px 16px; border-radius: 4px;
+    font-size: 14px; transition: background 0.2s, color 0.2s;
+    display: inline-block; text-decoration: none;
+}
+.nav-dropdown .dropbtn:hover { background: #8b4513; color: #f5f0e8; }
