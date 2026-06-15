@@ -4,15 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>中国象棋</title>
+<link rel="stylesheet" href="css/style.css">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-    min-height: 100vh;
-    background: #263238;
-    color: #2a1b0a;
-    font-family: "Microsoft YaHei", "SimSun", sans-serif;
-    user-select: none;
-}
 .app {
     width: min(96vw, 1060px);
     display: grid;
@@ -179,7 +172,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     </div>
 </header>
 
-<div class="wrapper" style="padding-top:80px;display:flex;justify-content:center;">
+<div class="wrapper" style="padding-top:80px;display:flex;justify-content:center;width:100%;">
 <div class="app">
     <div class="board-shell">
         <div class="board" id="board">
