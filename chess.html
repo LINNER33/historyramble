@@ -6,6 +6,7 @@
 <title>中国象棋</title>
 <link rel="stylesheet" href="css/style.css">
 <style>
+body { user-select: none; }
 .app {
     width: min(96vw, 1060px);
     display: grid;
@@ -21,7 +22,8 @@
     box-shadow: 0 16px 40px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.1);
     padding: 18px;
     aspect-ratio: 9 / 10;
-    max-height: calc(100vh - 36px);
+    width: 100%;
+    max-width: 680px;
 }
 .board {
     position: relative;
