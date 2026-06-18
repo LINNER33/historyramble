@@ -527,32 +527,13 @@ const downloads = [
         category: "书籍",
         date: "2020"
     },
-,
     {
-        id: "china-historical-atlas",
-        title: "中国历史地图集 (全八册)",
-        author: "谭其骧 主编",
-        desc: "“谭其骧先生主持编纂的中国历史地图集，是中国历史地理学的里程碑式成果。全书八册，上起原始社会下至清代，以地图形式呈现了中国历代疆域变迁和政区沿革。”",
-        link: "https://drive.google.com/file/d/example1/view",
-        category: "“工具书”",
-        date: "2026"
-    },
-    {
-        id: "zizhi-tongjian",
-        title: "资治通鉴 (全二十册)",
-        author: "司马光 编著",
-        desc: "“北宋司马光主持编纂的编年体通史巨著，上起周威烈王二十三年（前403年），下至后周世宗显德六年（959年），涵盖十六朝一千三百六十二年的历史。”",
-        link: "https://drive.google.com/file/d/example2/view",
-        category: "“古籍”",
-        date: "2026"
-    },
-    {
-        id: "china-admin-divisions",
-        title: "中国历代行政区划变迁",
-        author: "周振鹤 主编",
-        desc: "“周振鹤主编的丛书系统梳理了中国从先秦到民国时期行政区划制度的演变历程，是理解中国制度史的重要参考。”",
-        link: "https://drive.google.com/file/d/example3/view",
-        category: "“工具书”",
+        id: "new-history-resource-2026",
+        title: "新增历史资源",
+        author: "待补充",
+        desc: "新增的历史类下载资源。",
+        link: "https://drive.google.com/file/d/10OR__A7XnyU446bvia2pekqb60qFtDuN/view?usp=drive_link",
+        category: "书籍",
         date: "2026"
     }
 ];
