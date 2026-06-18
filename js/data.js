@@ -531,7 +531,7 @@ const downloads = [
         id: "sui-tang-sea-power-east-asia",
         title: "隋唐海上力量與東亞周邊關係",
         author: "張曉東",
-        desc: "2021年，新北：花木蘭文化事業有限公司。本書以隋唐東征與唐新戰爭為中心，考察隋唐時期海上軍事力量在東北亞地緣政治、朝鮮半島戰局與周邊外交中的戰略作用，並兼論新羅海上力量、張保皋海洋經略與東方海上絲綢之路和平秩序的形成。",
+        desc: "本書以隋唐東征與唐新戰爭為中心，考察隋唐時期海上軍事力量在東北亞地緣政治、朝鮮半島戰局與周邊外交中的戰略作用，並兼論新羅海上力量、張保皋海洋經略與東方海上絲綢之路和平秩序的形成。",
         link: "https://drive.google.com/file/d/10OR__A7XnyU446bvia2pekqb60qFtDuN/view?usp=drive_link",
         category: "书籍",
         date: "2021"
@@ -640,3 +640,4 @@ const author = {
     bio: "研究方向为中国史学史、历史理论。读书、思考、写作，相信历史的意义不在于复述过去，而在于帮助我们在当下更好地理解自己。",
     email: "yourname@example.com"
 };
+
