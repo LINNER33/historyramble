@@ -50,7 +50,7 @@ function renderHomeGrid(container, count) {
     let html = '';
     const sortedByDate = [...articles].sort((a,b) => b.date.localeCompare(a.date));
     const articleList = count ? sortedByDate.slice(0, count) : sortedByDate;
-    const bookList = count ? books.slice(0, count) : books;
+    const bookList = count ? [...books].reverse().slice(0, count) : [...books].reverse();
     const maxLen = Math.max(articleList.length, bookList.length);
     for (let i = 0; i < maxLen; i++) {
         html += '<div class="home-row">';
