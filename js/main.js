@@ -1,7 +1,8 @@
 ﻿/* ===== Site navigation & routing ===== */
 function renderArticles(container, count) {
     let html = '';
-    const list = count ? articles.slice(0, count) : articles;
+    const sortedByDate = [...articles].sort((a,b) => b.date.localeCompare(a.date));
+    const list = count ? sortedByDate.slice(0, count) : sortedByDate;
     list.forEach(a => {
         html += `
             <div class="article-card">
@@ -47,7 +48,8 @@ function renderBooks(container, count) {
 function renderHomeGrid(container, count) {
     const stars = n => '★'.repeat(n) + '☆'.repeat(5-n);
     let html = '';
-    const articleList = count ? articles.slice(0, count) : articles;
+    const sortedByDate = [...articles].sort((a,b) => b.date.localeCompare(a.date));
+    const articleList = count ? sortedByDate.slice(0, count) : sortedByDate;
     const bookList = count ? books.slice(0, count) : books;
     const maxLen = Math.max(articleList.length, bookList.length);
     for (let i = 0; i < maxLen; i++) {
