@@ -23,7 +23,8 @@ function renderArticles(container, count) {
 function renderBooks(container, count) {
     const stars = n => '★'.repeat(n) + '☆'.repeat(5-n);
     let html = '';
-    const list = count ? books.slice(0, count) : books;
+    const sortedByNew = [...books].reverse();
+    const list = count ? sortedByNew.slice(0, count) : sortedByNew;
     list.forEach(b => {
         const coverHtml = b.cover
             ? `<img src="${b.cover}" alt="${b.title}">`
@@ -93,7 +94,8 @@ function renderHomeGrid(container, count) {
 /* ===== 史料拾遗渲染 ===== */
 function renderSnippets(container, count) {
     let html = '';
-    const list = count ? snippets.slice(0, count) : snippets;
+    const sortedByDate = [...snippets].sort((a,b) => b.date.localeCompare(a.date));
+    const list = count ? sortedByDate.slice(0, count) : sortedByDate;
     list.forEach(s => {
         html += `
             <div class="snippet-card">
@@ -115,7 +117,8 @@ function renderSnippets(container, count) {
 /* ===== 人物小传渲染 ===== */
 function renderBiographies(container, count) {
     let html = '';
-    const list = count ? biographies.slice(0, count) : biographies;
+    const sortedByNew = [...biographies].reverse();
+    const list = count ? sortedByNew.slice(0, count) : sortedByNew;
     list.forEach(b => {
         html += `
             <div class="bio-card">
@@ -161,7 +164,8 @@ function renderResources(container) {
 /* ===== 专题研究渲染 ===== */
 function renderResearch(container, count) {
     let html = '';
-    const list = count ? research.slice(0, count) : research;
+    const sortedByDate = [...research].sort((a,b) => b.date.localeCompare(a.date));
+    const list = count ? sortedByDate.slice(0, count) : sortedByDate;
     list.forEach(function(r) {
         html += [
             '<div class="article-card">',
@@ -182,7 +186,8 @@ function renderResearch(container, count) {
 /* ===== 下载资源渲染 ===== */
 function renderDownloads(container, count) {
     var html = '';
-    var list = count ? downloads.slice(0, count) : downloads;
+    var sortedByNew = downloads.slice().reverse();
+    var list = count ? sortedByNew.slice(0, count) : sortedByNew;
     list.forEach(function(d) {
         var icon = d.category === "书籍" ? "\u{1F4D6}" : "\u{1F4C4}";
         html += [
