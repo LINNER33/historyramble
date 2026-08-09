@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitle">史料 — 循史漫记</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="site-title">循史漫记 <small>历史学读书与思考</small></div>
+                <nav>
+            <a href="index.html">首页</a>
+            <a href="articles.html">文章</a>
+            <a href="books.html">书单</a>
+            <a href="research.html">专题</a>
+            <a href="snippets.html">史料</a>
+            <a href="biographies.html">人物</a>
+            <a href="resources.html">资源</a>
+            <a href="downloads.html">下载</a>
+            <div class="nav-dropdown">
+                <a href="javascript:void(0)" class="dropbtn">闲暇</a>
+                <div class="dropdown-content">
+                    <a href="chess.html">中国象棋</a>
+                </div>
+            </div>
+            <a href="about.html">关于</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="wrapper">
+        <div class="article-page" id="snippetContent">
+            <p style="color:#8a7a6a;">加载中...</p>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="wrapper">
+        <p>© 2026 循史漫记 · Powered by pure static web</p>
+    </div>
+</footer>
+
+<script src="js/data.js" charset="UTF-8"></script>
+<script src="js/main.js" charset="UTF-8"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(location.search);
+    const id = params.get('id');
+    const snippet = snippets.find(s => s.id === id);
+    const container = document.getElementById('snippetContent');
+    const titleEl = document.getElementById('pageTitle');
+    if (!snippet) {
+        container.innerHTML = '<h1>史料未找到</h1><p style="color:#8a7a6a;">请返回<a href="snippets.html">史料列表</a>。</p>';
+        return;
+    }
+    titleEl.textContent = snippet.title + ' — 循史漫记';
+    container.innerHTML = `
+        <h1>${snippet.title}</h1>
+        <div class="article-meta">
+            <span class="snippet-source">📜 ${snippet.source}</span>
+            <span>${snippet.date}</span>
+            <span>${snippet.tags.map(t => `<span class="tag">${t}</span>`).join('')}</span>
+        </div>
+        <blockquote class="snippet-quote">${snippet.excerpt}</blockquote>
+        <p class="snippet-commentary">${snippet.commentary}</p>
+        <div style="margin-top:40px;padding-top:20px;border-top:1px solid #d4c5a9;">
+            <a href="snippets.html">← 返回史料列表</a>
+        </div>
+    `;
+});
+</script>
+</body>
+</html>
