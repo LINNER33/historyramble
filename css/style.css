@@ -165,7 +165,9 @@ nav a.active { background: #8b4513; color: #f5f0e8; }
     box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px;
     border-left: 3px solid #8b4513;
 }
-.snippet-card h3 { font-size: 18px; margin-bottom: 8px; color: #2c2416; }
+.snippet-card h3 { font-size: 18px; margin-bottom: 8px; color: #2c2416; }
+.snippet-card h3 a { color: #2c2416; }
+.snippet-card h3 a:hover { color: #8b4513; }
 .snippet-meta { font-size: 13px; color: #8a7a6a; margin-bottom: 12px; font-family: sans-serif; display: flex; gap: 16px; flex-wrap: wrap; }
 .snippet-source { font-style: italic; }
 .snippet-quote {
@@ -181,7 +183,9 @@ nav a.active { background: #8b4513; color: #f5f0e8; }
     box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px;
     border-left: 3px solid #8b4513;
 }
-.bio-card h3 { font-size: 18px; margin-bottom: 8px; color: #2c2416; }
+.bio-card h3 { font-size: 18px; margin-bottom: 8px; color: #2c2416; }
+.bio-card h3 a { color: #2c2416; }
+.bio-card h3 a:hover { color: #8b4513; }
 .bio-meta { font-size: 13px; color: #8a7a6a; margin-bottom: 12px; font-family: sans-serif; display: flex; gap: 16px; flex-wrap: wrap; }
 .bio-summary { font-size: 15px; color: #4a3a2a; line-height: 1.8; margin-bottom: 8px; }
 .read-more { font-size: 14px; color: #8b4513; }

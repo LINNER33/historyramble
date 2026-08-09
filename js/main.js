@@ -98,8 +98,8 @@ function renderSnippets(container, count) {
     const list = count ? sortedByDate.slice(0, count) : sortedByDate;
     list.forEach(s => {
         html += `
-            <div class="snippet-card">
-                <h3>${s.title}</h3>
+            <div class="snippet-card" id="${s.id}">
+                <h3><a href="snippets.html#${s.id}">${s.title}</a></h3>
                 <div class="snippet-meta">
                     <span class="snippet-source">📜 ${s.source}</span>
                     <span>${s.date}</span>
@@ -107,6 +107,7 @@ function renderSnippets(container, count) {
                 </div>
                 <blockquote class="snippet-quote">${s.excerpt}</blockquote>
                 <p class="snippet-commentary">${s.commentary}</p>
+                <a href="snippets.html#${s.id}" class="read-more">阅读全文 →</a>
             </div>
         `;
     });
@@ -121,8 +122,8 @@ function renderBiographies(container, count) {
     const list = count ? sortedByNew.slice(0, count) : sortedByNew;
     list.forEach(b => {
         html += `
-            <div class="bio-card">
-                <h3>${b.title}</h3>
+            <div class="bio-card" id="${b.id}">
+                <h3><a href="biographies.html#${b.id}">${b.title}</a></h3>
                 <div class="bio-meta">
                     <span>${b.period}</span>
                     <span>${b.tags.map(t => `<span class="tag">${t}</span>`).join('')}</span>
