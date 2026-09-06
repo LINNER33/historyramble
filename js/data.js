@@ -769,6 +769,11 @@ const downloads = [
     }
 ];
 
+// ===== 史书下载 =====
+const historyBooks = [];
+
+// ===== 论文下载 =====
+const paperDownloads = [];
 
 // ===== 专题研究 =====
 const research = [
@@ -879,7 +884,5 @@ const author = {
     bio: "研究方向为中国史学史、历史理论。读书、思考、写作，相信历史的意义不在于复述过去，而在于帮助我们在当下更好地理解自己。",
     email: "yourname@example.com"
 };
-
-
 
 

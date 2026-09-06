@@ -210,6 +210,58 @@ function renderDownloads(container, count) {
     container.innerHTML = html;
 }
 
+/* ===== 史书下载渲染 ===== */
+function renderHistoryBooks(container, count) {
+    let html = '';
+    const list = count ? historyBooks.slice(0, count) : historyBooks;
+    list.forEach(d => {
+        html += `
+            <div class="download-card">
+                <div class="download-icon">📜</div>
+                <div class="download-info">
+                    <h4>${d.title}</h4>
+                    <div class="download-meta">
+                        <span class="download-author">${d.author}</span>
+                        <span class="download-category">史书</span>
+                    </div>
+                    <p class="download-desc">${d.desc}</p>
+                    <a class="download-btn" href="${d.link}" target="_blank" rel="noopener">前往下载 →</a>
+                </div>
+            </div>
+        `;
+    });
+    if (!list.length) {
+        html = '<div class="empty-state">史书资源整理中，敬请期待</div>';
+    }
+    container.innerHTML = html;
+}
+
+/* ===== 论文下载渲染 ===== */
+function renderPaperDownloads(container, count) {
+    let html = '';
+    const list = count ? paperDownloads.slice(0, count) : paperDownloads;
+    list.forEach(d => {
+        html += `
+            <div class="download-card">
+                <div class="download-icon">📄</div>
+                <div class="download-info">
+                    <h4>${d.title}</h4>
+                    <div class="download-meta">
+                        <span class="download-author">${d.author}</span>
+                        <span class="download-category">论文</span>
+                    </div>
+                    <p class="download-desc">${d.desc}</p>
+                    <a class="download-btn" href="${d.link}" target="_blank" rel="noopener">前往下载 →</a>
+                </div>
+            </div>
+        `;
+    });
+    if (!list.length) {
+        html = '<div class="empty-state">论文资源整理中，敬请期待</div>';
+    }
+    container.innerHTML = html;
+}
+
 // Highlight current page in nav
 document.addEventListener('DOMContentLoaded', () => {
     const page = location.pathname.split('/').pop() || 'index.html';

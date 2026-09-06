@@ -35,8 +35,19 @@
 <main>
     <div class="wrapper">
         <h2 class="section-title">⬇ 下载资源</h2>
-        <p style="margin-bottom:24px;color:#8a7a6a;">分享历史学相关的 PDF 书籍与论文，供学习研究使用</p>
+        <p style="margin-bottom:28px;color:#8a7a6a;">分享历史学相关的 PDF 书籍、论文与基本史籍，供学习研究使用</p>
+
+        <h3 class="download-group-title">专著下载</h3>
+        <p style="margin-bottom:16px;color:#8a7a6a;">历史学专著与专题研究著作</p>
         <div class="download-grid" id="allDownloads"></div>
+
+        <h3 class="download-group-title">史书下载</h3>
+        <p style="margin-bottom:16px;color:#8a7a6a;">正史、编年史与古代史籍电子资源</p>
+        <div class="download-grid" id="allHistoryBooks"></div>
+
+        <h3 class="download-group-title">论文下载</h3>
+        <p style="margin-bottom:16px;color:#8a7a6a;">学术论文与研究报告资源</p>
+        <div class="download-grid" id="allPaperDownloads"></div>
     </div>
 </main>
 
@@ -48,6 +59,10 @@
 
 <script src="js/data.js" charset="UTF-8"></script>
 <script src="js/main.js" charset="UTF-8"></script>
-<script>document.addEventListener('DOMContentLoaded', () => renderDownloads(document.getElementById('allDownloads')));</script>
+<script>document.addEventListener('DOMContentLoaded', () => {
+    renderDownloads(document.getElementById('allDownloads'));
+    renderHistoryBooks(document.getElementById('allHistoryBooks'));
+    renderPaperDownloads(document.getElementById('allPaperDownloads'));
+});</script>
 </body>
 </html>
