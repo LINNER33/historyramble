@@ -158,6 +158,16 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     .side-panel { order: -1; }
 }
 </style>
+<meta name="description" content="中国象棋小游戏，本站的闲暇角落。">
+<link rel="canonical" href="https://historyramble.org/chess.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="循史漫记">
+<meta property="og:title" content="中国象棋">
+<meta property="og:description" content="中国象棋小游戏，本站的闲暇角落。">
+<meta property="og:url" content="https://historyramble.org/chess.html">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#2c2416">
 </head>
 <body>
 <header>
@@ -173,7 +183,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
             <a href="resources.html">资源</a>
             <a href="downloads.html">下载</a>
             <div class="nav-dropdown">
-                <a href="javascript:void(0)" class="dropbtn">闲暇</a>
+                <a href="chess.html" class="dropbtn" aria-haspopup="true" aria-expanded="false">闲暇</a>
                 <div class="dropdown-content">
                     <a href="chess.html">中国象棋</a>
                 </div>
@@ -183,6 +193,7 @@ button:disabled { opacity: .45; cursor: not-allowed; }
     </div>
 </header>
 
+<main>
 <div class="game-wrapper">
 <div class="app">
     <div class="board-shell">
@@ -617,10 +628,11 @@ if (!CanvasRenderingContext2D.prototype.roundRect) {
 }
 reset();
 </script>
+</main>
 
 <footer>
     <div class="wrapper">
-        <p>© 2026 循史漫记 · Powered by pure static web</p>
+        <p>© 2026 循史漫记 · 读书笔记与史学随笔</p>
     </div>
 </footer>
 

@@ -6,6 +6,8 @@
 <title id="pageTitle">专题研究 — 循史漫记</title>
 <link rel="stylesheet" href="css/style.css">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="robots" content="noindex,follow">
+<meta name="theme-color" content="#2c2416">
 </head>
 <body>
 
@@ -29,14 +31,14 @@
 <main>
     <div class="wrapper">
         <div class="article-page" id="researchContent">
-            <p style="color:#8a7a6a;">加载中...</p>
+            <p style="color:#6f6253;">加载中...</p>
         </div>
     </div>
 </main>
 
 <footer>
     <div class="wrapper">
-        <p>&copy; 2026 循史漫记 · Powered by pure static web</p>
+        <p>© 2026 循史漫记 · 读书笔记与史学随笔</p>
     </div>
 </footer>
 
@@ -46,11 +48,16 @@
 document.addEventListener('DOMContentLoaded', function() {
     var params = new URLSearchParams(location.search);
     var id = params.get('id');
+    // 旧链接兼容：存在同名静态页时直接跳转
+    if (id && research.some(function(r) { return r.id === id; })) {
+        location.replace('research/' + encodeURIComponent(id) + '.html');
+        return;
+    }
     var item = research.find(function(r) { return r.id === id; });
     var container = document.getElementById('researchContent');
     var titleEl = document.getElementById('pageTitle');
     if (!item) {
-        container.innerHTML = '<h1>笔记未找到</h1><p style="color:#8a7a6a;">请返回<a href="research.html">专题列表</a>。</p>';
+        container.innerHTML = '<h1>笔记未找到</h1><p style="color:#6f6253;">请返回<a href="research.html">专题列表</a>。</p>';
         return;
     }
     titleEl.textContent = item.title + ' — 循史漫记';

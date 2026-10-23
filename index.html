@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>循史漫记 — 历史学读书与思考</title>
+<meta name="description" content="循史漫记是一个历史学研究者的个人园地，收录读书笔记、史学随笔、书评推荐、史料拾遗与专题研究，关注中国古代史与史学史。">
+<link rel="canonical" href="https://historyramble.org/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="循史漫记">
+<meta property="og:title" content="循史漫记 — 历史学读书与思考">
+<meta property="og:description" content="读书笔记、史学随笔、书评推荐，一个历史学研究者的个人园地。">
+<meta property="og:url" content="https://historyramble.org/">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#2c2416">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"循史漫记","alternateName":"Historyramble","url":"https://historyramble.org/","description":"历史学读书笔记与史学随笔","inLanguage":"zh-CN"}</script>
 <link rel="stylesheet" href="css/style.css">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
@@ -13,7 +24,7 @@
     <div class="header-inner">
         <div class="site-title">循史漫记 <small>历史学读书与思考</small></div>
                 <nav>
-            <a href="index.html">首页</a>
+            <a href="index.html" class="active" aria-current="page">首页</a>
             <a href="articles.html">文章</a>
             <a href="books.html">书单</a>
             <a href="research.html">专题</a>
@@ -22,7 +33,7 @@
             <a href="resources.html">资源</a>
             <a href="downloads.html">下载</a>
             <div class="nav-dropdown">
-                <a href="javascript:void(0)" class="dropbtn">闲暇</a>
+                <a href="chess.html" class="dropbtn" aria-haspopup="true" aria-expanded="false">闲暇</a>
                 <div class="dropdown-content">
                     <a href="chess.html">中国象棋</a>
                 </div>
@@ -34,62 +45,65 @@
 
 <section class="hero">
     <div class="wrapper">
-        <h2>以史的眼光，看人间事</h2>
+        <h1>以史的眼光，看人间事</h1>
         <p>读书笔记 · 史学随笔 · 书评推荐<br>一个历史学研究者的个人园地</p>
     </div>
 </section>
 
 <main>
     <div class="wrapper">
-        <h2 class="section-title">最新动态</h2>
-        <div id="homeGrid"></div>
-        <div style="margin-top:24px;display:flex;justify-content:space-between;">
-            <a href="articles.html" style="font-size:14px;color:#8b4513;">查看全部文章 →</a>
-            <a href="books.html" style="font-size:14px;color:#8b4513;">查看全部书单 →</a>
-        </div>
+        <h2 class="section-title">最新文章</h2>
+        <div id="homeArticles" class="article-list"></div>
+        <div class="more-link"><a href="articles.html">查看全部文章 →</a></div>
+    </div>
+
+    <div class="wrapper section">
+        <h2 class="section-title">最近在读</h2>
+        <div id="homeBooks"></div>
+        <div class="more-link"><a href="books.html">查看全部书单 →</a></div>
     </div>
 
     <!-- 史料拾遗预览 -->
-    <div class="wrapper" style="margin-top:48px;">
+    <div class="wrapper section">
         <h2 class="section-title">📜 史料拾遗</h2>
         <div id="homeSnippets"></div>
-        <div style="margin-top:12px;"><a href="snippets.html" style="font-size:14px;color:#8b4513;">查看全部史料 →</a></div>
+        <div class="more-link"><a href="snippets.html">查看全部史料 →</a></div>
     </div>
 
     <!-- 人物小传预览 -->
-    <div class="wrapper" style="margin-top:48px;">
+    <div class="wrapper section">
         <h2 class="section-title">👤 历史人物小传</h2>
         <div id="homeBiographies"></div>
-        <div style="margin-top:12px;"><a href="biographies.html" style="font-size:14px;color:#8b4513;">查看全部人物 →</a></div>
+        <div class="more-link"><a href="biographies.html">查看全部人物 →</a></div>
     </div>
 
     <!-- 专题研究预览 -->
-    <div class="wrapper" style="margin-top:48px;">
+    <div class="wrapper section">
         <h2 class="section-title">专题研究</h2>
-        <p style="margin-bottom:16px;color:#8a7a6a;font-size:14px;">唐与高句丽战争研究 · 论文写作过程中的史料分析与思路梳理</p>
+        <p class="section-desc">唐与高句丽战争研究 · 论文写作过程中的史料分析与思路梳理</p>
         <div id="homeResearch"></div>
-        <div style="margin-top:12px;"><a href="research.html" style="font-size:14px;color:#8b4513;">查看全部专题 →</a></div>
+        <div class="more-link"><a href="research.html">查看全部专题 →</a></div>
     </div>
 
-    
     <!-- 下载资源预览 -->
-    <div class="wrapper" style="margin-top:48px;">
+    <div class="wrapper section">
         <h2 class="section-title">⬇ 下载资源</h2>
-        <p style="margin-bottom:16px;color:#8a7a6a;font-size:14px;">历史学 PDF 书籍与论文分享</p>
+        <p class="section-desc">历史学 PDF 书籍与论文分享</p>
         <div id="homeDownloads"></div>
-        <div style="margin-top:12px;"><a href="downloads.html" style="font-size:14px;color:#8b4513;">查看全部下载资源 →</a></div>
+        <div class="more-link"><a href="downloads.html">查看全部下载资源 →</a></div>
     </div>
-<!-- 学术资源预览 -->
-    <div class="wrapper" style="margin-top:48px;">
+
+    <!-- 学术资源预览 -->
+    <div class="wrapper section">
         <h2 class="section-title">🔗 学术资源</h2>
         <div id="homeResources"></div>
-        <div style="margin-top:12px;"><a href="resources.html" style="font-size:14px;color:#8b4513;">查看全部资源 →</a></div>
+        <div class="more-link"><a href="resources.html">查看全部资源 →</a></div>
     </div>
 </main>
 
 <footer>
     <div class="wrapper">
-        <p>© 2026 循史漫记 · Powered by pure static web</p>
+        <p>© 2026 循史漫记 · 读书笔记与史学随笔</p>
     </div>
 </footer>
 
@@ -97,30 +111,14 @@
 <script src="js/main.js" charset="UTF-8"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    renderHomeGrid(document.getElementById('homeGrid'), 5);
+    renderHomeArticles(document.getElementById('homeArticles'), 5);
+    renderHomeBooks(document.getElementById('homeBooks'), 4);
     renderSnippets(document.getElementById('homeSnippets'), 2);
     renderBiographies(document.getElementById('homeBiographies'), 2);
     renderResearch(document.getElementById('homeResearch'), 3);
-    renderResources(document.getElementById('homeResources'));
+    renderResources(document.getElementById('homeResources'), 2);
     renderDownloads(document.getElementById('homeDownloads'), 3);
 });
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

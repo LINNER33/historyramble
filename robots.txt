@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# 详情页外壳由静态页承担，无需索引
+Disallow: /article.html
+Disallow: /snippet.html
+Disallow: /biography.html
+Disallow: /research-note.html
+
+Sitemap: https://historyramble.org/sitemap.xml

@@ -6,7 +6,7 @@ function renderArticles(container, count) {
     list.forEach(a => {
         html += `
             <div class="article-card">
-                <h3><a href="article.html?id=${a.id}">${a.title}</a></h3>
+                <h3><a href="articles/${a.id}.html">${a.title}</a></h3>
                 <div class="article-meta">
                     <span>${a.date}</span>
                     <span>${a.category}</span>
@@ -28,12 +28,12 @@ function renderBooks(container, count) {
     list.forEach(b => {
         const coverHtml = b.cover
             ? `<img src="${b.cover}" alt="${b.title}">`
-            : `<span style="text-align:center;padding:10px;color:#8a7a6a;">暂无<br>封面</span>`;
+            : `<span style="text-align:center;padding:10px;color:#4a3a2a;">暂无<br>封面</span>`;
         html += `
             <div class="book-card">
                 <div class="book-cover">${coverHtml}</div>
                 <div class="book-info">
-                    <h4>${b.title}</h4>
+                    <h3>${b.title}</h3>
                     <div class="book-author">${b.author}</div>
                     <div class="book-rating">${stars(b.rating)}</div>
                     <div class="book-desc">${b.desc}</div>
@@ -45,61 +45,57 @@ function renderBooks(container, count) {
     container.innerHTML = html;
 }
 
-// Homepage combined grid: articles and books side by side, aligned by row
-function renderHomeGrid(container, count) {
-    const stars = n => '★'.repeat(n) + '☆'.repeat(5-n);
+// Homepage: recent books (text only, no cover art)
+function renderHomeBooks(container, count) {
+    const stars = n => '★'.repeat(n) + '☆'.repeat(5 - n);
     let html = '';
-    const sortedByDate = [...articles].sort((a,b) => b.date.localeCompare(a.date));
-    const articleList = count ? sortedByDate.slice(0, count) : sortedByDate;
-    const bookList = count ? [...books].reverse().slice(0, count) : [...books].reverse();
-    const maxLen = Math.max(articleList.length, bookList.length);
-    for (let i = 0; i < maxLen; i++) {
-        html += '<div class="home-row">';
-        if (i < articleList.length) {
-            const a = articleList[i];
-            html += `
-                <div class="article-card">
-                    <h3><a href="article.html?id=${a.id}">${a.title}</a></h3>
-                    <div class="article-meta">
-                        <span>${a.date}</span>
-                        <span>${a.category}</span>
-                        <span>${a.tags.map(t => `<span class="tag">${t}</span>`).join('')}</span>
-                    </div>
-                    <p>${a.summary}</p>
+    const list = count ? [...books].reverse().slice(0, count) : [...books].reverse();
+    list.forEach(b => {
+        html += `
+            <div class="book-item">
+                <h3>${b.title}</h3>
+                <div class="article-meta">
+                    <span>${b.author}</span>
+                    <span class="book-rating">${stars(b.rating)}</span>
                 </div>
-            `;
-        } else {
-            html += '<div class="article-card home-empty-col"></div>';
-        }
-        if (i < bookList.length) {
-            const b = bookList[i];
-            html += `
-                <div class="article-card">
-                    <h3>${b.title}</h3>
-                    <div class="article-meta">
-                        <span>${b.author}</span>
-                        <span style="color:#c49a3c;">${stars(b.rating)}</span>
-                    </div>
-                    <p>${b.desc}</p>
-                </div>
-            `;
-        } else {
-            html += '<div class="article-card home-empty-col"></div>';
-        }
-        html += '</div>';
-    }
+                <p>${b.desc}</p>
+            </div>
+        `;
+    });
+    if (!list.length) html = '<div class="empty-state">还没有推荐书目</div>';
     container.innerHTML = html;
 }
 
-/* ===== 史料拾遗渲染 ===== */
-function renderSnippets(container, count) {
+// Homepage: latest articles
+function renderHomeArticles(container, count) {
+    let html = '';
+    const sortedByDate = [...articles].sort((a,b) => b.date.localeCompare(a.date));
+    const list = count ? sortedByDate.slice(0, count) : sortedByDate;
+    list.forEach(a => {
+        html += `
+            <div class="article-card">
+                <h3><a href="articles/${a.id}.html">${a.title}</a></h3>
+                <div class="article-meta">
+                    <span>${a.date}</span>
+                    <span>${a.category}</span>
+                    <span>${a.tags.map(t => `<span class="tag">${t}</span>`).join('')}</span>
+                </div>
+                <p>${a.summary}</p>
+            </div>
+        `;
+    });
+    if (!list.length) html = '<div class="empty-state">还没有文章</div>';
+    container.innerHTML = html;
+}
+
+/* ===== 史料拾遗渲染 ===== */function renderSnippets(container, count) {
     let html = '';
     const sortedByDate = [...snippets].sort((a,b) => b.date.localeCompare(a.date));
     const list = count ? sortedByDate.slice(0, count) : sortedByDate;
     list.forEach(s => {
         html += `
             <div class="snippet-card" id="${s.id}">
-                <h3><a href="snippet.html?id=${s.id}">${s.title}</a></h3>
+                <h3><a href="snippets/${s.id}.html">${s.title}</a></h3>
                 <div class="snippet-meta">
                     <span class="snippet-source">📜 ${s.source}</span>
                     <span>${s.date}</span>
@@ -107,7 +103,7 @@ function renderSnippets(container, count) {
                 </div>
                 <blockquote class="snippet-quote">${s.excerpt}</blockquote>
                 <p class="snippet-commentary">${s.commentary}</p>
-                <a href="snippet.html?id=${s.id}" class="read-more">阅读全文 →</a>
+                <a href="snippets/${s.id}.html" class="read-more">阅读全文 →</a>
             </div>
         `;
     });
@@ -123,13 +119,13 @@ function renderBiographies(container, count) {
     list.forEach(b => {
         html += `
             <div class="bio-card" id="${b.id}">
-                <h3><a href="biography.html?id=${b.id}">${b.title}</a></h3>
+                <h3><a href="biographies/${b.id}.html">${b.title}</a></h3>
                 <div class="bio-meta">
                     <span>${b.period}</span>
                     <span>${b.tags.map(t => `<span class="tag">${t}</span>`).join('')}</span>
                 </div>
                 <p class="bio-summary">${b.summary}</p>
-                <a href="biography.html?id=${b.id}" class="read-more">阅读全文 →</a>
+                <a href="biographies/${b.id}.html" class="read-more">阅读全文 →</a>
             </div>
         `;
     });
@@ -138,9 +134,10 @@ function renderBiographies(container, count) {
 }
 
 /* ===== 学术资源渲染 ===== */
-function renderResources(container) {
+function renderResources(container, count) {
     let html = '';
-    resources.forEach(r => {
+    const list = count ? resources.slice(0, count) : resources;
+    list.forEach(r => {
         html += `
             <div class="resource-group">
                 <h3 class="resource-category">${r.category}</h3>
@@ -170,7 +167,7 @@ function renderResearch(container, count) {
     list.forEach(function(r) {
         html += [
             '<div class="article-card">',
-            '<h3><a href="research-note.html?id=' + r.id + '">' + r.title + '</a></h3>',
+            '<h3><a href="research/' + r.id + '.html">' + r.title + '</a></h3>',
             '<div class="article-meta">',
             '<span>' + r.date + '</span>',
             '<span>' + r.tags.map(function(t) { return '<span class="tag">' + t + '</span>'; }).join('') + '</span>',
@@ -195,7 +192,7 @@ function renderDownloads(container, count) {
             '<div class="download-card">',
             '<div class="download-icon">' + icon + '</div>',
             '<div class="download-info">',
-            '<h4>' + d.title + '</h4>',
+            '<h3>' + d.title + '</h3>',
             '<div class="download-meta">',
             '<span class="download-author">' + d.author + '</span>',
             '<span class="download-category">' + d.category + '</span>',
@@ -219,7 +216,7 @@ function renderHistoryBooks(container, count) {
             <div class="download-card">
                 <div class="download-icon">📜</div>
                 <div class="download-info">
-                    <h4>${d.title}</h4>
+                    <h3>${d.title}</h3>
                     <div class="download-meta">
                         <span class="download-author">${d.author}</span>
                         <span class="download-category">史书</span>
@@ -245,7 +242,7 @@ function renderPaperDownloads(container, count) {
             <div class="download-card">
                 <div class="download-icon">📄</div>
                 <div class="download-info">
-                    <h4>${d.title}</h4>
+                    <h3>${d.title}</h3>
                     <div class="download-meta">
                         <span class="download-author">${d.author}</span>
                         <span class="download-category">论文</span>
