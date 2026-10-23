@@ -306,5 +306,46 @@ ${sitemapUrls
 
 write('sitemap.xml', sitemap);
 
+/* ---------- 给静态资源加版本号，避免缓存错配 ---------- */
+import crypto from 'node:crypto';
+
+const hashOf = (f) =>
+  crypto.createHash('md5').update(fs.readFileSync(path.join(ROOT, f))).digest('hex').slice(0, 8);
+
+const V = {
+  css: hashOf('css/style.css'),
+  data: hashOf('js/data.js'),
+  main: hashOf('js/main.js'),
+};
+
+const stamp = (html) =>
+  html
+    .replace(/((?:\.\.\/)*)css\/style\.css(\?v=[0-9a-z]+)?/g, (_, p) => `${p}css/style.css?v=${V.css}`)
+    .replace(/((?:\.\.\/)*)js\/data\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/data.js?v=${V.data}`)
+    .replace(/((?:\.\.\/)*)js\/main\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/main.js?v=${V.main}`);
+
+const htmlFiles = fs
+  .readdirSync(ROOT)
+  .filter((f) => f.endsWith('.html'))
+  .map((f) => path.join(ROOT, f));
+
+for (const d of ['articles', 'snippets', 'biographies', 'research']) {
+  const dir = path.join(ROOT, d);
+  if (fs.existsSync(dir)) {
+    htmlFiles.push(...fs.readdirSync(dir).filter((f) => f.endsWith('.html')).map((f) => path.join(dir, f)));
+  }
+}
+
+let stamped = 0;
+for (const f of htmlFiles) {
+  const before = fs.readFileSync(f, 'utf8');
+  const after = stamp(before);
+  if (after !== before) {
+    fs.writeFileSync(f, after, 'utf8');
+    stamped++;
+  }
+}
+
 console.log(`✓ 生成 ${generated} 个详情页`);
 console.log(`✓ 生成 sitemap.xml（${staticPages.length + sitemapUrls.length} 条 URL）`);
+console.log(`✓ 资源版本号 css=${V.css} data=${V.data} main=${V.main}（更新 ${stamped} 个页面）`);
