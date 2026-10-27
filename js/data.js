@@ -766,6 +766,15 @@ const downloads = [
         link: "https://drive.google.com/file/d/1d39JXQwSfnjaMiRkdBEOsGnLcXofCRsP/view?usp=drive_link",
         category: "书籍",
         date: "2021"
+    },
+    {
+        id: "tang-official-document-study",
+        title: "唐代公文書研究",
+        author: "中村裕一",
+        desc: "以唐代公文书的种类、格式与行政运作流程为研究对象，结合传世文献与敦煌、吐鲁番出土文书，考察诏敕、制书、牒、符、状等文书的成立过程与传递机制，是唐代文书行政研究的重要著作。",
+        link: "https://drive.google.com/file/d/15hVM9ChsvU8TDZvgvrUqgCCPZWhoFhO5/view?usp=sharing",
+        category: "书籍",
+        date: "1996"
     }
 ];
 
