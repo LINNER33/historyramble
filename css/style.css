@@ -232,6 +232,10 @@ nav a.active { background: #8b4513; color: #f5f0e8; }
     background: #f5f0e8; color: #8b4513; padding: 1px 8px;
     border-radius: 3px; font-size: 12px;
 }
+.download-size {
+    background: #f7f4ee; color: #6f6253; padding: 1px 8px;
+    border-radius: 3px; font-size: 12px; font-family: sans-serif;
+}
 .download-desc { font-size: 14px; color: #4a3a2a; line-height: 1.7; margin-bottom: 10px; }
 .download-btn {
     display: inline-block; background: #8b4513; color: #f5f0e8;

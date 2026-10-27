@@ -182,6 +182,11 @@ function renderResearch(container, count) {
 
 
 /* ===== 下载资源渲染 ===== */
+// 文件大小标签（数据里填写 size 字段时才显示）
+function sizeSpan(d) {
+    return d.size ? '<span class="download-size">' + d.size + '</span>' : '';
+}
+
 function renderDownloads(container, count) {
     var html = '';
     var sortedByNew = downloads.slice().reverse();
@@ -196,6 +201,7 @@ function renderDownloads(container, count) {
             '<div class="download-meta">',
             '<span class="download-author">' + d.author + '</span>',
             '<span class="download-category">' + d.category + '</span>',
+            sizeSpan(d),
             '</div>',
             '<p class="download-desc">' + d.desc + '</p>',
             '<a class="download-btn" href="' + d.link + '" target="_blank" rel="noopener">前往下载 →</a>',
@@ -220,6 +226,7 @@ function renderHistoryBooks(container, count) {
                     <div class="download-meta">
                         <span class="download-author">${d.author}</span>
                         <span class="download-category">史书</span>
+                        ${d.size ? `<span class="download-size">${d.size}</span>` : ''}
                     </div>
                     <p class="download-desc">${d.desc}</p>
                     <a class="download-btn" href="${d.link}" target="_blank" rel="noopener">前往下载 →</a>
@@ -246,6 +253,7 @@ function renderPaperDownloads(container, count) {
                     <div class="download-meta">
                         <span class="download-author">${d.author}</span>
                         <span class="download-category">论文</span>
+                        ${d.size ? `<span class="download-size">${d.size}</span>` : ''}
                     </div>
                     <p class="download-desc">${d.desc}</p>
                     <a class="download-btn" href="${d.link}" target="_blank" rel="noopener">前往下载 →</a>

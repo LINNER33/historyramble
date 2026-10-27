@@ -738,6 +738,7 @@ const downloads = [
         desc: "本书系统梳理了高句丽从建国到灭亡七百余年的历史进程，涵盖政治制度、军事外交、社会经济、文化宗教等方面，是研究高句丽史的重要参考著作。",
         link: "https://drive.google.com/file/d/17UbxDyKt3AVLZVtUMD1ydrzlB6Nj7-cP/view?usp=drive_link",
         category: "书籍",
+        size: "9.2 MB",
         date: "2025"
     },
     {
@@ -747,6 +748,7 @@ const downloads = [
         desc: "聚焦高句丽对外战争史，系统考察了高句丽与中原王朝、百济、新罗、倭国之间的军事冲突与外交博弈。",
         link: "https://drive.google.com/file/d/1KYxVMXunbQ_P3JOkpvf7Pvi_Tbir0KDV/view?usp=drive_link",
         category: "书籍",
+        size: "77.3 MB",
         date: "2020"
     },
     {
@@ -756,6 +758,7 @@ const downloads = [
         desc: "全面论述高句丽民族与政权的历史演变，涵盖高句丽的起源、疆域拓展、制度建设、文化成就及其在东北亚历史中的地位。",
         link: "https://drive.google.com/file/d/1fI-k9mO3_A-pEiK8oMwugbSWz0dampiC/view?usp=drive_link",
         category: "书籍",
+        size: "332.2 MB",
         date: "2020"
     },
     {
@@ -765,6 +768,7 @@ const downloads = [
         desc: "本書以隋唐東征與唐新戰爭為中心，考察隋唐時期海上軍事力量在東北亞地緣政治、朝鮮半島戰局與周邊外交中的戰略作用，並兼論新羅海上力量、張保皋海洋經略與東方海上絲綢之路和平秩序的形成。",
         link: "https://drive.google.com/file/d/1d39JXQwSfnjaMiRkdBEOsGnLcXofCRsP/view?usp=drive_link",
         category: "书籍",
+        size: "673 KB",
         date: "2021"
     },
     {
@@ -774,6 +778,7 @@ const downloads = [
         desc: "以唐代公文书的种类、格式与行政运作流程为研究对象，结合传世文献与敦煌、吐鲁番出土文书，考察诏敕、制书、牒、符、状等文书的成立过程与传递机制，是唐代文书行政研究的重要著作。",
         link: "https://drive.google.com/file/d/15hVM9ChsvU8TDZvgvrUqgCCPZWhoFhO5/view?usp=sharing",
         category: "书籍",
+        size: "174.2 MB",
         date: "1996"
     }
 ];
