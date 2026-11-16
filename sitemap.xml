@@ -205,6 +205,36 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/snippets/salsu-rout.html</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/eulji-poem.html</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/taizong-withdraw.html</loc>
+    <lastmod>2026-11-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/gaesomun-origin.html</loc>
+    <lastmod>2026-11-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/andong-prefecture.html</loc>
+    <lastmod>2026-11-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/snippets/baekgang-record.html</loc>
     <lastmod>2026-08-05</lastmod>
     <changefreq>monthly</changefreq>
@@ -269,6 +299,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/biographies/xue-rengui.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/biographies/su-dingfang.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -279,7 +314,17 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/biographies/liu-rengui.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/biographies/li-zhiyi.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/biographies/li-ji.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -294,12 +339,52 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/biographies/eulji-mundeok.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/biographies/enin-monk.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://historyramble.org/biographies/chen-yinke.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/biographies/bojang.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/salsu-battle.html</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/ansic-seige.html</loc>
+    <lastmod>2026-11-19</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/goguryeo-mountain-fortresses.html</loc>
+    <lastmod>2026-11-18</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/tang-liaodong-logistics.html</loc>
+    <lastmod>2026-11-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/quan-brothers-coup.html</loc>
+    <lastmod>2026-11-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
