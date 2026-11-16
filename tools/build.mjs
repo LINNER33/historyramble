@@ -187,7 +187,7 @@ const collections = [
                 ${tagsHtml(s.tags)}
             </div>
             <blockquote class="snippet-quote">${s.excerpt}</blockquote>
-            <p class="snippet-commentary">${s.commentary}</p>`,
+            <div class="snippet-commentary">${s.commentary}</div>`,
   },
   {
     key: 'biographies',

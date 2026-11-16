@@ -1,4 +1,4 @@
-﻿/* ===== Site navigation & routing ===== */
+/* ===== Site navigation & routing ===== */
 function renderArticles(container, count) {
     let html = '';
     const sortedByDate = [...articles].sort((a,b) => b.date.localeCompare(a.date));
@@ -102,7 +102,7 @@ function renderHomeArticles(container, count) {
                     <span>${s.tags.map(t => `<span class="tag">${t}</span>`).join('')}</span>
                 </div>
                 <blockquote class="snippet-quote">${s.excerpt}</blockquote>
-                <p class="snippet-commentary">${s.commentary}</p>
+                <div class="snippet-commentary">${(String(s.commentary).match(/<p>[\s\S]*?<\/p>/) || [s.commentary])[0]}</div>
                 <a href="snippets/${s.id}.html" class="read-more">阅读全文 →</a>
             </div>
         `;
