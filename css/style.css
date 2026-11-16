@@ -338,3 +338,57 @@ button:focus-visible {
     .post-nav a { max-width: 100%; }
 }
 
+/* ===== 站内搜索 ===== */
+.search-page { padding: 48px 0 72px; }
+.search-page h1 { font-size: 30px; letter-spacing: .08em; margin-bottom: 10px; }
+.search-lead { font-size: 14px; color: #6f6253; line-height: 1.8; margin-bottom: 24px; }
+.search-form { display: flex; gap: 10px; }
+.search-form input[type="search"] {
+    flex: 1; min-width: 0; padding: 12px 16px;
+    font-size: 16px; font-family: inherit; color: #2c2416;
+    background: #fff; border: 1px solid #d4c5a9; border-radius: 4px;
+}
+.search-form input[type="search"]:focus {
+    outline: none; border-color: #8b4513; box-shadow: 0 0 0 3px rgba(139, 69, 19, .12);
+}
+.search-form button {
+    flex: 0 0 auto; padding: 0 26px;
+    font-family: inherit; font-size: 15px; color: #f5f0e8;
+    background: #8b4513; border: 0; border-radius: 4px; cursor: pointer;
+}
+.search-form button:hover { background: #7a3c10; }
+.search-summary { margin: 18px 0 0; font-size: 14px; color: #6f6253; }
+.search-hint { margin: 20px 0 10px; font-size: 14px; color: #6f6253; }
+.tag-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag-chips a {
+    font-size: 13px; color: #6f6253; background: #fff;
+    border: 1px solid #e2d8c6; border-radius: 14px; padding: 4px 12px;
+}
+.tag-chips a:hover { color: #8b4513; border-color: #d4c5a9; background: #fbf8f2; }
+.search-list { list-style: none; margin: 24px 0 0; padding: 0; }
+.search-item { padding: 18px 0; border-bottom: 1px solid #e2d8c6; }
+.search-item:first-child { border-top: 1px solid #e2d8c6; }
+.search-item h3 { font-size: 18px; line-height: 1.5; margin-bottom: 8px; }
+.search-item h3 a { color: #2c2416; }
+.search-item h3 a:hover { color: #8b4513; }
+.search-kind {
+    display: inline-block; margin-right: 8px; padding: 1px 7px;
+    font-size: 12px; font-weight: normal; color: #8b4513;
+    background: #f5f0e8; border: 1px solid #e2d8c6; border-radius: 3px;
+    vertical-align: 2px;
+}
+.search-excerpt { font-size: 14px; line-height: 1.8; color: #4a4038; margin-bottom: 6px; }
+.search-meta { font-size: 13px; color: #8a7a66; }
+.search-empty { margin-top: 24px; font-size: 14px; color: #6f6253; line-height: 1.8; }
+.search-excerpt mark, .search-item h3 mark {
+    background: rgba(212, 165, 60, .35); color: inherit; padding: 0 1px;
+}
+
+@media (max-width: 700px) {
+    .search-page { padding: 32px 0 56px; }
+    .search-page h1 { font-size: 24px; }
+    .search-form { flex-wrap: wrap; }
+    .search-form input[type="search"] { flex: 1 1 100%; }
+    .search-form button { flex: 1 1 100%; padding: 10px 0; }
+}
+

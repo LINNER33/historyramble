@@ -58,6 +58,7 @@ const NAV = [
   ['biographies.html', '人物'],
   ['resources.html', '资源'],
   ['downloads.html', '下载'],
+  ['search.html', '搜索'],
   ['about.html', '关于'],
 ];
 
@@ -316,13 +317,15 @@ const V = {
   css: hashOf('css/style.css'),
   data: hashOf('js/data.js'),
   main: hashOf('js/main.js'),
+  search: hashOf('js/search.js'),
 };
 
 const stamp = (html) =>
   html
     .replace(/((?:\.\.\/)*)css\/style\.css(\?v=[0-9a-z]+)?/g, (_, p) => `${p}css/style.css?v=${V.css}`)
     .replace(/((?:\.\.\/)*)js\/data\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/data.js?v=${V.data}`)
-    .replace(/((?:\.\.\/)*)js\/main\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/main.js?v=${V.main}`);
+    .replace(/((?:\.\.\/)*)js\/main\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/main.js?v=${V.main}`)
+    .replace(/((?:\.\.\/)*)js\/search\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/search.js?v=${V.search}`);
 
 const htmlFiles = fs
   .readdirSync(ROOT)

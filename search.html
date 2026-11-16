@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>站内搜索 — 循史漫记</title>
+<meta name="description" content="在循史漫记的文章、专题研究、史料拾遗与人物小传中检索关键词。">
+<meta name="robots" content="noindex,follow">
+<link rel="canonical" href="https://historyramble.org/search.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="循史漫记">
+<meta property="og:title" content="站内搜索 — 循史漫记">
+<meta property="og:description" content="在文章、专题、史料与人物小传中检索关键词。">
+<meta property="og:url" content="https://historyramble.org/search.html">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#2c2416">
+<link rel="stylesheet" href="css/style.css?v=a2130a30">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="site-title">循史漫记 <small>历史学读书与思考</small></div>
+                <nav>
+            <a href="index.html">首页</a>
+            <a href="articles.html">文章</a>
+            <a href="books.html">书单</a>
+            <a href="research.html">专题</a>
+            <a href="snippets.html">史料</a>
+            <a href="biographies.html">人物</a>
+            <a href="resources.html">资源</a>
+            <a href="downloads.html">下载</a>
+            <div class="nav-dropdown">
+                <a href="chess.html" class="dropbtn" aria-haspopup="true" aria-expanded="false">闲暇</a>
+                <div class="dropdown-content">
+                    <a href="chess.html">中国象棋</a>
+                </div>
+            </div>
+            <a href="search.html" class="active" aria-current="page">搜索</a>
+            <a href="about.html">关于</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <div class="wrapper search-page">
+        <h1>站内搜索</h1>
+        <p class="search-lead">在文章、专题研究、史料拾遗与人物小传中检索关键词；多个关键词用空格分隔，会同时匹配。</p>
+        <form class="search-form" role="search" action="search.html" method="get">
+            <input type="search" name="q" id="searchInput" placeholder="如：唐代、科举、敦煌、口述史" aria-label="输入搜索关键词" autocomplete="off">
+            <button type="submit">搜索</button>
+        </form>
+        <p class="search-summary" id="searchSummary">正在载入内容…</p>
+        <div id="searchResults"></div>
+    </div>
+</main>
+
+<footer>
+    <div class="wrapper">
+        <p>© 2026 循史漫记 · 读书笔记与史学随笔</p>
+    </div>
+</footer>
+
+<script src="js/data.js?v=ee50b089" charset="UTF-8"></script>
+<script src="js/search.js?v=6c1b0688" charset="UTF-8"></script>
+</body>
+</html>
