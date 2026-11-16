@@ -35,7 +35,7 @@ header {
 }
 nav { display: flex; gap: 8px; flex-wrap: wrap; }
 nav a {
-    color: #d4c5a9; padding: 6px 16px; border-radius: 4px;
+    color: #d4c5a9; padding: 6px 13px; border-radius: 4px;
     font-size: 14px; transition: background 0.2s, color 0.2s;
 }
 nav a:hover, nav a.active { background: #8b4513; color: #f5f0e8; }
@@ -53,6 +53,13 @@ nav a:hover, nav a.active { background: #8b4513; color: #f5f0e8; }
 }
 .header-search:hover, .header-search:focus-visible, .header-search.active {
     background: #8b4513; color: #f5f0e8; border-color: #8b4513;
+}
+
+/* 中等宽度：收紧凑一些，保证品牌名 + 导航 + 搜索按钮在同一行 */
+@media (min-width: 701px) and (max-width: 980px) {
+    nav { gap: 6px; }
+    nav a { padding: 6px 10px; }
+    .site-title small { display: none; }
 }
 
 /* ===== Hero ===== */
