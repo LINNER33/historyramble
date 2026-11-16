@@ -58,7 +58,6 @@ const NAV = [
   ['biographies.html', '人物'],
   ['resources.html', '资源'],
   ['downloads.html', '下载'],
-  ['search.html', '搜索'],
   ['about.html', '关于'],
 ];
 
@@ -90,6 +89,9 @@ const headerHtml = (prefix, active) => `<header>
         <nav>
 ${navHtml(prefix, active)}
         </nav>
+        <a class="header-search${active === 'search.html' ? ' active' : ''}" href="${prefix}search.html" aria-label="站内搜索" title="站内搜索">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="15.5" y1="15.5" x2="21" y2="21"></line></svg>
+        </a>
     </div>
 </header>`;
 

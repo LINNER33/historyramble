@@ -40,6 +40,21 @@ nav a {
 }
 nav a:hover, nav a.active { background: #8b4513; color: #f5f0e8; }
 
+/* 页头右上角搜索按钮 */
+.header-search {
+    display: inline-flex; align-items: center; justify-content: center;
+    flex: 0 0 auto; width: 36px; height: 36px; border-radius: 50%;
+    color: #d4c5a9; border: 1px solid rgba(212, 197, 169, .32);
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.header-search svg {
+    width: 17px; height: 17px;
+    fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round;
+}
+.header-search:hover, .header-search:focus-visible, .header-search.active {
+    background: #8b4513; color: #f5f0e8; border-color: #8b4513;
+}
+
 /* ===== Hero ===== */
 .hero {
     background: linear-gradient(135deg, #2c2416 0%, #4a3728 100%);
@@ -129,7 +144,8 @@ footer {
 .home-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
 @media (max-width: 700px) {
     .home-grid { grid-template-columns: 1fr; }
-    .header-inner { flex-direction: column; text-align: center; }
+    .header-inner { flex-direction: column; text-align: center; position: relative; }
+    .header-search { position: absolute; top: 0; right: 8px; margin: 0; }
     .hero h2 { font-size: 24px; }
     .hero h1 { font-size: 24px; }
     nav { justify-content: center; gap: 4px; }
