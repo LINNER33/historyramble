@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>繁简转换工具 — 循史漫记</title>
+<link rel="stylesheet" href="css/style.css?v=d47e8a26">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="description" content="完全离线运行的繁简转换工具：词组级转换、实时字数统计，支持简体转繁体与繁体转简体，可打开与保存 TXT 文件。">
+<link rel="canonical" href="https://historyramble.org/tools.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="循史漫记">
+<meta property="og:title" content="繁简转换工具 — 循史漫记">
+<meta property="og:description" content="完全离线运行的繁简转换工具：词组级转换、实时字数统计，支持简体转繁体与繁体转简体。">
+<meta property="og:url" content="https://historyramble.org/tools.html">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#2c2416">
+</head>
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="site-title">循史漫记 <small>历史学读书与思考</small></div>
+        <nav>
+            <a href="index.html">首页</a>
+            <a href="articles.html">文章</a>
+            <a href="books.html">书单</a>
+            <a href="research.html">专题</a>
+            <a href="snippets.html">史料</a>
+            <a href="biographies.html">人物</a>
+            <a href="resources.html">资源</a>
+            <a href="downloads.html">下载</a>
+            <a href="tools.html" class="active" aria-current="page">工具</a>
+            <div class="nav-dropdown">
+                <a href="chess.html" class="dropbtn" aria-haspopup="true" aria-expanded="false">闲暇</a>
+                <div class="dropdown-content">
+                    <a href="chess.html">中国象棋</a>
+                </div>
+            </div>
+            <a href="about.html">关于</a>
+        </nav>
+        <a class="header-search" href="search.html" aria-label="站内搜索" title="站内搜索">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="15.5" y1="15.5" x2="21" y2="21"></line></svg>
+        </a>
+    </div>
+</header>
+
+<main>
+    <div class="wrapper">
+        <h1 class="section-title">繁简转换工具</h1>
+        <h2 class="visually-hidden">繁简转换工具</h2>
+        <p style="margin-bottom:24px;color:#6f6253;">完全离线运行 · 词组级智能转换 · 实时字数统计。所有转换都在浏览器本地完成，文字不会上传到任何服务器。</p>
+
+        <div class="hz-tool">
+            <div class="hz-head">
+                <strong>简体 ⇄ 繁体</strong>
+                <span class="hz-sub">词典内置（OpenCC），无需联网</span>
+            </div>
+
+            <div class="hz-toolbar">
+                <div class="hz-seg" role="group" aria-label="转换方向">
+                    <button id="m-s2t" class="on">简体 → 繁体</button>
+                    <button id="m-t2s">繁体 → 简体</button>
+                </div>
+                <button id="convert" class="hz-primary">转换</button>
+                <button id="swap" title="把右侧结果放回左侧，并切换方向">⇄ 互换</button>
+                <label class="hz-chk"><input type="checkbox" id="auto" checked> 输入时自动转换</label>
+            </div>
+
+            <div class="hz-grid">
+                <section class="hz-card">
+                    <div class="hz-card-head">
+                        <strong id="in-title">原文（简体）</strong>
+                        <div class="hz-acts">
+                            <label class="hz-filebtn">打开 .txt<input type="file" id="file" accept=".txt,text/plain"></label>
+                            <button id="paste">粘贴</button>
+                            <button id="clear">清空</button>
+                        </div>
+                    </div>
+                    <textarea id="input" placeholder="在此输入或粘贴文字……" spellcheck="false"></textarea>
+                    <div class="hz-stats" id="stats-in"></div>
+                </section>
+
+                <section class="hz-card">
+                    <div class="hz-card-head">
+                        <strong id="out-title">结果（繁体）</strong>
+                        <div class="hz-acts">
+                            <button id="copy">复制</button>
+                            <button id="save">保存 .txt</button>
+                        </div>
+                    </div>
+                    <textarea id="output" placeholder="转换结果会显示在这里" spellcheck="false"></textarea>
+                    <div class="hz-stats" id="stats-out"></div>
+                </section>
+            </div>
+
+            <div class="hz-foot">
+                字数说明：「字数」= 汉字 + 英文单词 + 数字串（与常见文字处理软件的算法接近）；「字符」为不含空白的全部字符。
+                转换词典来自开源项目 OpenCC（Apache-2.0），已内置于本站，无需联网。
+            </div>
+
+            <div class="hz-toast" id="toast" role="status" aria-live="polite"></div>
+        </div>
+    </div>
+</main>
+
+<footer>
+    <div class="wrapper">
+        <p>© 2026 循史漫记 · 读书笔记与史学随笔</p>
+    </div>
+</footer>
+
+<script src="js/hanzi-data.js?v=1307950a"></script>
+<script src="js/hanzi-tool.js?v=0a4aaec8"></script>
+
+</body>
+</html>

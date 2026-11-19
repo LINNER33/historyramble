@@ -58,6 +58,7 @@ const NAV = [
   ['biographies.html', '人物'],
   ['resources.html', '资源'],
   ['downloads.html', '下载'],
+  ['tools.html', '工具'],
   ['about.html', '关于'],
 ];
 
@@ -277,6 +278,7 @@ const staticPages = [
   ['biographies.html', '0.7'],
   ['resources.html', '0.6'],
   ['downloads.html', '0.6'],
+  ['tools.html', '0.5'],
   ['chess.html', '0.3'],
   ['about.html', '0.5'],
 ];
@@ -320,6 +322,8 @@ const V = {
   data: hashOf('js/data.js'),
   main: hashOf('js/main.js'),
   search: hashOf('js/search.js'),
+  hanziData: hashOf('js/hanzi-data.js'),
+  hanziTool: hashOf('js/hanzi-tool.js'),
 };
 
 const stamp = (html) =>
@@ -327,7 +331,9 @@ const stamp = (html) =>
     .replace(/((?:\.\.\/)*)css\/style\.css(\?v=[0-9a-z]+)?/g, (_, p) => `${p}css/style.css?v=${V.css}`)
     .replace(/((?:\.\.\/)*)js\/data\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/data.js?v=${V.data}`)
     .replace(/((?:\.\.\/)*)js\/main\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/main.js?v=${V.main}`)
-    .replace(/((?:\.\.\/)*)js\/search\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/search.js?v=${V.search}`);
+    .replace(/((?:\.\.\/)*)js\/search\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/search.js?v=${V.search}`)
+    .replace(/((?:\.\.\/)*)js\/hanzi-data\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/hanzi-data.js?v=${V.hanziData}`)
+    .replace(/((?:\.\.\/)*)js\/hanzi-tool\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/hanzi-tool.js?v=${V.hanziTool}`);
 
 const htmlFiles = fs
   .readdirSync(ROOT)
