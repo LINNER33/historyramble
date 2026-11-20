@@ -1,4 +1,13 @@
 /* ===== Site navigation & routing ===== */
+
+// 板块条数提示：列表页显示总量，首页说明只列最新若干条
+function countLine(total, unit, shown) {
+    if (!total) return '';
+    var txt = '共 ' + total + ' ' + unit;
+    if (shown && shown < total) txt += '，下面列出最新 ' + shown + ' ' + unit;
+    return '<p class="section-count">' + txt + '</p>';
+}
+
 function renderArticles(container, count) {
     let html = '';
     const sortedByDate = [...articles].sort((a,b) => b.date.localeCompare(a.date));
@@ -17,7 +26,7 @@ function renderArticles(container, count) {
         `;
     });
     if (!list.length) html = '<div class="empty-state">还没有文章</div>';
-    container.innerHTML = html;
+    container.innerHTML = countLine(articles.length, '篇', list.length) + html;
 }
 
 function renderBooks(container, count) {
@@ -42,7 +51,7 @@ function renderBooks(container, count) {
         `;
     });
     if (!list.length) html = '<div class="empty-state">还没有推荐书目</div>';
-    container.innerHTML = html;
+    container.innerHTML = countLine(books.length, '本', list.length) + html;
 }
 
 // Homepage: recent books (text only, no cover art)
@@ -63,7 +72,7 @@ function renderHomeBooks(container, count) {
         `;
     });
     if (!list.length) html = '<div class="empty-state">还没有推荐书目</div>';
-    container.innerHTML = html;
+    container.innerHTML = countLine(books.length, '本', list.length) + html;
 }
 
 // Homepage: latest articles
@@ -85,7 +94,7 @@ function renderHomeArticles(container, count) {
         `;
     });
     if (!list.length) html = '<div class="empty-state">还没有文章</div>';
-    container.innerHTML = html;
+    container.innerHTML = countLine(articles.length, '篇', list.length) + html;
 }
 
 /* ===== 史料拾遗渲染 ===== */function renderSnippets(container, count) {
@@ -108,7 +117,7 @@ function renderHomeArticles(container, count) {
         `;
     });
     if (!list.length) html = '<div class="empty-state">还没有史料</div>';
-    container.innerHTML = html;
+    container.innerHTML = countLine(snippets.length, '条', list.length) + html;
 }
 
 /* ===== 人物小传渲染 ===== */
@@ -130,7 +139,7 @@ function renderBiographies(container, count) {
         `;
     });
     if (!list.length) html = '<div class="empty-state">还没有人物小传</div>';
-    container.innerHTML = html;
+    container.innerHTML = countLine(biographies.length, '篇', list.length) + html;
 }
 
 /* ===== 学术资源渲染 ===== */
@@ -156,7 +165,7 @@ function renderResources(container, count) {
         });
         html += `</div></div>`;
     });
-    container.innerHTML = html;
+    container.innerHTML = countLine(resources.length, '组', list.length) + html;
 }
 
 /* ===== 专题研究渲染 ===== */
@@ -177,7 +186,7 @@ function renderResearch(container, count) {
         ].join('\n');
     });
     if (!list.length) html = '<div class="empty-state">还没有专题研究</div>';
-    container.innerHTML = html;
+    container.innerHTML = countLine(research.length, '篇', list.length) + html;
 }
 
 
@@ -210,7 +219,7 @@ function renderDownloads(container, count) {
         ].join('');
     });
     if (!list.length) html = '<div class="empty-state">还没有可下载的资源</div>';
-    container.innerHTML = html;
+    container.innerHTML = countLine(downloads.length, '项', list.length) + html;
 }
 
 /* ===== 史书下载渲染 ===== */
@@ -237,7 +246,7 @@ function renderHistoryBooks(container, count) {
     if (!list.length) {
         html = '<div class="empty-state">史书资源整理中，敬请期待</div>';
     }
-    container.innerHTML = html;
+    container.innerHTML = countLine(historyBooks.length, '本', list.length) + html;
 }
 
 /* ===== 论文下载渲染 ===== */
@@ -264,7 +273,7 @@ function renderPaperDownloads(container, count) {
     if (!list.length) {
         html = '<div class="empty-state">论文资源整理中，敬请期待</div>';
     }
-    container.innerHTML = html;
+    container.innerHTML = countLine(paperDownloads.length, '篇', list.length) + html;
 }
 
 // Highlight current page in nav

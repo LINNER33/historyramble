@@ -335,6 +335,14 @@ button:focus-visible {
 .more-link { margin-top: 12px; }
 .more-link a { font-size: 14px; color: #8b4513; }
 
+/* 各板块条数 */
+.section-count {
+    margin: 0 0 14px;
+    font-size: 13px;
+    color: #6f6253;
+    letter-spacing: 0.02em;
+}
+
 /* 仅供屏幕阅读器 */
 .visually-hidden {
     position: absolute; width: 1px; height: 1px;
