@@ -1,0 +1,1019 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, follow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>中国象棋 · 离线版</title>
+<style>
+  :root{
+    --wood1:#c99e6b; --wood2:#b3854e; --wood3:#c49a66;
+    --line:#5b3a1c; --red:#c0392b; --ink:#2b2115;
+    --panel:#fff8ec; --panel-bd:#e3d3b3; --btn:#8a5a2b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
+    background:linear-gradient(180deg,#f6efe0,#efe3cb);color:var(--ink);
+    display:flex;justify-content:center;padding:10px 10px 24px;
+  }
+  #app{width:100%;max-width:980px}
+  header{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;padding:2px 4px}
+  header h1{font-size:22px;letter-spacing:2px;color:#6b4423}
+  .hint{font-size:12px;color:#9a8a70}
+  .settings{
+    display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;
+    background:var(--panel);border:1px solid var(--panel-bd);border-radius:12px;
+    padding:9px 12px;margin:10px 0;box-shadow:0 1px 4px rgba(90,60,20,.08);
+  }
+  .settings label{font-size:13px;display:flex;align-items:center;gap:5px;color:#6b5b40}
+  select{
+    font-size:13px;padding:4px 6px;border:1px solid #cbb98f;
+    border-radius:6px;background:#fff;color:var(--ink);
+  }
+  button{
+    font-size:13px;padding:6px 14px;border:none;border-radius:8px;cursor:pointer;
+    background:#d9c9a6;color:#5a4322;transition:filter .15s;
+  }
+  button:hover{filter:brightness(1.05)}
+  button.primary{background:var(--btn);color:#fff}
+  .spacer{flex:1}
+  main{display:flex;gap:14px;align-items:flex-start}
+  .board-col{flex:0 0 auto;margin:0 auto}
+  .cap-bar{
+    display:flex;align-items:center;gap:6px;min-height:30px;padding:2px 6px;
+    font-size:13px;color:#7a6a50;flex-wrap:wrap;
+  }
+  .cap-bar .cap-name{font-size:12px;color:#9a8a70;margin-right:2px}
+  .cap-chip{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:22px;height:22px;border-radius:50%;font-size:13px;font-weight:700;
+    background:radial-gradient(circle at 35% 30%,#fdf6e3,#e5d5ae);box-shadow:0 1px 2px rgba(0,0,0,.25);
+  }
+  .cap-chip.r{color:var(--red)} .cap-chip.b{color:#1a1a1a}
+  #board{
+    position:relative;width:min(94vw,520px);aspect-ratio:920/1020;
+    background:linear-gradient(135deg,var(--wood1),var(--wood2) 55%,var(--wood3));
+    border:3px solid #7a5426;border-radius:8px;
+    box-shadow:0 6px 18px rgba(70,45,15,.35), inset 0 0 24px rgba(255,240,200,.25);
+    --u:44px;user-select:none;
+  }
+  #board svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+  .lm{
+    position:absolute;width:calc(var(--u)*0.96);height:calc(var(--u)*0.96);
+    transform:translate(-50%,-50%);border:2px dashed rgba(39,174,96,.95);border-radius:10%;
+    z-index:1;pointer-events:none;
+  }
+  .pc{
+    position:absolute;width:calc(var(--u)*0.88);height:calc(var(--u)*0.88);
+    transform:translate(-50%,-50%);border-radius:50%;
+    background:radial-gradient(circle at 34% 28%,#fdf7e6,#ecdcb6 62%,#d9c496);
+    box-shadow:0 2px 5px rgba(60,35,10,.45), inset 0 -2px 4px rgba(120,90,40,.35);
+    display:flex;align-items:center;justify-content:center;
+    font-family:"KaiTi","STKaiti","SimKai",serif;font-weight:700;
+    font-size:calc(var(--u)*0.52);z-index:2;cursor:default;
+  }
+  .pc.r{color:var(--red)} .pc.b{color:#191919}
+  .pc.own{cursor:pointer}
+  .pc.sel{box-shadow:0 0 0 3px #f1c40f,0 2px 8px rgba(60,35,10,.5);z-index:4}
+  .pc{pointer-events:none}
+  .pt{
+    position:absolute;width:var(--u);height:var(--u);
+    transform:translate(-50%,-50%);border-radius:50%;z-index:3;background:transparent;border:none;
+  }
+  .pt.own{cursor:pointer}
+  .pt.mv{cursor:pointer}
+  .pt.mv::after{
+    content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:26%;height:26%;border-radius:50%;background:rgba(46,140,60,.9);
+    box-shadow:0 0 4px rgba(20,90,30,.6);
+  }
+  .pt.cap{cursor:pointer}
+  .pt.cap::after{
+    content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:82%;height:82%;border-radius:50%;border:3px solid rgba(214,69,65,.95);
+  }
+  .panel{flex:1 1 250px;min-width:240px;display:flex;flex-direction:column;gap:12px}
+  .status-card{
+    background:var(--panel);border:1px solid var(--panel-bd);border-radius:12px;padding:10px 12px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .player{display:flex;align-items:center;gap:8px;font-size:14px}
+  .player .tm{margin-left:auto;font-variant-numeric:tabular-nums;font-size:15px;color:#6b4423;font-weight:600}
+  .dot{width:12px;height:12px;border-radius:50%;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+  .dot.red{background:var(--red)} .dot.black{background:#222}
+  .player.act{font-weight:700}
+  .turn-tip{
+    text-align:center;font-size:14px;color:#6b4423;background:#f4e8cd;border-radius:8px;padding:6px;
+    min-height:30px;display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .turn-tip .chk{color:#d64541;font-weight:700}
+  .history-card{
+    background:var(--panel);border:1px solid var(--panel-bd);border-radius:12px;padding:10px 12px;
+  }
+  .history-title{font-size:13px;color:#8a7a62;margin-bottom:6px}
+  #hist{
+    list-style:none;max-height:min(46vh,420px);overflow-y:auto;font-size:14px;
+    font-variant-numeric:tabular-nums;
+  }
+  #hist li{display:flex;gap:8px;padding:3px 2px;border-bottom:1px dashed #eee0c4}
+  #hist .no{color:#a08c68;min-width:26px}
+  #hist .mv-r{color:#b03a2e} #hist .mv-b{color:#222}
+  #hist em{font-style:normal;color:#d64541;font-weight:700;margin-left:2px}
+  .overlay{
+    position:fixed;inset:0;background:rgba(40,25,8,.55);z-index:50;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .overlay.hidden{display:none}
+  .modal{
+    background:#fffaf0;border-radius:14px;padding:28px 36px;text-align:center;
+    box-shadow:0 10px 40px rgba(0,0,0,.4);min-width:240px;
+  }
+  .modal .big{font-size:24px;font-weight:700;color:#6b4423;margin-bottom:6px}
+  .modal .sub{font-size:14px;color:#8a7a62;margin-bottom:18px}
+  @media (max-width:760px){
+    main{flex-direction:column;align-items:stretch}
+    .panel{flex-direction:row;flex-wrap:wrap}
+    .status-card{flex:1 1 100%}
+    .history-card{flex:1 1 100%}
+    #hist{max-height:170px}
+    header h1{font-size:19px}
+    button{padding:8px 16px}
+    select{font-size:14px;padding:6px}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>中国象棋</h1>
+    <p class="hint">双击本文件即可离线游玩 · 无需联网、无需安装（推荐 Chrome / Edge）</p>
+  </header>
+
+  <section class="settings">
+    <label>模式
+      <select id="modeSel">
+        <option value="ai" selected>人机对战</option>
+        <option value="pvp">本地双人</option>
+      </select>
+    </label>
+    <label id="diffWrap">难度
+      <select id="diffSel">
+        <option value="1">简单</option>
+        <option value="2" selected>中等</option>
+        <option value="3">困难</option>
+      </select>
+    </label>
+    <label id="sideWrap">我的执子
+      <select id="sideSel">
+        <option value="r" selected>执红 · 先行</option>
+        <option value="b">执黑 · 后行</option>
+      </select>
+    </label>
+    <label>音效 <input type="checkbox" id="soundChk" checked></label>
+    <div class="spacer"></div>
+    <button id="undoBtn">悔棋</button>
+    <button id="resignBtn">认输</button>
+    <button id="restartBtn" class="primary">重新开局</button>
+  </section>
+
+  <main>
+    <div class="board-col">
+      <div class="cap-bar"><span class="cap-name">红方被吃</span><span id="capR"></span></div>
+      <div id="board" aria-label="象棋棋盘"></div>
+      <div class="cap-bar"><span class="cap-name">黑方被吃</span><span id="capB"></span></div>
+    </div>
+    <aside class="panel">
+      <div class="status-card">
+        <div class="player" id="pB"><span class="dot black"></span><span>黑方</span><span class="tm" id="tmB">00:00</span></div>
+        <div class="turn-tip" id="turnTip">红方行棋</div>
+        <div class="player" id="pR"><span class="dot red"></span><span>红方</span><span class="tm" id="tmR">00:00</span></div>
+      </div>
+      <div class="history-card">
+        <div class="history-title">着法记录 · 中文纵线记谱</div>
+        <ol id="hist"></ol>
+      </div>
+    </aside>
+  </main>
+</div>
+
+<div id="overlay" class="overlay hidden">
+  <div class="modal">
+    <div class="big" id="ovTitle">对局结束</div>
+    <div class="sub" id="ovSub"></div>
+    <button id="ovBtn" class="primary">再来一局</button>
+  </div>
+</div>
+
+<script>
+/*!
+ * 中国象棋规则引擎（UMD：浏览器 script 标签引入全局 XQ，Node require 亦可）
+ * 覆盖：全兵种走法（蹩马腿/塞象眼/象不过河/士不出宫/兵过河横走）、
+ *       将帅照面禁着、将军/将死/困毙判定、悔棋历史、中文纵线记谱、
+ *       极大极小 + α-β 剪枝 AI（迭代加深 + 时限保护，三档难度）。
+ */
+(function (root, factory) {
+  if (typeof module !== 'undefined' && module.exports) module.exports = factory();
+  else root.XQ = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+
+  var ROWS = 10, COLS = 9, MATE = 100000;
+  var NAMES = {
+    rK: '帅', rA: '仕', rB: '相', rN: '马', rR: '车', rC: '炮', rP: '兵',
+    bK: '将', bA: '士', bB: '象', bN: '马', bR: '车', bC: '炮', bP: '卒'
+  };
+  var CN = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  var VAL = { K: 10000, R: 900, C: 450, N: 400, B: 200, A: 200, P: 100 };
+  var DIFFICULTY = { 1: 2, 2: 3, 3: 4 }; // 难度 → 搜索深度上限
+
+  function idx(r, c) { return r * 9 + c; }
+  function inBoard(r, c) { return r >= 0 && r <= 9 && c >= 0 && c <= 8; }
+  function inPalace(r, c, color) {
+    if (c < 3 || c > 5) return false;
+    return color === 'r' ? r >= 7 : r <= 2;
+  }
+  function crossed(r, color) { return color === 'r' ? r <= 4 : r >= 5; }
+  function opp(color) { return color === 'r' ? 'b' : 'r'; }
+
+  function initialBoard() {
+    var b = new Array(90).fill(null);
+    var back = ['R', 'N', 'B', 'A', 'K', 'A', 'B', 'N', 'R'];
+    for (var c = 0; c < 9; c++) {
+      b[idx(0, c)] = 'b' + back[c];
+      b[idx(9, c)] = 'r' + back[c];
+    }
+    b[idx(2, 1)] = 'bC'; b[idx(2, 7)] = 'bC';
+    b[idx(7, 1)] = 'rC'; b[idx(7, 7)] = 'rC';
+    for (var c2 = 0; c2 < 9; c2 += 2) {
+      b[idx(3, c2)] = 'bP';
+      b[idx(6, c2)] = 'rP';
+    }
+    return b;
+  }
+
+  /* ---------------- 走法生成 ---------------- */
+
+  // 伪合法走法（不检查走后是否被将军 / 照面）
+  function pseudoMoves(board, r, c) {
+    var p = board[idx(r, c)];
+    if (!p) return [];
+    var color = p[0], type = p[1], out = [];
+    function tryStep(rr, cc) {
+      if (!inBoard(rr, cc)) return;
+      var t = board[idx(rr, cc)];
+      if (!t || t[0] !== color) out.push([rr, cc]);
+    }
+    function slide(dr, dc) {
+      var rr = r + dr, cc = c + dc;
+      while (inBoard(rr, cc)) {
+        var t = board[idx(rr, cc)];
+        if (!t) { out.push([rr, cc]); }
+        else { if (t[0] !== color) out.push([rr, cc]); return; }
+        rr += dr; cc += dc;
+      }
+    }
+    switch (type) {
+      case 'K': {
+        var dirs = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+        for (var i = 0; i < 4; i++) {
+          var rr = r + dirs[i][0], cc = c + dirs[i][1];
+          if (inPalace(rr, cc, color)) tryStep(rr, cc);
+        }
+        // 飞将（照面吃将）——配合 isKingAttacked 实现「白脸将」禁着
+        var dr = color === 'r' ? -1 : 1;
+        var fr = r + dr;
+        while (fr >= 0 && fr <= 9) {
+          var t = board[idx(fr, c)];
+          if (t) { if (t[0] !== color && t[1] === 'K') out.push([fr, c]); break; }
+          fr += dr;
+        }
+        break;
+      }
+      case 'A':
+        var ad = [[1, 1], [1, -1], [-1, 1], [-1, -1]];
+        for (var i2 = 0; i2 < 4; i2++) {
+          var ar = r + ad[i2][0], ac = c + ad[i2][1];
+          if (inPalace(ar, ac, color)) tryStep(ar, ac);
+        }
+        break;
+      case 'B':
+        var bd = [[2, 2], [2, -2], [-2, 2], [-2, -2]];
+        for (var i3 = 0; i3 < 4; i3++) {
+          var br = r + bd[i3][0], bc = c + bd[i3][1];
+          if (!inBoard(br, bc)) continue;
+          if (color === 'r' && br < 5) continue; // 相不过河
+          if (color === 'b' && br > 4) continue; // 象不过河
+          if (!board[idx(r + bd[i3][0] / 2, c + bd[i3][1] / 2)]) tryStep(br, bc); // 塞象眼
+        }
+        break;
+      case 'N':
+        var nm = [[-2, -1, -1, 0], [-2, 1, -1, 0], [2, -1, 1, 0], [2, 1, 1, 0],
+                  [-1, -2, 0, -1], [1, -2, 0, -1], [-1, 2, 0, 1], [1, 2, 0, 1]];
+        for (var i4 = 0; i4 < 8; i4++) {
+          var lr = r + nm[i4][2], lc = c + nm[i4][3];
+          if (!inBoard(lr, lc)) continue;
+          if (board[idx(lr, lc)]) continue; // 蹩马腿
+          tryStep(r + nm[i4][0], c + nm[i4][1]);
+        }
+        break;
+      case 'R':
+        slide(1, 0); slide(-1, 0); slide(0, 1); slide(0, -1);
+        break;
+      case 'C':
+        var cd = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+        for (var i5 = 0; i5 < 4; i5++) {
+          var cr = r + cd[i5][0], cc2 = c + cd[i5][1], screened = false;
+          while (inBoard(cr, cc2)) {
+            var t2 = board[idx(cr, cc2)];
+            if (!screened) {
+              if (!t2) out.push([cr, cc2]);
+              else screened = true; // 炮架
+            } else if (t2) {
+              if (t2[0] !== color) out.push([cr, cc2]); // 隔子吃
+              break;
+            }
+            cr += cd[i5][0]; cc2 += cd[i5][1];
+          }
+        }
+        break;
+      case 'P': {
+        var f = color === 'r' ? -1 : 1;
+        tryStep(r + f, c);
+        if (crossed(r, color)) { tryStep(r, c - 1); tryStep(r, c + 1); } // 过河兵可横走
+        break;
+      }
+    }
+    return out;
+  }
+
+  function findKing(board, color) {
+    var k = color + 'K';
+    for (var i = 0; i < 90; i++) if (board[i] === k) return i;
+    return -1;
+  }
+
+  // 某方将/帅是否被攻击（含将帅照面：开线上的对方将视为攻击）
+  function isKingAttacked(board, color) {
+    var ki = findKing(board, color);
+    if (ki < 0) return false;
+    var r = (ki / 9) | 0, c = ki % 9, e = opp(color);
+    // 直线：车 / 将帅照面（第一个子）；炮（隔一子后的第二个子）
+    var rays = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+    for (var d = 0; d < 4; d++) {
+      var rr = r + rays[d][0], cc = c + rays[d][1], screen = false;
+      while (inBoard(rr, cc)) {
+        var t = board[idx(rr, cc)];
+        if (t) {
+          if (!screen) {
+            if (t[0] === e && (t[1] === 'R' || t[1] === 'K')) return true;
+            screen = true;
+          } else {
+            if (t[0] === e && t[1] === 'C') return true;
+            break;
+          }
+        }
+        rr += rays[d][0]; cc += rays[d][1];
+      }
+    }
+    // 马（注意马腿在马的一侧）
+    var kn = [[-2, -1, -1, -1], [-2, 1, -1, 1], [2, -1, 1, -1], [2, 1, 1, 1],
+              [-1, -2, -1, -1], [-1, 2, -1, 1], [1, -2, 1, -1], [1, 2, 1, 1]];
+    for (var n = 0; n < 8; n++) {
+      var nr = r + kn[n][0], nc = c + kn[n][1];
+      if (!inBoard(nr, nc)) continue;
+      if (board[idx(nr, nc)] === e + 'N' && !board[idx(r + kn[n][2], c + kn[n][3])]) return true;
+    }
+    // 兵/卒
+    if (e === 'b') {
+      if (r - 1 >= 0 && board[idx(r - 1, c)] === 'bP') return true;
+      if (c - 1 >= 0 && board[idx(r, c - 1)] === 'bP') return true;
+      if (c + 1 <= 8 && board[idx(r, c + 1)] === 'bP') return true;
+    } else {
+      if (r + 1 <= 9 && board[idx(r + 1, c)] === 'rP') return true;
+      if (c - 1 >= 0 && board[idx(r, c - 1)] === 'rP') return true;
+      if (c + 1 <= 8 && board[idx(r, c + 1)] === 'rP') return true;
+    }
+    return false;
+  }
+
+  // 合法走法（走后被将军或形成将帅照面的走法剔除）
+  function legalMovesFor(board, color) {
+    var moves = [];
+    for (var i = 0; i < 90; i++) {
+      var p = board[i];
+      if (!p || p[0] !== color) continue;
+      var r = (i / 9) | 0, c = i % 9;
+      var ps = pseudoMoves(board, r, c);
+      for (var j = 0; j < ps.length; j++) {
+        var tr = ps[j][0], tc = ps[j][1], ti = idx(tr, tc);
+        var cap = board[ti], moved = board[i];
+        board[ti] = moved; board[i] = null;
+        var bad = isKingAttacked(board, color);
+        board[i] = moved; board[ti] = cap;
+        if (!bad) moves.push({ fr: r, fc: c, tr: tr, tc: tc });
+      }
+    }
+    return moves;
+  }
+
+  function movesOfPiece(board, color, r, c) {
+    var out = [];
+    var ps = pseudoMoves(board, r, c);
+    for (var j = 0; j < ps.length; j++) {
+      var tr = ps[j][0], tc = ps[j][1], ti = idx(tr, tc);
+      var cap = board[ti], moved = board[idx(r, c)];
+      board[ti] = moved; board[idx(r, c)] = null;
+      var bad = isKingAttacked(board, color);
+      board[idx(r, c)] = moved; board[ti] = cap;
+      if (!bad) out.push(ps[j]);
+    }
+    return out;
+  }
+
+  /* ---------------- 中文纵线记谱 ---------------- */
+
+  function notation(board, fr, fc, tr, tc) {
+    var p = board[idx(fr, fc)], color = p[0], type = p[1];
+    var name = NAMES[p];
+    function fileOf(c) { return color === 'r' ? CN[8 - c] : String(c + 1); }
+    // 同纵线同种同色棋子 → 前/中/后
+    var rows = [fr];
+    for (var r2 = 0; r2 < 10; r2++) {
+      if (r2 !== fr && board[idx(r2, fc)] === p) rows.push(r2);
+    }
+    var prefix = '';
+    if (rows.length > 1 && type !== 'K') {
+      rows.sort(function (a, b) { return color === 'r' ? a - b : b - a; }); // 靠近对方为「前」
+      var i = rows.indexOf(fr);
+      prefix = rows.length === 2 ? (i === 0 ? '前' : '后')
+             : (i === 0 ? '前' : (i === rows.length - 1 ? '后' : '中'));
+    }
+    var action, dest;
+    if (tr === fr) {
+      action = '平'; dest = fileOf(tc);
+    } else {
+      var forward = color === 'r' ? tr < fr : tr > fr;
+      action = forward ? '进' : '退';
+      if (type === 'N' || type === 'B' || type === 'A') dest = fileOf(tc); // 斜行子记目标纵线
+      else dest = color === 'r' ? CN[Math.abs(tr - fr) - 1] : String(Math.abs(tr - fr)); // 直行子记步数
+    }
+    return prefix ? prefix + name + action + dest
+                  : name + fileOf(fc) + action + dest;
+  }
+
+  /* ---------------- 局面对象 ---------------- */
+
+  function createGame(opts) {
+    opts = opts || {};
+    var g = {
+      board: opts.board ? opts.board.slice() : initialBoard(),
+      turn: opts.turn || 'r',
+      history: [],   // {fr,fc,tr,tc,piece,captured,notation,checkAfter}
+      result: null,  // {type:'checkmate'|'stalemate'|'resign', winner:'r'|'b'}
+      lastMove: null
+    };
+
+    function notations() {
+      return g.history.map(function (h) { return h.notation; });
+    }
+
+    function moveList() { return legalMovesFor(g.board, g.turn); }
+
+    function applyMove(fr, fc, tr, tc) {
+      var m = notation(g.board, fr, fc, tr, tc);
+      var piece = g.board[idx(fr, fc)];
+      var captured = g.board[idx(tr, tc)];
+      g.board[idx(tr, tc)] = piece;
+      g.board[idx(fr, fc)] = null;
+      g.history.push({ fr: fr, fc: fc, tr: tr, tc: tc, piece: piece, captured: captured, notation: m });
+      g.lastMove = { fr: fr, fc: fc, tr: tr, tc: tc };
+      var moverColor = g.turn;
+      g.turn = opp(g.turn);
+      var checkAfter = isKingAttacked(g.board, g.turn);
+      g.history[g.history.length - 1].checkAfter = checkAfter;
+      var oppHasMove = legalMovesFor(g.board, g.turn).length > 0;
+      if (!oppHasMove) {
+        g.result = checkAfter
+          ? { type: 'checkmate', winner: moverColor }   // 将死
+          : { type: 'stalemate', winner: moverColor };  // 困毙判负
+      }
+      return {
+        ok: true, notation: m, captured: captured,
+        check: checkAfter, checkmate: !oppHasMove && checkAfter,
+        stalemate: !oppHasMove && !checkAfter, result: g.result
+      };
+    }
+
+    return {
+      getBoard: function () { return g.board.slice(); },
+      getTurn: function () { return g.turn; },
+      getResult: function () { return g.result; },
+      getHistory: notations,
+      getHistoryDetail: function () { return g.history.slice(); },
+      getLastMove: function () { return g.lastMove; },
+      inCheck: function () { return isKingAttacked(g.board, g.turn); },
+      // 当前行棋方全部合法走法
+      legalMoves: moveList,
+      // 选中棋子的可走位置
+      movesFor: function (fr, fc) {
+        var p = g.board[idx(fr, fc)];
+        if (!p || p[0] !== g.turn) return [];
+        return movesOfPiece(g.board, g.turn, fr, fc);
+      },
+      // 走棋（校验合法性）
+      move: function (fr, fc, tr, tc) {
+        var p = g.board[idx(fr, fc)];
+        if (!p || p[0] !== g.turn) return { ok: false, reason: 'not-your-piece' };
+        var ok = moveList().some(function (m) {
+          return m.fr === fr && m.fc === fc && m.tr === tr && m.tc === tc;
+        });
+        if (!ok) return { ok: false, reason: 'illegal-move' };
+        return applyMove(fr, fc, tr, tc);
+      },
+      // 悔棋：弹出一步并还原
+      undo: function () {
+        if (!g.history.length) return null;
+        var h = g.history.pop();
+        g.board[idx(h.fr, h.fc)] = h.piece;
+        g.board[idx(h.tr, h.tc)] = h.captured;
+        g.turn = opp(g.turn);
+        g.result = null;
+        g.lastMove = g.history.length
+          ? { fr: g.history[g.history.length - 1].fr, fc: g.history[g.history.length - 1].fc,
+              tr: g.history[g.history.length - 1].tr, tc: g.history[g.history.length - 1].tc }
+          : null;
+        return h;
+      },
+      resign: function (color) {
+        g.result = { type: 'resign', winner: opp(color) };
+        return g.result;
+      },
+      // 任意时刻判定当前行棋方是否无着可走
+      checkGameOver: function () {
+        if (g.result) return g.result;
+        if (moveList().length === 0) {
+          var checked = isKingAttacked(g.board, g.turn);
+          g.result = checked
+            ? { type: 'checkmate', winner: opp(g.turn) }
+            : { type: 'stalemate', winner: opp(g.turn) };
+        }
+        return g.result;
+      }
+    };
+  }
+
+  /* ---------------- AI：极大极小 + α-β 剪枝（迭代加深 + 时限保护） ---------------- */
+
+  function pst(p, r, c) {
+    var color = p[0], type = p[1];
+    if (color === 'b') r = 9 - r; // 镜像到红方视角
+    var cf = 4 - Math.abs(c - 4);
+    switch (type) {
+      case 'P':
+        if (r <= 4) return r === 0 ? 2 : (4 - r) * 8 + cf * 3;
+        return 0;
+      case 'N': return cf * 4 + (r <= 6 ? 4 : 0);
+      case 'C': return cf * 3;
+      case 'R': return cf * 2 + (r <= 7 ? 4 : 0);
+      default: return 0;
+    }
+  }
+
+  function evaluate(board) { // 红方视角
+    var s = 0;
+    for (var i = 0; i < 90; i++) {
+      var p = board[i];
+      if (!p) continue;
+      var v = VAL[p[1]] + pst(p, (i / 9) | 0, i % 9);
+      s += p[0] === 'r' ? v : -v;
+    }
+    return s;
+  }
+
+  function orderMoves(board, moves) {
+    for (var i = 0; i < moves.length; i++) {
+      var cap = board[idx(moves[i].tr, moves[i].tc)];
+      var att = board[idx(moves[i].fr, moves[i].fc)];
+      moves[i].score = cap ? VAL[cap[1]] * 10 - VAL[att[1]] : 0; // MVV-LVA
+    }
+    moves.sort(function (a, b) { return b.score - a.score; });
+    return moves;
+  }
+
+  // 返回 {move, score, depth, nodes, ms}
+  function aiMove(game, difficulty, timeLimitMs) {
+    var board = game.getBoard();
+    var side = game.getTurn();
+    var maxDepth = DIFFICULTY[difficulty] || 3;
+    var deadline = Date.now() + (timeLimitMs || 2800);
+    var nodes = 0, start = Date.now();
+    var TIMEOUT = {};
+
+    function negamax(depth, alpha, beta, color, ply) {
+      nodes++;
+      if ((nodes & 1023) === 0 && Date.now() > deadline) throw TIMEOUT;
+      if (depth === 0) return color === 'r' ? evaluate(board) : -evaluate(board);
+      var moves = legalMovesFor(board, color);
+      if (!moves.length) return -MATE + ply; // 无着 = 输（将死或困毙）
+      orderMoves(board, moves);
+      var best = -Infinity;
+      for (var i = 0; i < moves.length; i++) {
+        var m = moves[i];
+        var fi = idx(m.fr, m.fc), ti = idx(m.tr, m.tc);
+        var cap = board[ti], moved = board[fi];
+        board[ti] = moved; board[fi] = null;
+        var v = -negamax(depth - 1, -beta, -alpha, opp(color), ply + 1);
+        board[fi] = moved; board[ti] = cap;
+        if (v > best) best = v;
+        if (best > alpha) alpha = best;
+        if (alpha >= beta) break;
+      }
+      return best;
+    }
+
+    var rootMoves = orderMoves(board, legalMovesFor(board, side));
+    if (!rootMoves.length) return { move: null, score: 0, depth: 0, nodes: nodes, ms: 0 };
+    var bestMove = rootMoves[0], bestScore = 0, doneDepth = 0;
+
+    for (var d = 1; d <= maxDepth; d++) {
+      var alpha = -Infinity, bm = null, bs = -Infinity;
+      try {
+        for (var i = 0; i < rootMoves.length; i++) {
+          var m = rootMoves[i];
+          var fi = idx(m.fr, m.fc), ti = idx(m.tr, m.tc);
+          var cap = board[ti], moved = board[fi];
+          board[ti] = moved; board[fi] = null;
+          var v = -negamax(d - 1, -Infinity, -alpha, opp(side), 1);
+          board[fi] = moved; board[ti] = cap;
+          if (v > bs) { bs = v; bm = m; }
+          if (v > alpha) alpha = v;
+        }
+      } catch (e) {
+        if (e !== TIMEOUT) throw e;
+        break; // 超时：保留上一层完整结果
+      }
+      bestMove = bm; bestScore = bs; doneDepth = d;
+      if (bs > MATE - 1000) break; // 已见必杀
+      rootMoves = orderMoves(board, rootMoves); // 用上一层信息重排（bm 已在最前由 v>bs 保证）
+    }
+    var res = { move: bestMove, score: bestScore, depth: doneDepth, nodes: nodes, ms: Date.now() - start };
+    return res;
+  }
+
+  return {
+    initialBoard: initialBoard,
+    createGame: createGame,
+    aiMove: aiMove,
+    NAMES: NAMES,
+    DIFFICULTY: DIFFICULTY,
+    _internal: {
+      pseudoMoves: pseudoMoves,
+      legalMovesFor: legalMovesFor,
+      isKingAttacked: isKingAttacked,
+      notation: notation,
+      evaluate: evaluate,
+      idx: idx
+    }
+  };
+});
+
+</script>
+<script>
+(function () {
+  'use strict';
+  /* ============ 常量与元素 ============ */
+  var DISP = { rK:'帥', rA:'仕', rB:'相', rN:'傌', rR:'俥', rC:'炮', rP:'兵',
+               bK:'將', bA:'士', bB:'象', bN:'馬', bR:'車', bC:'砲', bP:'卒' };
+  var boardEl = document.getElementById('board');
+  var els = {
+    hist: document.getElementById('hist'),
+    tmR: document.getElementById('tmR'), tmB: document.getElementById('tmB'),
+    capR: document.getElementById('capR'), capB: document.getElementById('capB'),
+    turnTip: document.getElementById('turnTip'),
+    overlay: document.getElementById('overlay'),
+    ovTitle: document.getElementById('ovTitle'), ovSub: document.getElementById('ovSub'),
+    modeSel: document.getElementById('modeSel'), diffSel: document.getElementById('diffSel'),
+    sideSel: document.getElementById('sideSel'), soundChk: document.getElementById('soundChk'),
+    diffWrap: document.getElementById('diffWrap'), sideWrap: document.getElementById('sideWrap'),
+    pR: document.getElementById('pR'), pB: document.getElementById('pB'),
+    undoBtn: document.getElementById('undoBtn'), resignBtn: document.getElementById('resignBtn'),
+    restartBtn: document.getElementById('restartBtn'), ovBtn: document.getElementById('ovBtn')
+  };
+
+  /* ============ 对局状态 ============ */
+  var mode = 'ai', diff = 2, humanColor = 'r', aiColor = 'b';
+  var game = null, sel = null, selMoves = [], over = false, aiBusy = false;
+  var times = { r: 0, b: 0 }, lastTick = null, timerInt = null;
+  var gameSeq = 0, aiTimer = null; // 对局代际：newGame 自增，用于作废挂起的 AI 定时器（P1-2 修复）
+
+  /* ============ 棋盘 SVG（纯内联，无外部资源） ============ */
+  function boardSVG() {
+    var U = 100, M = 60, W = 8 * U + 2 * M, H = 9 * U + 2 * M;
+    var s = [];
+    s.push('<svg viewBox="0 0 ' + W + ' ' + H + '" xmlns="http://www.w3.org/2000/svg">');
+    s.push('<rect x="' + (M-12) + '" y="' + (M-12) + '" width="' + (W-2*M+24) + '" height="' + (H-2*M+24) + '" fill="none" stroke="' + '#5b3a1c' + '" stroke-width="3" rx="6"/>');
+    // 横线（10 条）
+    for (var r = 0; r < 10; r++) {
+      s.push('<line x1="' + M + '" y1="' + (M + r*U) + '" x2="' + (M + 8*U) + '" y2="' + (M + r*U) + '" stroke="#5b3a1c" stroke-width="2.5"/>');
+    }
+    // 竖线（9 条，中间 7 条在楚河汉界处断开）
+    for (var c = 0; c < 9; c++) {
+      var x = M + c * U;
+      if (c === 0 || c === 8) {
+        s.push('<line x1="' + x + '" y1="' + M + '" x2="' + x + '" y2="' + (M + 9*U) + '" stroke="#5b3a1c" stroke-width="2.5"/>');
+      } else {
+        s.push('<line x1="' + x + '" y1="' + M + '" x2="' + x + '" y2="' + (M + 4*U) + '" stroke="#5b3a1c" stroke-width="2.5"/>');
+        s.push('<line x1="' + x + '" y1="' + (M + 5*U) + '" x2="' + x + '" y2="' + (M + 9*U) + '" stroke="#5b3a1c" stroke-width="2.5"/>');
+      }
+    }
+    // 九宫斜线
+    var palaces = [[3,0,5,2],[5,0,3,2],[3,7,5,9],[5,7,3,9]];
+    palaces.forEach(function (p) {
+      s.push('<line x1="' + (M+p[0]*U) + '" y1="' + (M+p[1]*U) + '" x2="' + (M+p[2]*U) + '" y2="' + (M+p[3]*U) + '" stroke="#5b3a1c" stroke-width="2"/>');
+    });
+    // 兵位 / 炮位小折角
+    function corner(x, y, dx, dy) {
+      s.push('<path d="M ' + (x + dx*10) + ' ' + y + ' L ' + (x + dx*10) + ' ' + (y + dy*10) + ' L ' + x + ' ' + (y + dy*10) + '" fill="none" stroke="#5b3a1c" stroke-width="2"/>');
+    }
+    var spots = [];
+    [0,2,4,6,8].forEach(function (c) { spots.push([c,3],[c,6]); });
+    [1,7].forEach(function (c) { spots.push([c,2],[c,7]); });
+    spots.forEach(function (sp) {
+      var x = M + sp[0]*U, y = M + sp[1]*U;
+      [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(function (d) {
+        if (sp[0] === 0 && d[0] === -1) return;
+        if (sp[0] === 8 && d[0] === 1) return;
+        corner(x, y, d[0], d[1]);
+      });
+    });
+    // 楚河汉界
+    var tfill = '#5b3a1c';
+    s.push('<text x="' + (M + 2*U + 10) + '" y="' + (M + 4.72*U) + '" font-size="56" fill="' + tfill + '" opacity="0.5" text-anchor="middle" font-family="KaiTi,STKaiti,serif" letter-spacing="26">楚河</text>');
+    s.push('<text x="' + (M + 6*U - 10) + '" y="' + (M + 4.72*U) + '" font-size="56" fill="' + tfill + '" opacity="0.5" text-anchor="middle" font-family="KaiTi,STKaiti,serif" letter-spacing="26">漢界</text>');
+    s.push('</svg>');
+    return s.join('');
+  }
+
+  function px(r, c) { // 交叉点在棋盘内的百分比坐标
+    return { left: ((60 + c * 100) / 920 * 100) + '%', top: ((60 + r * 100) / 1020 * 100) + '%' };
+  }
+
+  /* ============ 音效（Web Audio 合成，无音频文件） ============ */
+  var actx = null;
+  function ac() {
+    if (!actx) { try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { actx = null; } }
+    return actx;
+  }
+  document.addEventListener('pointerdown', function () { ac(); }, { once: true });
+  function tone(freq, dur, type, gain, delay) {
+    if (!els.soundChk.checked) return;
+    var c = ac(); if (!c) return;
+    if (c.state === 'suspended') { try { c.resume(); } catch (e) {} }
+    var t0 = c.currentTime + (delay || 0);
+    var o = c.createOscillator(), g = c.createGain();
+    o.type = type || 'sine'; o.frequency.value = freq;
+    g.gain.setValueAtTime(gain || 0.12, t0);
+    g.gain.exponentialRampToValueAtTime(0.001, t0 + dur);
+    o.connect(g); g.connect(c.destination);
+    o.start(t0); o.stop(t0 + dur + 0.02);
+  }
+  var sMove = function () { tone(560, 0.07, 'triangle', 0.16); };
+  var sCapture = function () { tone(300, 0.09, 'square', 0.08); tone(170, 0.12, 'triangle', 0.16, 0.02); };
+  var sCheck = function () { tone(880, 0.09, 'sine', 0.14); tone(880, 0.09, 'sine', 0.14, 0.13); };
+  var sEnd = function () { tone(523, 0.16, 'sine', 0.14); tone(659, 0.16, 'sine', 0.14, 0.16); tone(784, 0.28, 'sine', 0.14, 0.32); };
+
+  /* ============ 渲染 ============ */
+  function fmtTime(ms) {
+    var s = Math.floor(ms / 1000);
+    var m = Math.floor(s / 60); s = s % 60;
+    return (m < 10 ? '0' + m : m) + ':' + (s < 10 ? '0' + s : s);
+  }
+  function renderTimes() {
+    els.tmR.textContent = fmtTime(times.r);
+    els.tmB.textContent = fmtTime(times.b);
+  }
+  function startTimer() {
+    lastTick = Date.now();
+    if (timerInt) clearInterval(timerInt);
+    timerInt = setInterval(function () {
+      if (over || !game) return;
+      var now = Date.now();
+      times[game.getTurn()] += now - lastTick;
+      lastTick = now;
+      renderTimes();
+    }, 500);
+  }
+  function renderBoard() {
+    var b = game.getBoard();
+    var html = [boardSVG()];
+    var lm = game.getLastMove();
+    if (lm) {
+      [ [lm.fr, lm.fc], [lm.tr, lm.tc] ].forEach(function (p) {
+        var pos = px(p[0], p[1]);
+        html.push('<div class="lm" style="left:' + pos.left + ';top:' + pos.top + '"></div>');
+      });
+    }
+    for (var i = 0; i < 90; i++) {
+      var p = b[i];
+      if (!p) continue;
+      var r = Math.floor(i / 9), c = i % 9, pos = px(r, c);
+      var own = p[0] === game.getTurn() && humanCanMove();
+      var cls = 'pc ' + p[0] + (own ? ' own' : '') + (sel && sel.r === r && sel.c === c ? ' sel' : '');
+      html.push('<div class="' + cls + '" style="left:' + pos.left + ';top:' + pos.top + '">' + DISP[p] + '</div>');
+    }
+    for (var rr = 0; rr < 10; rr++) {
+      for (var cc = 0; cc < 9; cc++) {
+        var pos2 = px(rr, cc), cls = 'pt';
+        var target = false;
+        for (var j = 0; j < selMoves.length; j++) {
+          if (selMoves[j][0] === rr && selMoves[j][1] === cc) { target = true; break; }
+        }
+        if (target) cls += (b[rr * 9 + cc] ? ' cap' : ' mv');
+        else if (b[rr * 9 + cc] && b[rr * 9 + cc][0] === game.getTurn() && humanCanMove()) cls += ' own';
+        html.push('<button class="' + cls + '" data-r="' + rr + '" data-c="' + cc + '" style="left:' + pos2.left + ';top:' + pos2.top + '" aria-label="' + rr + ',' + cc + '"></button>');
+      }
+    }
+    boardEl.innerHTML = html.join('');
+  }
+  function renderHist() {
+    var h = game.getHistoryDetail();
+    var out = [];
+    for (var i = 0; i < h.length; i += 2) {
+      var no = (i / 2 + 1) + '.';
+      var rm = '<span class="mv-r">' + h[i].notation + (h[i].checkAfter ? '<em>将</em>' : '') + '</span>';
+      var bm = h[i + 1] ? '<span class="mv-b">' + h[i + 1].notation + (h[i + 1].checkAfter ? '<em>将</em>' : '') + '</span>' : '';
+      out.push('<li><span class="no">' + no + '</span>' + rm + bm + '</li>');
+    }
+    els.hist.innerHTML = out.join('');
+    els.hist.scrollTop = els.hist.scrollHeight;
+  }
+  function renderCaps() {
+    var h = game.getHistoryDetail();
+    var rLost = [], bLost = [];
+    h.forEach(function (m) {
+      if (!m.captured) return;
+      var chip = '<span class="cap-chip ' + m.captured[0] + '">' + DISP[m.captured] + '</span>';
+      if (m.captured[0] === 'r') rLost.push(chip); else bLost.push(chip);
+    });
+    els.capR.innerHTML = rLost.join('');
+    els.capB.innerHTML = bLost.join('');
+  }
+  function updateTip() {
+    els.pR.classList.toggle('act', !over && game.getTurn() === 'r');
+    els.pB.classList.toggle('act', !over && game.getTurn() === 'b');
+    if (over) {
+      var res = game.getResult();
+      var name = { checkmate: '绝杀', stalemate: '困毙', resign: '认输' }[res.type];
+      var w = res.winner === 'r' ? '红方' : '黑方';
+      els.turnTip.innerHTML = '对局结束：' + name + ' · <b>' + w + '胜</b>';
+      return;
+    }
+    if (aiBusy) { els.turnTip.innerHTML = 'AI 思考中…'; return; }
+    var side = game.getTurn() === 'r' ? '红方' : '黑方';
+    var who = (mode === 'ai') ? (game.getTurn() === humanColor ? '（你）' : '（AI）') : '';
+    var chk = game.inCheck() ? ' <span class="chk">将军！</span>' : '';
+    els.turnTip.innerHTML = side + who + '行棋' + chk;
+  }
+  function renderAll() {
+    renderBoard(); renderHist(); renderCaps(); updateTip(); renderTimes();
+  }
+
+  /* ============ 对局逻辑 ============ */
+  function humanCanMove() {
+    return mode === 'pvp' || game.getTurn() === humanColor;
+  }
+  function newGame() {
+    gameSeq++; // P1-2 修复：作废所有挂起的 AI 定时器回调
+    if (aiTimer) { clearTimeout(aiTimer); aiTimer = null; }
+    game = XQ.createGame();
+    window.GAME = game; // 供自动化测试与调试
+    sel = null; selMoves = []; over = false; aiBusy = false;
+    times = { r: 0, b: 0 };
+    els.overlay.classList.add('hidden');
+    renderAll();
+    startTimer();
+    maybeAI();
+  }
+  function maybeAI() {
+    if (mode !== 'ai' || over || !game || game.getTurn() !== aiColor || aiBusy) return;
+    aiBusy = true; updateTip();
+    var seq = gameSeq; // P1-2 修复：闭包捕获对局代际，回调时比对，防止向重建后的对局注入着法
+    aiTimer = setTimeout(function () {
+      if (seq !== gameSeq) return; // 对局已重建：newGame 已复位 aiBusy，静默丢弃
+      if (over || !game || game.getTurn() !== aiColor) { aiBusy = false; updateTip(); return; }
+      var res = XQ.aiMove(game, diff, 2500);
+      aiBusy = false;
+      if (res.move) {
+        var r = game.move(res.move.fr, res.move.fc, res.move.tr, res.move.tc);
+        afterMove(r);
+      } else {
+        updateTip();
+      }
+    }, 120);
+  }
+  function afterMove(r) {
+    sel = null; selMoves = [];
+    renderAll();
+    if (r.result) { endGame(r.result); return; }
+    if (r.check) sCheck();
+    else if (r.captured) sCapture();
+    else sMove();
+    maybeAI();
+  }
+  function endGame(res) {
+    over = true;
+    var name = { checkmate: '绝杀', stalemate: '困毙', resign: '认输' }[res.type];
+    var w = res.winner === 'r' ? '红方' : '黑方';
+    els.ovTitle.textContent = w + '获胜';
+    els.ovSub.textContent = '对局结果：' + name + (res.type === 'stalemate' ? '（对方无着可走）' : '');
+    els.overlay.classList.remove('hidden');
+    updateTip();
+    sEnd();
+  }
+  function onPoint(r, c) {
+    if (over || aiBusy || !humanCanMove()) return;
+    // 已选中 → 尝试落子
+    for (var i = 0; i < selMoves.length; i++) {
+      if (selMoves[i][0] === r && selMoves[i][1] === c) {
+        var res = game.move(sel.r, sel.c, r, c);
+        if (res.ok) { afterMove(res); }
+        return;
+      }
+    }
+    var p = game.getBoard()[r * 9 + c];
+    if (p && p[0] === game.getTurn()) {
+      sel = { r: r, c: c };
+      selMoves = game.movesFor(r, c);
+    } else {
+      sel = null; selMoves = [];
+    }
+    renderBoard(); updateTip();
+  }
+  boardEl.addEventListener('click', function (e) {
+    var t = e.target.closest ? e.target.closest('.pt') : null;
+    if (!t) return;
+    onPoint(parseInt(t.getAttribute('data-r'), 10), parseInt(t.getAttribute('data-c'), 10));
+  });
+
+  /* ============ 按钮 ============ */
+  els.undoBtn.addEventListener('click', function () {
+    if (!game || over || !game.getHistory().length || aiBusy) return; // P2-1 修复：终局后禁止悔棋复活
+    if (mode === 'pvp') {
+      game.undo();
+    } else {
+      var n = 0;
+      while (game.getHistory().length > 0 && (n === 0 || game.getTurn() !== humanColor)) {
+        game.undo(); n++;
+      }
+    }
+    sel = null; selMoves = [];
+    renderAll();
+    sMove();
+    maybeAI(); // P1-1 修复：悔棋回退后若轮到 AI（如执黑悔掉 AI 首着），重新触发 AI 落子
+  });
+  els.resignBtn.addEventListener('click', function () {
+    if (!game || over) return;
+    var who = mode === 'pvp' ? game.getTurn() : humanColor;
+    game.resign(who);
+    endGame(game.getResult());
+  });
+  els.restartBtn.addEventListener('click', newGame);
+  els.ovBtn.addEventListener('click', newGame);
+
+  /* ============ 设置 ============ */
+  function applySettingsVisibility() {
+    var isAI = mode === 'ai';
+    els.diffWrap.style.display = isAI ? '' : 'none';
+    els.sideWrap.style.display = isAI ? '' : 'none';
+  }
+  els.modeSel.addEventListener('change', function () {
+    mode = els.modeSel.value;
+    applySettingsVisibility();
+    newGame();
+  });
+  els.sideSel.addEventListener('change', function () {
+    humanColor = els.sideSel.value;
+    aiColor = humanColor === 'r' ? 'b' : 'r';
+    newGame();
+  });
+  els.diffSel.addEventListener('change', function () {
+    diff = parseInt(els.diffSel.value, 10);
+  });
+
+  /* ============ 自适应尺寸 ============ */
+  function fitUnit() {
+    var u = boardEl.clientWidth / 9.2;
+    boardEl.style.setProperty('--u', u + 'px');
+  }
+  window.addEventListener('resize', fitUnit);
+
+  /* ============ 启动 ============ */
+  applySettingsVisibility();
+  fitUnit();
+  newGame();
+})();
+</script>
+</body>
+</html>

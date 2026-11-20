@@ -71,13 +71,23 @@ const navHtml = (prefix, active) => {
   );
   // 「闲暇」下拉插在下载和关于之间
   const idx = NAV.findIndex(([href]) => href === 'about.html');
+  const GAMES = [
+    ['chess.html', '中国象棋'],
+    ['chess-korean.html', '朝鲜象棋'],
+    ['gomoku.html', '五子棋'],
+  ];
+  const isGame = GAMES.some(([href]) => href === active);
+  const gameItems = GAMES.map(
+    ([href, label]) =>
+      `                    <a href="${prefix}${href}"${href === active ? ' class="active" aria-current="page"' : ''}>${label}</a>`
+  ).join('\n');
   items.splice(
     idx,
     0,
     `            <div class="nav-dropdown">
-                <a href="${prefix}chess.html" class="dropbtn" aria-haspopup="true" aria-expanded="false">闲暇</a>
+                <a href="${prefix}chess.html" class="dropbtn${isGame ? ' active' : ''}" aria-haspopup="true" aria-expanded="false">闲暇</a>
                 <div class="dropdown-content">
-                    <a href="${prefix}chess.html">中国象棋</a>
+${gameItems}
                 </div>
             </div>`
   );
@@ -280,6 +290,8 @@ const staticPages = [
   ['downloads.html', '0.6'],
   ['tools.html', '0.5'],
   ['chess.html', '0.3'],
+  ['chess-korean.html', '0.3'],
+  ['gomoku.html', '0.3'],
   ['about.html', '0.5'],
 ];
 

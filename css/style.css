@@ -493,3 +493,9 @@ button:focus-visible {
 .hz-foot { margin-top: 14px; color: var(--muted); font-size: 12px; line-height: 1.7; }
 .hz-tool input[type=file] { display: none; }
 
+
+/* ===== 棋类页面（iframe 嵌入离线棋局） ===== */
+body.game-body { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; }
+body.game-body > header { flex: 0 0 auto; }
+.game-main { flex: 1 1 auto; display: flex; min-height: 0; padding: 0; }
+.game-frame { flex: 1 1 auto; width: 100%; min-height: 0; border: 0; display: block; background: #f5efe3; }
