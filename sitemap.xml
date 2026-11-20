@@ -79,6 +79,66 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/articles/microhistory-italy.html</loc>
+    <lastmod>2026-12-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/articles/medieval-universities.html</loc>
+    <lastmod>2026-12-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/articles/women-letter-writing.html</loc>
+    <lastmod>2026-12-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/articles/soviet-archives.html</loc>
+    <lastmod>2026-12-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/articles/qing-frontier-ethnography.html</loc>
+    <lastmod>2026-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/articles/little-ice-age-crisis.html</loc>
+    <lastmod>2026-11-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/articles/guilds-medieval.html</loc>
+    <lastmod>2026-11-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/articles/byzantium-1204.html</loc>
+    <lastmod>2026-11-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/articles/local-gazetteers.html</loc>
+    <lastmod>2026-11-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/articles/qin-bamboo-slips.html</loc>
+    <lastmod>2026-11-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/articles/huizhou-contracts.html</loc>
     <lastmod>2026-11-21</lastmod>
     <changefreq>monthly</changefreq>
@@ -253,6 +313,66 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/snippets/zuozhuan-three-imperishable.html</loc>
+    <lastmod>2026-12-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/mengzi-trust-books.html</loc>
+    <lastmod>2026-12-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/hanshu-yiwenzhi.html</loc>
+    <lastmod>2026-12-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/tongjian-names.html</loc>
+    <lastmod>2026-12-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/liuzongyuan-fengjian.html</loc>
+    <lastmod>2026-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/huangzongxi-yuanjun.html</loc>
+    <lastmod>2026-11-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/wangfuzhi-junxian.html</loc>
+    <lastmod>2026-11-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/zhangxuecheng-liujing.html</loc>
+    <lastmod>2026-11-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/dutong-dianxu.html</loc>
+    <lastmod>2026-11-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/snippets/zhaoyi-buyi-jiangxiang.html</loc>
+    <lastmod>2026-11-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/snippets/wentongkao-xu.html</loc>
     <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
@@ -367,6 +487,11 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/biographies/zhao-yi.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/biographies/zhang-zhu.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
@@ -387,12 +512,37 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/biographies/wang-fuzhi.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/biographies/tan-qixiang.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/biographies/su-dingfang.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/biographies/sima-qian.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/biographies/marc-bloch.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/biographies/lu-simian.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/biographies/liu-zhiji.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -412,12 +562,22 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/biographies/karl-polanyi.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/biographies/john-brill.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://historyramble.org/biographies/huang-renyu.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/biographies/herbert-butterfield.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -457,7 +617,77 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/biographies/carlo-ginzburg.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/biographies/bojang.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/biographies/ban-gu.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/historiography-goguryeo-modern.html</loc>
+    <lastmod>2026-12-05</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/tang-east-asia-order.html</loc>
+    <lastmod>2026-12-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/goguryeo-migrations.html</loc>
+    <lastmod>2026-12-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/khitan-goguryeo.html</loc>
+    <lastmod>2026-12-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/tang-goguryeo-diplomacy.html</loc>
+    <lastmod>2026-12-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/goguryeo-buddhism.html</loc>
+    <lastmod>2026-11-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/silla-unification-cost.html</loc>
+    <lastmod>2026-11-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/baekje-restoration.html</loc>
+    <lastmod>2026-11-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/tang-liaodong-fortifications.html</loc>
+    <lastmod>2026-11-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/research/goguryeo-armor-weapons.html</loc>
+    <lastmod>2026-11-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
