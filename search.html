@@ -21,15 +21,19 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://historyramble.org/images/og-default.png">
 <meta name="theme-color" content="#2c2416">
-<link rel="stylesheet" href="css/style.css?v=398f3d85">
+<link rel="stylesheet" href="css/style.css?v=1a3672b4">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
 <body>
 
+<a class="skip-link" href="#main-content">跳到正文</a>
+
 <header>
     <div class="header-inner">
+        <input type="checkbox" id="navToggle" class="nav-toggle" aria-label="展开导航菜单">
+        <label for="navToggle" class="nav-toggle-label" aria-hidden="true"><span></span></label>
         <div class="site-title">循史漫记 <small>历史学读书与思考</small></div>
-                <nav>
+                <nav aria-label="主导航">
             <a href="index.html">首页</a>
             <a href="articles.html">文章</a>
             <a href="books.html">书单</a>
@@ -55,7 +59,7 @@
     </div>
 </header>
 
-<main>
+<main id="main-content">
     <div class="wrapper search-page">
         <h1>站内搜索</h1>
         <p class="search-lead">在文章、专题研究、史料拾遗与人物小传中检索关键词；多个关键词用空格分隔，会同时匹配。</p>

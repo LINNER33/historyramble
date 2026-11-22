@@ -102,8 +102,10 @@ ${gameItems}
 
 const headerHtml = (prefix, active) => `<header>
     <div class="header-inner">
+        <input type="checkbox" id="navToggle" class="nav-toggle" aria-label="展开导航菜单">
+        <label for="navToggle" class="nav-toggle-label" aria-hidden="true"><span></span></label>
         <div class="site-title"><a href="${prefix}index.html">${SITE_NAME}</a> <small>历史学读书与思考</small></div>
-        <nav>
+        <nav aria-label="主导航">
 ${navHtml(prefix, active)}
         </nav>
         <a class="header-search${active === 'search.html' ? ' active' : ''}" href="${prefix}search.html" aria-label="站内搜索" title="站内搜索">
@@ -147,9 +149,11 @@ ${ld ? `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n` : '
 </head>
 <body>
 
+<a class="skip-link" href="#main-content">跳到正文</a>
+
 ${headerHtml(prefix, active)}
 
-<main>
+<main id="main-content">
     <div class="wrapper">
         <div class="article-page">
 ${body}

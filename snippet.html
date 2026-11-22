@@ -4,17 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title id="pageTitle">史料 — 循史漫记</title>
-<link rel="stylesheet" href="css/style.css?v=398f3d85">
+<link rel="stylesheet" href="css/style.css?v=1a3672b4">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="robots" content="noindex,follow">
 <meta name="theme-color" content="#2c2416">
 </head>
 <body>
 
+<a class="skip-link" href="#main-content">跳到正文</a>
+
 <header>
     <div class="header-inner">
+        <input type="checkbox" id="navToggle" class="nav-toggle" aria-label="展开导航菜单">
+        <label for="navToggle" class="nav-toggle-label" aria-hidden="true"><span></span></label>
         <div class="site-title">循史漫记 <small>历史学读书与思考</small></div>
-                <nav>
+                <nav aria-label="主导航">
             <a href="index.html">首页</a>
             <a href="articles.html">文章</a>
             <a href="books.html">书单</a>
@@ -40,7 +44,7 @@
     </div>
 </header>
 
-<main>
+<main id="main-content">
     <div class="wrapper">
         <div class="article-page" id="snippetContent">
             <p style="color:#6f6253;">加载中...</p>
