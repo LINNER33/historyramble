@@ -21,6 +21,8 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://historyramble.org';
 const SITE_NAME = '循史漫记';
+const SITE_DESC = '历史学的读书笔记与专题研究：文章、专题、史料、人物与书单。';
+const OG_IMAGE = `${SITE}/images/og-default.png`;
 
 /* ---------- 读取数据 ---------- */
 const dataSrc = fs.readFileSync(path.join(ROOT, 'js', 'data.js'), 'utf8');
@@ -132,7 +134,13 @@ function page({ title, desc, url, body, prefix = '../', active = '', type = 'art
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${url}">
 <meta property="og:locale" content="zh_CN">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="${OG_IMAGE}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${SITE_NAME}：以史的眼光，看人间事">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${OG_IMAGE}">
+<link rel="alternate" type="application/rss+xml" title="${SITE_NAME} · 文章" href="${SITE}/feed.xml">
 <meta name="theme-color" content="#2c2416">
 ${ld ? `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n` : ''}<link rel="stylesheet" href="${prefix}css/style.css">
 <link rel="icon" type="image/svg+xml" href="${prefix}favicon.svg">
@@ -254,16 +262,34 @@ for (const c of collections) {
                 <a href="../${c.listPage}">← 返回${c.listLabel}列表</a>
             </div>${prevNext(list, i, '../', c.dir)}`;
 
-    const ld = {
-      '@context': 'https://schema.org',
+    const itemLd = {
       '@type': c.key === 'snippets' ? 'Quotation' : 'Article',
       headline: stripTags(item.title),
       description: desc,
       url,
+      mainEntityOfPage: url,
+      image: [OG_IMAGE],
       inLanguage: 'zh-CN',
-      isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: SITE },
-      ...(item.date ? { datePublished: item.date } : {}),
-      ...(item.author ? { author: { '@type': 'Person', name: stripTags(item.author) } } : {}),
+      isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: `${SITE}/` },
+      publisher: { '@type': 'Organization', name: SITE_NAME, url: `${SITE}/` },
+      ...(item.date ? { datePublished: item.date, dateModified: item.date } : {}),
+      author: item.author
+        ? { '@type': 'Person', name: stripTags(item.author) }
+        : { '@type': 'Organization', name: SITE_NAME, url: `${SITE}/` },
+    };
+    const ld = {
+      '@context': 'https://schema.org',
+      '@graph': [
+        itemLd,
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: '首页', item: `${SITE}/` },
+            { '@type': 'ListItem', position: 2, name: c.listLabel, item: `${SITE}/${c.listPage}` },
+            { '@type': 'ListItem', position: 3, name: stripTags(item.title), item: url },
+          ],
+        },
+      ],
     };
 
     write(
@@ -299,7 +325,12 @@ const staticPages = [
   ['about.html', '0.5'],
 ];
 
-const today = new Date().toISOString().slice(0, 10);
+/* 静态页的 lastmod 取站点内容里最新的日期，而不是每次构建都写成当天 */
+const datedEntries = [...data.articles, ...data.snippets, ...data.research]
+  .map((i) => i.date)
+  .filter(Boolean)
+  .sort();
+const contentLastmod = datedEntries.length ? datedEntries[datedEntries.length - 1] : '2026-01-01';
 
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -307,7 +338,7 @@ ${staticPages
   .map(
     ([p, pr]) => `  <url>
     <loc>${SITE}/${p === 'index.html' ? '' : p}</loc>
-    <lastmod>${today}</lastmod>
+    <lastmod>${contentLastmod}</lastmod>
     <changefreq>weekly</changefreq>
     <priority>${pr}</priority>
   </url>`
@@ -326,6 +357,36 @@ ${sitemapUrls
 `;
 
 write('sitemap.xml', sitemap);
+
+/* ---------- RSS 订阅（最新 20 篇文章） ---------- */
+const feedItems = [...data.articles]
+  .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+  .slice(0, 20)
+  .map(
+    (a) => `    <item>
+      <title>${esc(stripTags(a.title))}</title>
+      <link>${SITE}/articles/${a.id}.html</link>
+      <guid isPermaLink="true">${SITE}/articles/${a.id}.html</guid>
+      <pubDate>${new Date(`${a.date}T08:00:00+08:00`).toUTCString()}</pubDate>
+      <description>${esc(clip(a.summary, 200))}</description>
+    </item>`
+  )
+  .join('\n');
+
+const feed = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>${SITE_NAME}</title>
+    <link>${SITE}/</link>
+    <description>${esc(SITE_DESC)}</description>
+    <language>zh-CN</language>
+    <lastBuildDate>${new Date(`${contentLastmod}T08:00:00+08:00`).toUTCString()}</lastBuildDate>
+    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" href="${SITE}/feed.xml" rel="self" type="application/rss+xml"/>
+${feedItems}
+  </channel>
+</rss>
+`;
+write('feed.xml', feed);
 
 /* ---------- 给静态资源加版本号，避免缓存错配 ---------- */
 import crypto from 'node:crypto';
