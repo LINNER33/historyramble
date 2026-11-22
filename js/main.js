@@ -169,12 +169,26 @@ function renderResources(container, count) {
 }
 
 /* ===== 专题研究渲染 ===== */
+// 专题按系列分组：唐与高句丽战争专题已成规模，单独成组，其余按主题归并
+const RESEARCH_SERIES = [
+    { key: 'tang', name: '隋唐与高句丽战争研究', tags: ['唐与高句丽', '唐丽战争'] },
+    { key: 'hist', name: '史学史与史料', tags: ['史学史', '学术史', '学术制度', '知识史', '疑古', '甲骨', '出土文献', '史料'] },
+    { key: 'eastasia', name: '东北亚与欧亚交流', tags: ['边疆', '渤海', '契丹', '北方民族', '靺鞨', '东亚史', '日本史', '粟特', '丝绸之路', '全球贸易', '白银'] },
+];
+
+function researchSeriesOf(r) {
+    const tags = r.tags || [];
+    for (const s of RESEARCH_SERIES) {
+        if (tags.some(function (t) { return s.tags.indexOf(t) >= 0; })) return s;
+    }
+    return { key: 'other', name: '其他专题' };
+}
+
 function renderResearch(container, count) {
-    let html = '';
     const sortedByDate = [...research].sort((a,b) => b.date.localeCompare(a.date));
     const list = count ? sortedByDate.slice(0, count) : sortedByDate;
-    list.forEach(function(r) {
-        html += [
+    const cardHtml = function (r) {
+        return [
             '<div class="article-card">',
             '<h3><a href="research/' + r.id + '.html">' + r.title + '</a></h3>',
             '<div class="article-meta">',
@@ -184,7 +198,30 @@ function renderResearch(container, count) {
             '<p>' + r.summary + '</p>',
             '</div>'
         ].join('\n');
-    });
+    };
+
+    let html = '';
+    if (count) {
+        // 首页只取最新几条，不分组
+        html = list.map(cardHtml).join('\n');
+    } else {
+        // 列表页按系列分组：先唐丽战争大类，再接其他系列，组内仍按日期倒序
+        const order = ['tang', 'eastasia', 'hist', 'other'];
+        const groups = {};
+        list.forEach(function (r) {
+            const s = researchSeriesOf(r);
+            if (!groups[s.key]) groups[s.key] = { name: s.name, items: [] };
+            groups[s.key].items.push(r);
+        });
+        order.forEach(function (key) {
+            const g = groups[key];
+            if (!g || !g.items.length) return;
+            html += '<section class="series-block">';
+            html += '<h3 class="series-title">' + g.name + '<span class="series-count">' + g.items.length + ' 篇</span></h3>';
+            html += g.items.map(cardHtml).join('\n');
+            html += '</section>';
+        });
+    }
     if (!list.length) html = '<div class="empty-state">还没有专题研究</div>';
     container.innerHTML = countLine(research.length, '篇', list.length) + html;
 }

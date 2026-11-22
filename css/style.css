@@ -510,3 +510,41 @@ body.game-body { min-height: 100vh; min-height: 100svh; display: flex; flex-dire
 body.game-body > header { flex: 0 0 auto; }
 .game-main { flex: 1 1 auto; display: flex; min-height: 0; padding: 0; }
 .game-frame { flex: 1 1 auto; width: 100%; min-height: 0; border: 0; display: block; background: #f5efe3; }
+/* ===== 专题系列分组 ===== */
+.series-block {
+    margin-bottom: 34px;
+}
+.series-block:last-child {
+    margin-bottom: 0;
+}
+.series-title {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 0 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e0d6c4;
+    font-size: 19px;
+    font-weight: 600;
+    color: #2c2416;
+    letter-spacing: 0.02em;
+}
+.series-title::before {
+    content: '';
+    width: 3px;
+    height: 16px;
+    margin-right: 2px;
+    background: #8b4513;
+    transform: translateY(2px);
+}
+.series-count {
+    font-size: 13px;
+    font-weight: 400;
+    color: #6f6253;
+}
+
+@media (max-width: 700px) {
+    .series-title {
+        font-size: 17px;
+    }
+}
