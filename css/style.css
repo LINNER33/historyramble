@@ -655,3 +655,83 @@ body.game-body > header { flex: 0 0 auto; }
         display: block;
     }
 }
+/* ===== 标签索引页 ===== */
+.page-lead {
+    margin: 0 0 20px;
+    color: #6f6253;
+    font-size: 15px;
+    line-height: 1.9;
+}
+.tag-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    margin-bottom: 36px;
+}
+.tag-cloud .tag {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    padding: 5px 10px;
+    background: #fff;
+    border: 1px solid #e0d6c4;
+    border-radius: 3px;
+    color: #6f6253;
+    font-size: 13px;
+}
+.tag-cloud .tag:hover {
+    border-color: #8b4513;
+    color: #8b4513;
+}
+.tag-count {
+    font-size: 11px;
+    color: #9a8f7d;
+}
+.tag-section {
+    margin-bottom: 30px;
+    scroll-margin-top: 96px;
+}
+.tag-section h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: 0 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #e0d6c4;
+    font-size: 18px;
+    color: #2c2416;
+}
+.tag-entries {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.tag-entries li {
+    display: grid;
+    grid-template-columns: 46px 1fr auto;
+    align-items: baseline;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px dashed #ece3d4;
+    font-size: 14px;
+}
+.tag-kind {
+    font-size: 12px;
+    color: #8b4513;
+    border: 1px solid #e2cdb4;
+    border-radius: 2px;
+    padding: 1px 0;
+    text-align: center;
+}
+.tag-date {
+    font-size: 12px;
+    color: #9a8f7d;
+}
+@media (max-width: 700px) {
+    .tag-entries li {
+        grid-template-columns: 46px 1fr;
+    }
+    .tag-date {
+        display: none;
+    }
+}

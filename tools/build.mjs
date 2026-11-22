@@ -116,7 +116,7 @@ ${navHtml(prefix, active)}
 
 const footerHtml = () => `<footer>
     <div class="wrapper">
-        <p>© 2026 ${SITE_NAME} · 读书笔记与史学随笔</p>
+        <p>© 2026 ${SITE_NAME} · 读书笔记与史学随笔 · <a href="tags.html">标签索引</a> · <a href="feed.xml">订阅</a></p>
     </div>
 </footer>`;
 
@@ -312,6 +312,85 @@ for (const c of collections) {
   });
 }
 
+/* ---------- 标签索引页 ---------- */
+const KIND_BY_KEY = { articles: '文章', research: '专题', snippets: '史料', biographies: '人物' };
+const tagIndex = new Map();
+for (const c of collections) {
+  for (const item of c.list) {
+    for (const t of item.tags || []) {
+      if (!t) continue;
+      if (!tagIndex.has(t)) tagIndex.set(t, []);
+      tagIndex.get(t).push({
+        kind: KIND_BY_KEY[c.key],
+        dir: c.dir,
+        id: item.id,
+        title: stripTags(item.title),
+        date: item.date || item.period || '',
+      });
+    }
+  }
+}
+
+const tagSorted = [...tagIndex.entries()].sort(
+  (a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0], 'zh')
+);
+const TAG_SECTION_MIN = 3;
+const totalTagged = tagSorted.reduce((n, entry) => n + entry[1].length, 0);
+
+const tagCloud = tagSorted
+  .map(([t, items]) => {
+    const href =
+      items.length >= TAG_SECTION_MIN
+        ? `#tag-${encodeURIComponent(t)}`
+        : `search.html?q=${encodeURIComponent(t)}`;
+    return `<a href="${href}" class="tag">${esc(t)}<span class="tag-count">${items.length}</span></a>`;
+  })
+  .join('\n');
+
+const tagSections = tagSorted
+  .filter(([, items]) => items.length >= TAG_SECTION_MIN)
+  .map(([t, items]) => {
+    const rows = items
+      .map(
+        (it) =>
+          `<li><span class="tag-kind">${it.kind}</span><a href="${it.dir}/${it.id}.html">${esc(it.title)}</a><span class="tag-date">${esc(it.date)}</span></li>`
+      )
+      .join('\n');
+    return `<section class="tag-section" id="tag-${encodeURIComponent(t)}">
+            <h2>${esc(t)}<span class="series-count">${items.length} 篇</span></h2>
+            <ul class="tag-entries">
+${rows}
+            </ul>
+        </section>`;
+  })
+  .join('\n');
+
+write(
+  'tags.html',
+  page({
+    title: '标签索引',
+    desc: `按标签浏览${SITE_NAME}的文章、专题、史料与人物小传，共 ${tagSorted.length} 个标签。`,
+    url: `${SITE}/tags.html`,
+    prefix: '',
+    active: '',
+    type: 'website',
+    ld: {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: '标签索引',
+      url: `${SITE}/tags.html`,
+      isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: `${SITE}/` },
+      image: [OG_IMAGE],
+    },
+    body: `<h1>标签索引</h1>
+            <p class="page-lead">共 ${tagSorted.length} 个标签。点标签跳到对应的条目列表；条目较少的标签会用站内搜索打开。</p>
+            <div class="tag-cloud">
+${tagCloud}
+            </div>
+${tagSections}`,
+  })
+);
+
 /* ---------- sitemap ---------- */
 const staticPages = [
   ['index.html', '1.0'],
@@ -322,6 +401,7 @@ const staticPages = [
   ['biographies.html', '0.7'],
   ['resources.html', '0.6'],
   ['downloads.html', '0.6'],
+  ['tags.html', '0.5'],
   ['tools.html', '0.5'],
   ['chess.html', '0.3'],
   ['chess-korean.html', '0.3'],
