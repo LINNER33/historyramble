@@ -15,6 +15,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import { indexText } from './lib/index-data.mjs';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -26,6 +27,9 @@ const dataSrc = fs.readFileSync(path.join(ROOT, 'js', 'data.js'), 'utf8');
 const data = vm.runInNewContext(
   dataSrc + ';({articles, snippets, biographies, research})'
 );
+
+/* ---------- 生成列表页精简数据集 ---------- */
+fs.writeFileSync(path.join(ROOT, 'js', 'data-index.js'), indexText(dataSrc), 'utf8');
 
 /* ---------- 工具函数 ---------- */
 const esc = (s = '') =>
@@ -332,6 +336,7 @@ const hashOf = (f) =>
 const V = {
   css: hashOf('css/style.css'),
   data: hashOf('js/data.js'),
+  dataIndex: hashOf('js/data-index.js'),
   main: hashOf('js/main.js'),
   search: hashOf('js/search.js'),
   hanziData: hashOf('js/hanzi-data.js'),
@@ -341,6 +346,7 @@ const V = {
 const stamp = (html) =>
   html
     .replace(/((?:\.\.\/)*)css\/style\.css(\?v=[0-9a-z]+)?/g, (_, p) => `${p}css/style.css?v=${V.css}`)
+    .replace(/((?:\.\.\/)*)js\/data-index\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/data-index.js?v=${V.dataIndex}`)
     .replace(/((?:\.\.\/)*)js\/data\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/data.js?v=${V.data}`)
     .replace(/((?:\.\.\/)*)js\/main\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/main.js?v=${V.main}`)
     .replace(/((?:\.\.\/)*)js\/search\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/search.js?v=${V.search}`)
@@ -371,4 +377,4 @@ for (const f of htmlFiles) {
 
 console.log(`✓ 生成 ${generated} 个详情页`);
 console.log(`✓ 生成 sitemap.xml（${staticPages.length + sitemapUrls.length} 条 URL）`);
-console.log(`✓ 资源版本号 css=${V.css} data=${V.data} main=${V.main}（更新 ${stamped} 个页面）`);
+console.log(`✓ 资源版本号 css=${V.css} data=${V.data} index=${V.dataIndex} main=${V.main}（更新 ${stamped} 个页面）`);
