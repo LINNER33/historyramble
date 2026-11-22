@@ -735,3 +735,43 @@ body.game-body > header { flex: 0 0 auto; }
         display: none;
     }
 }
+/* ===== 书单：文字封面（无 cover 图片时用排版代替占位灰块） ===== */
+.book-cover {
+    position: relative;
+    background: linear-gradient(158deg, #e8dabf 0%, #d3c3a5 100%);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.45), inset 4px 0 0 rgba(90, 62, 40, 0.16);
+}
+.book-card:nth-child(4n + 2) .book-cover {
+    background: linear-gradient(158deg, #ded2c4 0%, #c8b6a1 100%);
+}
+.book-card:nth-child(4n + 3) .book-cover {
+    background: linear-gradient(158deg, #e4dece 0%, #cdc2ab 100%);
+}
+.book-card:nth-child(4n + 4) .book-cover {
+    background: linear-gradient(158deg, #e2ceb4 0%, #c7a98b 100%);
+}
+.cover-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    width: 100%;
+    height: 100%;
+    padding: 8px 7px;
+    text-align: center;
+}
+.cover-title {
+    font-family: "KaiTi", "STKaiti", "Songti SC", serif;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #3a2a1c;
+    letter-spacing: 0.02em;
+    max-height: 76px;
+    overflow: hidden;
+}
+.cover-author {
+    font-size: 9px;
+    color: #6b5947;
+    letter-spacing: 0.04em;
+}

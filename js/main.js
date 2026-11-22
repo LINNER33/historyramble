@@ -37,7 +37,7 @@ function renderBooks(container, count) {
     list.forEach(b => {
         const coverHtml = b.cover
             ? `<img src="${b.cover}" alt="${b.title}">`
-            : `<span style="text-align:center;padding:10px;color:#4a3a2a;">暂无<br>封面</span>`;
+            : `<span class="cover-text"><span class="cover-title">${b.title}</span><span class="cover-author">${b.author}</span></span>`;
         html += `
             <div class="book-card">
                 <div class="book-cover">${coverHtml}</div>
