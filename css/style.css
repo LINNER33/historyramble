@@ -778,3 +778,9 @@ body.game-body > header { flex: 0 0 auto; }
     color: #6b5947;
     letter-spacing: 0.04em;
 }
+.series-desc {
+    margin: 0;
+    font-size: 13px;
+    color: #6f6253;
+    letter-spacing: 0.02em;
+}

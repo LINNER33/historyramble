@@ -121,12 +121,17 @@ function renderHomeArticles(container, count) {
 }
 
 /* ===== 人物小传渲染 ===== */
+// 人物分两类：古代／前近代的历史人物，与近现代以学术为业的研究学者
+const MODERN_PERIOD = /近代|现代|19世纪|20世纪|21世纪|民国|当代/;
+
+function bioIsScholar(b) {
+    return MODERN_PERIOD.test(b.period || '');
+}
+
 function renderBiographies(container, count) {
-    let html = '';
     const sortedByNew = [...biographies].reverse();
     const list = count ? sortedByNew.slice(0, count) : sortedByNew;
-    list.forEach(b => {
-        html += `
+    const cardHtml = (b) => `
             <div class="bio-card" id="${b.id}">
                 <h3><a href="biographies/${b.id}.html">${b.title}</a></h3>
                 <div class="bio-meta">
@@ -137,7 +142,26 @@ function renderBiographies(container, count) {
                 <a href="biographies/${b.id}.html" class="read-more">阅读全文 →</a>
             </div>
         `;
-    });
+
+    let html = '';
+    if (count) {
+        // 首页只取最新几条，不分类
+        html = list.map(cardHtml).join('');
+    } else {
+        const groups = [
+            { name: '历史人物', desc: '古代与前近代的帝王、将领、使臣与文人', items: [] },
+            { name: '研究学者', desc: '近现代以历史研究为业的中外学者', items: [] },
+        ];
+        list.forEach((b) => groups[bioIsScholar(b) ? 1 : 0].items.push(b));
+        groups.forEach((g) => {
+            if (!g.items.length) return;
+            html += '<section class="series-block">';
+            html += '<h3 class="series-title">' + g.name + '<span class="series-count">' + g.items.length + ' 篇</span></h3>';
+            html += '<p class="series-desc">' + g.desc + '</p>';
+            html += g.items.map(cardHtml).join('');
+            html += '</section>';
+        });
+    }
     if (!list.length) html = '<div class="empty-state">还没有人物小传</div>';
     container.innerHTML = countLine(biographies.length, '篇', list.length) + html;
 }

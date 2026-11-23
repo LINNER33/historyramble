@@ -5584,62 +5584,64 @@ const biographies = [
 const resources = [
     {
         id: "archives",
-        category: "“数字档案”",
+        category: "数字档案",
         items: [
-            { name: "“中国哲学书电子化计划”", url: "https://ctext.org", desc: "“全球最大的中国古籍全文数据库，支持全文检索和原文对照。涵盖经史子集，研究中国古典文献的基础工具。”" },
-            { name: "“Internet Archive”", url: "https://archive.org", desc: "“收录了大量已进入公共领域的历史文献、绝版书籍和学术期刊。”" },
-            { name: "“Gallica”", url: "https://gallica.bnf.fr", desc: "“法国国家图书馆数字图书馆，欧洲史研究者不可多得的宝库。”" },
-            { name: "“中国第一历史档案馆”", url: "https://www.lsdag.com", desc: "“明清档案官方数字化平台，可查阅大量奏折、题本、实录等原始档案扫描件。”" }
+            { name: "中国哲学书电子化计划", url: "https://ctext.org/", desc: "全球最大的中国古籍全文数据库，支持全文检索和原文对照。涵盖经史子集，研究中国古典文献的基础工具。" },
+            { name: "Internet Archive", url: "https://archive.org", desc: "收录了大量已进入公共领域的历史文献、绝版书籍和学术期刊。" },
+            { name: "Gallica", url: "https://gallica.bnf.fr", desc: "法国国家图书馆数字图书馆，欧洲史研究者不可多得的宝库。" },
+            { name: "中国第一历史档案馆", url: "https://www.fhac.com.cn/", desc: "明清档案官方数字化平台，可查阅大量奏折、题本、实录等原始档案扫描件。" }
         ]
     },
     {
         id: "tools",
-        category: "“研究工具”",
+        category: "研究工具",
         items: [
-            { name: "“Zotero”", url: "https://www.zotero.org", desc: "“免费参考文献管理工具，支持文献抓取、PDF管理、多格式导出。”" },
-            { name: "“Tropy”", url: "https://tropy.org", desc: "“专为历史研究者设计的档案照片管理和标注工具。”" },
-            { name: "“CHGIS 中国历史地理信息系统”", url: "https://sites.fas.harvard.edu/~chgis/", desc: "“哈佛大学主持，提供中国历代行政区划矢量地图数据。”" },
-            { name: "“TimeMapper”", url: "https://timemapper.okfnlabs.org", desc: "“在线历史时间线制作工具，开源免费。”" }
+            { name: "Zotero", url: "https://www.zotero.org", desc: "免费参考文献管理工具，支持文献抓取、PDF管理、多格式导出。" },
+            { name: "Tropy", url: "https://tropy.org", desc: "专为历史研究者设计的档案照片管理和标注工具。" },
+            { name: "CHGIS 中国历史地理信息系统", url: "https://chgis.fas.harvard.edu/", desc: "哈佛大学主持，提供中国历代行政区划矢量地图数据。" },
+            { name: "TimeMapper", url: "https://timemapper.okfnlabs.org", desc: "在线历史时间线制作工具，开源免费。" }
         ]
     },
     {
         id: "journals",
-        category: "“推荐期刊”",
+        category: "推荐期刊",
         items: [
-            { name: "“《历史研究》”", url: "", desc: "“中国社科院主办，代表中国史学界最高研究水平。”" },
-            { name: "“《近代史研究》”", url: "", desc: "“中国社科院近代史所主办，近代史领域权威期刊。”" },
-            { name: "“Past &amp; Present”", url: "https://academic.oup.com/past", desc: "“英国最具影响力的历史学刊物之一，以社会史和文化史见长。”" },
-            { name: "“The American Historical Review”", url: "https://academic.oup.com/ahr", desc: "“美国历史学会会刊，涵盖各领域的历史研究。”" }
+            { name: "《历史研究》", url: "", desc: "中国社科院主办，代表中国史学界最高研究水平。" },
+            { name: "《近代史研究》", url: "", desc: "中国社科院近代史所主办，近代史领域权威期刊。" },
+            { name: "Past &amp; Present", url: "https://academic.oup.com/past", desc: "英国最具影响力的历史学刊物之一，以社会史和文化史见长。" },
+            { name: "The American Historical Review", url: "https://academic.oup.com/ahr", desc: "美国历史学会会刊，涵盖各领域的历史研究。" }
         ]
     },
     {
         id: "digit-archive",
-        category: "“古籍数字资源”",
+        category: "古籍数字资源",
         items: [
-            { name: "“中国哲学书电子化计划”", url: "https://ctext.org/", desc: "“规模最大的中国古典文献数字图书馆，收录先秦至明清历代典籍。”" },
-            { name: "“中国国家数字图书馆”", url: "http://www.nlc.cn/", desc: "“国家图书馆的数字资源门户，提供古籍、舆图、拓片等珍贵资源的在线阅读。”" },
-            { name: "“国学大师”", url: "http://www.guoxuedashi.com/", desc: "“收录大量古籍原文、字典辞书、历史人物资料，检索方便。”" }
+            { name: "中国哲学书电子化计划", url: "https://ctext.org/", desc: "规模最大的中国古典文献数字图书馆，收录先秦至明清历代典籍。" },
+            { name: "中国国家数字图书馆", url: "http://www.nlc.cn/", desc: "国家图书馆的数字资源门户，提供古籍、舆图、拓片等珍贵资源的在线阅读。" },
+            { name: "识典古籍", url: "https://www.shidianguji.com/", desc: "字节跳动与北京大学合作建设的古籍平台，提供原文影像对照、自动标点与全文检索。" },
+            { name: "中华古籍资源库", url: "http://read.nlc.cn/", desc: "国家图书馆古籍资源库，收录善本、方志、家谱、拓片等，可在线浏览影像。" },
+            { name: "维基文库", url: "https://zh.wikisource.org/", desc: "自由协作的古籍与文献文本库，适合快速核对原文与检索出处。" }
         ]
     },
     {
         id: "online-courses",
-        category: "“在线课程与讲座”",
+        category: "在线课程与讲座",
         items: [
-            { name: "“哈佛大学中国历史课”", url: "https://www.edx.org/", desc: "“哈佛大学在edX平台上开设的中国历史系列课程。”" },
-            { name: "“三联中读历史专栏”", url: "https://www.lifeweek.com.cn/", desc: "“《三联生活周刊》旗下的知识平台，有大量优质历史类音频专栏。”" },
-            { name: "“中央研究院历史语言研究所”", url: "https://www.ihp.sinica.edu.tw/", desc: "“提供大量学术资源、讲座信息和出版物的免费下载。”" }
+            { name: "哈佛大学中国历史课", url: "https://www.edx.org/", desc: "哈佛大学在edX平台上开设的中国历史系列课程。" },
+            { name: "三联中读历史专栏", url: "https://www.lifeweek.com.cn/", desc: "《三联生活周刊》旗下的知识平台，有大量优质历史类音频专栏。" },
+            { name: "中央研究院历史语言研究所", url: "https://www1.ihp.sinica.edu.tw/", desc: "提供大量学术资源、讲座信息和出版物的免费下载。" }
         ]
     },
     {
         id: "academic-databases",
-        category: "“学术数据库”",
+        category: "学术数据库",
         items: [
-            { name: "“中国知网 (CNKI)”", url: "https://www.cnki.net/", desc: "“中国最大的学术文献数据库。”" },
-            { name: "“JSTOR”", url: "https://www.jstor.org/", desc: "“西文学术期刊过刊数据库，收录大量历史学权威期刊。”" },
-            { name: "“Project MUSE”", url: "https://muse.jhu.edu/", desc: "“提供人文学科领域的最新学术期刊与电子书。”" }
+            { name: "中国知网 (CNKI)", url: "https://www.cnki.net/", desc: "中国最大的学术文献数据库。" },
+            { name: "JSTOR", url: "https://www.jstor.org/", desc: "西文学术期刊过刊数据库，收录大量历史学权威期刊。" },
+            { name: "Project MUSE", url: "https://muse.jhu.edu/", desc: "提供人文学科领域的最新学术期刊与电子书。" }
         ]
     }
-];
+];;
 
 
 
