@@ -42,9 +42,9 @@ function renderBooks(container, count) {
             <div class="book-card">
                 <div class="book-cover">${coverHtml}</div>
                 <div class="book-info">
-                    <h3>${b.title}</h3>
+                    <h3><a href="books/${b.id}.html">${b.title}</a></h3>
                     <div class="book-author">${b.author}</div>
-                    <div class="book-rating">${stars(b.rating)}</div>
+                    <div class="book-rating" aria-label="评分 ${b.rating} 分，满分 5 分"><span aria-hidden="true">${stars(b.rating)}</span></div>
                     <div class="book-desc">${b.desc}</div>
                 </div>
             </div>
@@ -62,10 +62,10 @@ function renderHomeBooks(container, count) {
     list.forEach(b => {
         html += `
             <div class="book-item">
-                <h3>${b.title}</h3>
+                <h3><a href="books/${b.id}.html">${b.title}</a></h3>
                 <div class="article-meta">
                     <span>${b.author}</span>
-                    <span class="book-rating">${stars(b.rating)}</span>
+                    <span class="book-rating" aria-label="评分 ${b.rating} 分，满分 5 分"><span aria-hidden="true">${stars(b.rating)}</span></span>
                 </div>
                 <p>${b.desc}</p>
             </div>

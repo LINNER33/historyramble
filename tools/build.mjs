@@ -28,7 +28,7 @@ const OG_IMAGE = `${SITE}/images/og-default.png`;
 /* ---------- 读取数据 ---------- */
 const dataSrc = fs.readFileSync(path.join(ROOT, 'js', 'data.js'), 'utf8');
 const data = vm.runInNewContext(
-  dataSrc + ';({articles, snippets, biographies, research})'
+  dataSrc + ';({articles, snippets, biographies, research, books, resources, downloads})'
 );
 
 /* ---------- 生成列表页精简数据集 ---------- */
@@ -115,9 +115,9 @@ ${navHtml(prefix, active)}
     </div>
 </header>`;
 
-const footerHtml = () => `<footer>
+const footerHtml = (prefix = '') => `<footer>
     <div class="wrapper">
-        <p>© 2026 ${SITE_NAME} · 读书笔记与史学随笔 · <a href="tags.html">标签索引</a> · <a href="subscribe.html">订阅</a></p>
+        <p>© 2026 ${SITE_NAME} · 读书笔记与史学随笔 · <a href="${prefix}tags.html">标签索引</a> · <a href="${prefix}subscribe.html">订阅</a></p>
     </div>
 </footer>`;
 
@@ -162,7 +162,7 @@ ${body}
     </div>
 </main>
 
-${footerHtml()}
+${footerHtml(prefix)}
 
 </body>
 </html>
@@ -362,6 +362,125 @@ for (const c of collections) {
     sitemapUrls.push({ loc: url, lastmod: item.date || null });
     generated++;
   });
+}
+
+/* ---------- 书页 ---------- */
+const BOOK_DIR = 'books';
+const bookStars = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
+
+// 书页的「相关阅读」：在全部条目里找提到书名或作者的段落，按出现次数排序
+const bookHay = [];
+for (const c of collections) {
+  for (const item of c.list) {
+    bookHay.push({
+      dir: c.dir,
+      id: item.id,
+      label: c.listLabel,
+      title: stripTags(item.title),
+      text: stripTags(
+        [item.title, item.summary, item.content, item.excerpt, item.commentary, item.period]
+          .filter(Boolean)
+          .join(' ')
+      ),
+    });
+  }
+}
+
+const countOccur = (hay, needle) => {
+  if (!needle || needle.length < 2) return 0;
+  let n = 0;
+  let from = 0;
+  for (;;) {
+    const i = hay.indexOf(needle, from);
+    if (i < 0) break;
+    n += 1;
+    from = i + needle.length;
+  }
+  return n;
+};
+
+const bookRelatedHtml = (b) => {
+  const title = String(b.title || '').replace(/[《》]/g, '');
+  const author = String(b.author || '');
+  const scored = bookHay
+    .map((x) => ({ x, score: countOccur(x.text, title) * 3 + countOccur(x.text, author) * 2 }))
+    .filter((o) => o.score > 0)
+    .sort((a, b2) => b2.score - a.score || a.x.title.localeCompare(b2.x.title))
+    .slice(0, 4);
+  if (!scored.length) return '';
+  return `
+            <aside class="related">
+                <h2 class="related-title">相关阅读</h2>
+                <ul>
+${scored
+  .map(
+    (o) =>
+      `                    <li><a href="../${o.x.dir}/${o.x.id}.html">${esc(o.x.title)}</a><span class="related-label">${o.x.label}</span></li>`
+  )
+  .join('\n')}
+                </ul>
+            </aside>`;
+};
+
+for (const b of data.books) {
+  const url = `${SITE}/${BOOK_DIR}/${b.id}.html`;
+  const desc = String(b.desc || '').slice(0, 120);
+  const cover = b.cover
+    ? `<img src="${b.cover}" alt="${esc(b.title)}">`
+    : `<span class="cover-text"><span class="cover-title">${esc(b.title)}</span><span class="cover-author">${esc(b.author)}</span></span>`;
+  const body =
+    breadcrumbHtml('书单', 'books.html', b.title) +
+    `
+            <h1>${esc(b.title)}</h1>
+            <div class="book-detail">
+                <div class="book-cover book-cover-lg">${cover}</div>
+                <div class="book-detail-meta">
+                    <p class="book-detail-author">${esc(b.author)}</p>
+                    <p class="book-detail-rating" aria-label="评分 ${b.rating} 分，满分 5 分"><span aria-hidden="true">${bookStars(b.rating)}</span><span class="rating-text">${b.rating} / 5</span></p>
+                    <p class="book-detail-desc">${esc(b.desc)}</p>
+                </div>
+            </div>
+            <div class="post-footer">
+                <a href="../books.html">← 返回书单</a>
+            </div>${bookRelatedHtml(b)}`;
+
+  const ld = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Book',
+        name: stripTags(b.title),
+        author: { '@type': 'Person', name: stripTags(b.author) },
+        description: desc,
+        url,
+        inLanguage: 'zh-CN',
+        isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: `${SITE}/` },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: '首页', item: `${SITE}/` },
+          { '@type': 'ListItem', position: 2, name: '书单', item: `${SITE}/books.html` },
+          { '@type': 'ListItem', position: 3, name: stripTags(b.title), item: url },
+        ],
+      },
+    ],
+  };
+
+  write(
+    `${BOOK_DIR}/${b.id}.html`,
+    page({
+      title: stripTags(b.title),
+      desc,
+      url,
+      body,
+      active: 'books.html',
+      type: 'book',
+      ld,
+    })
+  );
+  sitemapUrls.push({ loc: url, lastmod: null });
+  generated++;
 }
 
 /* ---------- 标签索引页 ---------- */
