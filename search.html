@@ -21,7 +21,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://historyramble.org/images/og-default.png">
 <meta name="theme-color" content="#2c2416">
-<link rel="stylesheet" href="css/style.css?v=2b81e8fd">
+<link rel="stylesheet" href="css/style.css?v=02289709">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
 <body>
@@ -67,8 +67,8 @@
             <input type="search" name="q" id="searchInput" placeholder="如：唐代、科举、敦煌、口述史" aria-label="输入搜索关键词" autocomplete="off">
             <button type="submit">搜索</button>
         </form>
-        <p class="search-summary" id="searchSummary">正在载入内容…</p>
-        <div id="searchResults"></div>
+        <p class="search-summary" id="searchSummary" role="status" aria-live="polite">正在载入内容…</p>
+        <div id="searchResults" role="list" aria-live="polite" aria-label="搜索结果"></div>
     </div>
 </main>
 
@@ -79,6 +79,6 @@
 </footer>
 
 <script src="js/data-index.js?v=5cfea01d" charset="UTF-8"></script>
-<script src="js/search.js?v=39d54791" charset="UTF-8"></script>
+<script src="js/search.js?v=0449e762" charset="UTF-8"></script>
 </body>
 </html>

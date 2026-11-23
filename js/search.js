@@ -1,8 +1,9 @@
 /* ------------------------------------------------------------
  * 站内搜索
- * 首屏只依赖 js/data-index.js（精简数据集，约 280KB），
- * 用户真正输入关键词时才异步抓取 js/data.js，做正文全文检索。
- * 页面：search.html（读取 ?q= 参数）
+ * 首屏只依赖 js/data-index.js（精简数据集），用户真正输入关键词时
+ * 才异步抓取 js/data.js，做正文全文检索。
+ * 支持：多关键词（空格分隔，AND）、按栏目筛选、按相关度或时间排序
+ * 页面：search.html（读取 ?q= / &type= / &sort= 参数）
  * ------------------------------------------------------------ */
 (function () {
     'use strict';
@@ -12,9 +13,19 @@
     var inputEl = document.getElementById('searchInput');
     if (!listEl) return;
 
-    var FULL = null;        // 全文数据集（懒加载后填充）
+    var FULL = null;
     var loading = false;
     var pending = false;
+
+    var params = new URLSearchParams(location.search);
+    var q = (params.get('q') || '').trim();
+    var typeFilter = (params.get('type') || '').trim();
+    var sortMode = params.get('sort') === 'date' ? 'date' : 'score';
+
+    if (inputEl) inputEl.value = q;
+    var terms = q.toLowerCase().split(/\s+/).filter(Boolean);
+
+    var KINDS = ['文章', '专题', '史料', '人物', '书籍'];
 
     function esc(s) {
         return String(s == null ? '' : s)
@@ -39,16 +50,6 @@
             return [];
         }
     }
-
-    var q = '';
-    try {
-        q = (new URLSearchParams(location.search).get('q') || '').trim();
-    } catch (e) {
-        q = '';
-    }
-    if (inputEl) inputEl.value = q;
-
-    var terms = q.toLowerCase().split(/\s+/).filter(Boolean);
 
     function escapeRe(t) {
         return t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -79,13 +80,13 @@
         return (start > 0 ? '…' : '') + text.slice(start, end) + (end < text.length ? '…' : '');
     }
 
-    /* 用精简数据（或懒加载后的全文数据）构建检索记录 */
     function buildRecords() {
         var src = FULL || {
             articles: safeList(function () { return articles; }),
             research: safeList(function () { return research; }),
             snippets: safeList(function () { return snippets; }),
-            biographies: safeList(function () { return biographies; })
+            biographies: safeList(function () { return biographies; }),
+            books: safeList(function () { return books; })
         };
         var full = !!FULL;
         var sources = [
@@ -94,9 +95,7 @@
                 meta: function (a) { return [a.date, a.category].filter(Boolean).join(' · '); },
                 body: function (a) { return a.summary || plain(a.content); },
                 hay: function (a) {
-                    return full
-                        ? [a.title, a.category, (a.tags || []).join(' '), a.summary, plain(a.content)].join(' ')
-                        : [a.title, a.category, (a.tags || []).join(' '), a.summary].join(' ');
+                    return [a.title, a.category, (a.tags || []).join(' '), a.summary, full ? plain(a.content) : ''].join(' ');
                 }
             },
             {
@@ -104,9 +103,7 @@
                 meta: function (a) { return [a.date, '专题研究'].filter(Boolean).join(' · '); },
                 body: function (a) { return a.summary || plain(a.content); },
                 hay: function (a) {
-                    return full
-                        ? [a.title, (a.tags || []).join(' '), a.summary, plain(a.content)].join(' ')
-                        : [a.title, (a.tags || []).join(' '), a.summary].join(' ');
+                    return [a.title, (a.tags || []).join(' '), a.summary, full ? plain(a.content) : ''].join(' ');
                 }
             },
             {
@@ -114,9 +111,7 @@
                 meta: function (s) { return [s.date, s.source].filter(Boolean).join(' · '); },
                 body: function (s) { return s.excerpt || plain(s.commentary); },
                 hay: function (s) {
-                    return full
-                        ? [s.title, s.source, (s.tags || []).join(' '), s.excerpt, plain(s.commentary)].join(' ')
-                        : [s.title, s.source, (s.tags || []).join(' '), s.excerpt, plain(s.commentary)].join(' ');
+                    return [s.title, s.source, (s.tags || []).join(' '), s.excerpt, plain(s.commentary)].join(' ');
                 }
             },
             {
@@ -124,10 +119,14 @@
                 meta: function (b) { return b.period || ''; },
                 body: function (b) { return b.summary || plain(b.content); },
                 hay: function (b) {
-                    return full
-                        ? [b.title, b.period, (b.tags || []).join(' '), b.summary, plain(b.content)].join(' ')
-                        : [b.title, b.period, (b.tags || []).join(' '), b.summary].join(' ');
+                    return [b.title, b.period, (b.tags || []).join(' '), b.summary, full ? plain(b.content) : ''].join(' ');
                 }
+            },
+            {
+                label: '书籍', dir: 'books', items: src.books,
+                meta: function (b) { return [b.author, b.author ? '书单' : ''].filter(Boolean).join(' · '); },
+                body: function (b) { return b.desc || ''; },
+                hay: function (b) { return [b.title, b.author, (b.tags || []).join(' '), b.desc].join(' '); }
             }
         ];
 
@@ -140,6 +139,7 @@
                     href: s.dir + '/' + it.id + '.html',
                     title: it.title || '',
                     tags: it.tags || [],
+                    date: it.date || '',
                     meta: s.meta(it),
                     body: plain(s.body(it)),
                     hay: s.hay(it).toLowerCase()
@@ -169,16 +169,52 @@
     function counts(records) {
         var c = {};
         records.forEach(function (r) { c[r.kind] = (c[r.kind] || 0) + 1; });
-        return ['文章', '专题', '史料', '人物'].map(function (k) {
-            return k + ' ' + (c[k] || 0);
-        }).join(' · ');
+        return KINDS.map(function (k) { return k + ' ' + (c[k] || 0); }).join(' · ');
+    }
+
+    function linkWith(overrides) {
+        var p = new URLSearchParams(location.search);
+        p.set('q', q);
+        if (overrides.type !== undefined) {
+            if (overrides.type) p.set('type', overrides.type);
+            else p.delete('type');
+        }
+        if (overrides.sort !== undefined) {
+            if (overrides.sort && overrides.sort !== 'score') p.set('sort', overrides.sort);
+            else p.delete('sort');
+        }
+        var s = p.toString();
+        return 'search.html' + (s ? '?' + s : '');
+    }
+
+    function filterBar(hits) {
+        var byKind = {};
+        hits.forEach(function (h) { byKind[h.r.kind] = (byKind[h.r.kind] || 0) + 1; });
+        var chips = [{ label: '全部', type: '', n: hits.length }].concat(
+            KINDS.map(function (k) { return { label: k, type: k, n: byKind[k] || 0 }; })
+        );
+        var html = '<div class="search-filters" role="group" aria-label="按栏目筛选">';
+        html += chips.map(function (c) {
+            var active = c.type === typeFilter;
+            return '<a class="search-filter' + (active ? ' active' : '') + '"' +
+                ' href="' + linkWith({ type: c.type }) + '"' +
+                (active ? ' aria-current="true"' : '') + '>' +
+                esc(c.label) + '<span class="search-filter-count">' + c.n + '</span></a>';
+        }).join('');
+        html += '</div>';
+        html += '<p class="search-sort">排序：' +
+            (sortMode === 'date'
+                ? '<span aria-current="true">按时间</span> · <a href="' + linkWith({ sort: 'score' }) + '">按相关度</a>'
+                : '<span aria-current="true">按相关度</span> · <a href="' + linkWith({ sort: 'date' }) + '">按时间</a>') +
+            '</p>';
+        return html;
     }
 
     function render() {
         var records = buildRecords();
 
         if (!terms.length) {
-            summaryEl.textContent = '本站现有 ' + counts(records) + '，共 ' + records.length + ' 篇内容。输入关键词开始搜索。';
+            summaryEl.textContent = '本站现有 ' + counts(records) + '，共 ' + records.length + ' 条内容。输入关键词开始搜索。';
             listEl.innerHTML = tagChips(records);
             return;
         }
@@ -195,24 +231,38 @@
             }
             hits.push({ r: r, score: score });
         });
-        hits.sort(function (a, b) { return b.score - a.score; });
 
+        hits.sort(function (a, b) {
+            if (sortMode === 'date') {
+                var d = (b.r.date || '').localeCompare(a.r.date || '');
+                if (d) return d;
+            }
+            return b.score - a.score;
+        });
+
+        var filtered = typeFilter ? hits.filter(function (h) { return h.r.kind === typeFilter; }) : hits;
         var LIMIT = 60;
-        var shown = hits.slice(0, LIMIT);
+        var shown = filtered.slice(0, LIMIT);
 
-        summaryEl.textContent = hits.length
-            ? '找到 ' + hits.length + ' 条与「' + q + '」相关的内容' +
-              (hits.length > LIMIT ? '，显示前 ' + LIMIT + ' 条' : '') +
+        summaryEl.textContent = filtered.length
+            ? '找到 ' + filtered.length + ' 条与「' + q + '」相关的内容' +
+              (typeFilter ? '（限' + typeFilter + '）' : '') +
+              (filtered.length > LIMIT ? '，显示前 ' + LIMIT + ' 条' : '') +
               (FULL ? '。' : '（当前为摘要检索，正在载入全文…）')
-            : '没有找到与「' + q + '」相关的内容。';
+            : (typeFilter
+                ? '在「' + typeFilter + '」里没有找到与「' + q + '」相关的内容，可以切到「全部」看看。'
+                : '没有找到与「' + q + '」相关的内容。');
 
-        if (!hits.length) {
-            listEl.innerHTML = '<p class="search-empty">可以试试更短的关键词（如「唐代」「敦煌」），' +
+        var bar = filterBar(hits);
+
+        if (!filtered.length) {
+            listEl.innerHTML = bar +
+                '<p class="search-empty">可以试试更短的关键词（如「唐代」「敦煌」），' +
                 '或者换个说法；本站内容以中文撰写，暂不支持拼音检索。</p>' + tagChips(records);
             return;
         }
 
-        listEl.innerHTML = '<ul class="search-list">' + shown.map(function (h) {
+        listEl.innerHTML = bar + '<ul class="search-list">' + shown.map(function (h) {
             var r = h.r;
             return '<li class="search-item">' +
                 '<h3><span class="search-kind">' + r.kind + '</span>' +
@@ -223,7 +273,6 @@
         }).join('') + '</ul>';
     }
 
-    /* 懒加载全文数据：只在用户开始检索时抓取 js/data.js */
     function ensureFull() {
         if (FULL) {
             if (pending) { pending = false; render(); }
@@ -234,8 +283,7 @@
         fetch('js/data.js', { cache: 'force-cache' })
             .then(function (r) { return r.text(); })
             .then(function (src) {
-                // 在独立函数作用域里执行，避免 const 重复声明，返回四个数组
-                var fn = new Function(src + '\n;return {articles: articles, research: research, snippets: snippets, biographies: biographies};');
+                var fn = new Function(src + '\n;return {articles: articles, research: research, snippets: snippets, biographies: biographies, books: books};');
                 var out = fn();
                 if (out && Array.isArray(out.articles)) {
                     FULL = out;
@@ -261,5 +309,15 @@
             timer = setTimeout(ensureFull, 260);
         });
         inputEl.addEventListener('focus', ensureFull, { once: true });
+        // “/” 或 Ctrl/Cmd+K 聚焦搜索框
+        document.addEventListener('keydown', function (e) {
+            var tag = (e.target && e.target.tagName) || '';
+            if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+            if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k')) {
+                e.preventDefault();
+                inputEl.focus();
+                inputEl.select();
+            }
+        });
     }
 })();
