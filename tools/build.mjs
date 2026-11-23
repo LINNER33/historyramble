@@ -268,6 +268,100 @@ const sitemapUrls = [];
 
 // 跨栏目索引：给详情页生成「相关阅读」
 const ALL_ITEMS = [];
+/* ---------- 正文内链 ---------- */
+// 在正文段落里为「首次提到的其他条目标题」加上站内链接（不改动引文块，最多 3 条）
+// 注意：ALL_ITEMS 在下方循环里才被填充，所以候选表要懒计算，不能在定义时 snapshot
+let LINKABLE_TITLES = null;
+function linkableTitles() {
+  if (!LINKABLE_TITLES) {
+    LINKABLE_TITLES = ALL_ITEMS.map((it) => ({
+      dir: it.dir,
+      id: it.id,
+      title: String(it.title || '').replace(/[《》]/g, ''),
+    }))
+      .filter((it) => it.title.length >= 4)
+      .sort((a, b) => b.title.length - a.title.length);
+  }
+  return LINKABLE_TITLES;
+}
+
+let TAG_FREQ = null;
+function tagFrequency(tag) {
+  if (!TAG_FREQ) {
+    TAG_FREQ = new Map();
+    for (const it of ALL_ITEMS) for (const t of it.tags || []) TAG_FREQ.set(t, (TAG_FREQ.get(t) || 0) + 1);
+  }
+  return TAG_FREQ.get(tag) || 0;
+}
+
+// 出现次数足够多的标签（这些标签在 tags.html 里一定有独立分组）
+function highFreqTags() {
+  tagFrequency('__init__');
+  return [...TAG_FREQ.entries()]
+    .filter(([, n]) => n >= 10)
+    .sort((a, b) => b[1] - a[1])
+    .map(([t]) => t);
+}
+
+function linkifyBody(html, selfId, itemTags) {
+  if (!html || !/<p>/.test(html)) return html;
+  const used = new Set();
+  const candidates = linkableTitles();
+  const parts = html.split(/(<blockquote[\s\S]*?<\/blockquote>)/g);
+  let joined = parts
+    .map((part) => {
+      if (part.startsWith('<blockquote')) return part;
+      let out = part;
+      for (const cand of candidates) {
+        if (used.size >= 2) break;
+        if (cand.id === selfId || used.has(cand.id)) continue;
+        if (out.includes(`href="../${cand.dir}/${cand.id}.html"`)) continue;
+        const idx = out.indexOf(cand.title);
+        if (idx < 0) continue;
+        // 只处理 <p> 内的首次出现，避免命中标题或已有链接文本
+        const before = out.slice(0, idx);
+        if (!/<p>[^<]*$/.test(before)) continue;
+        out =
+          out.slice(0, idx) +
+          `<a href="../${cand.dir}/${cand.id}.html">${cand.title}</a>` +
+          out.slice(idx + cand.title.length);
+        used.add(cand.id);
+      }
+      return out;
+    })
+    .join('');
+
+  // 再为正文补 1–2 个到标签聚合页的内链：只挑高频标签，且必须真的出现在正文里
+  const tagLinks = highFreqTags().filter((t) => joined.includes(t)).slice(0, 4);
+  if (tagLinks.length) {
+    const segs = joined.split(/(<blockquote[\s\S]*?<\/blockquote>)/g);
+    let added = 0;
+    joined = segs
+      .map((seg) => {
+        if (seg.startsWith('<blockquote')) return seg;
+        let out = seg;
+        for (const tag of tagLinks) {
+          if (added >= 2) break;
+          const href = `../tags.html#tag-${encodeURIComponent(tag)}`;
+          if (out.includes(href)) continue;
+          const idx = out.indexOf(tag);
+          if (idx < 0) continue;
+          if (!/<p>[^<]*$/.test(out.slice(0, idx))) continue;
+          // 避免把句子里已经在链接中的文字再包一层
+          if (/<a [^>]*>$/.test(out.slice(0, idx))) continue;
+          out =
+            out.slice(0, idx) +
+            `<a href="${href}">${tag}</a>` +
+            out.slice(idx + tag.length);
+          added += 1;
+        }
+        return out;
+      })
+      .join('');
+  }
+  return joined;
+}
+
 for (const c of collections) {
   for (const item of c.list) {
     ALL_ITEMS.push({
@@ -312,7 +406,7 @@ for (const c of collections) {
     const desc = clip(item.summary || item.commentary || item.content || item.excerpt);
     const body =
       breadcrumbHtml(c.listLabel, c.listPage, item.title) +
-      c.render(item) +
+      linkifyBody(c.render(item), item.id, item.tags) +
       `
             <div class="post-footer">
                 <a href="../${c.listPage}">← 返回${c.listLabel}列表</a>
