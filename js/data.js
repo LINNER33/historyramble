@@ -2473,7 +2473,7 @@ const books = [
         id: "tang-silla-relations",
         title: "七世纪中叶唐与新罗关系研究",
         author: "拜根兴",
-        rating: 2,
+        rating: 5,
         desc: "以金石碑志与汉籍互证，重建 645 至 676 年间唐与新罗的同盟、摩擦与战争过程，对唐丽战争后期的半岛格局与唐罗战争起因有细致考订。",
         cover: "",
     },
