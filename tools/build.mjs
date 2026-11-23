@@ -675,6 +675,8 @@ const datedEntries = [...data.articles, ...data.snippets, ...data.research]
   .sort();
 const contentLastmod = datedEntries.length ? datedEntries[datedEntries.length - 1] : '2026-01-01';
 
+buildTangSeriesPage();
+
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticPages
@@ -743,7 +745,6 @@ ${feedItems}
   </channel>
 </rss>
 `;
-buildTangSeriesPage();
 
 write('feed.xml', feed);
 
