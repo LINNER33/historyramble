@@ -85,6 +85,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/subscribe.html</loc>
+    <lastmod>2026-11-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.4</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/articles/archive-turn.html</loc>
     <lastmod>2026-09-22</lastmod>
     <changefreq>monthly</changefreq>

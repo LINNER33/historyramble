@@ -877,3 +877,38 @@ body.game-body > header { flex: 0 0 auto; }
 .article-meta time {
     font-variant-numeric: tabular-nums;
 }
+
+/* ===== 订阅说明页 ===== */
+.subscribe-page h2 {
+    margin: 26px 0 10px;
+    font-size: 17px;
+    font-weight: 600;
+    color: #2c2416;
+}
+.subscribe-page p {
+    margin: 0 0 12px;
+    line-height: 1.9;
+}
+.feed-url {
+    margin: 0 0 12px;
+    padding: 12px 14px;
+    background: #fff;
+    border: 1px solid #e3d9c8;
+    border-radius: 4px;
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.6;
+}
+.feed-url code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    color: #6b3f1d;
+}
+.subscribe-steps {
+    margin: 0 0 12px 0;
+    padding-left: 22px;
+}
+.subscribe-steps li {
+    margin-bottom: 8px;
+    line-height: 1.8;
+}
+

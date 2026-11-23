@@ -117,7 +117,7 @@ ${navHtml(prefix, active)}
 
 const footerHtml = () => `<footer>
     <div class="wrapper">
-        <p>© 2026 ${SITE_NAME} · 读书笔记与史学随笔 · <a href="tags.html">标签索引</a> · <a href="feed.xml">订阅</a></p>
+        <p>© 2026 ${SITE_NAME} · 读书笔记与史学随笔 · <a href="tags.html">标签索引</a> · <a href="subscribe.html">订阅</a></p>
     </div>
 </footer>`;
 
@@ -462,6 +462,7 @@ const staticPages = [
   ['chess-korean.html', '0.3'],
   ['gomoku.html', '0.3'],
   ['about.html', '0.5'],
+  ['subscribe.html', '0.4'],
 ];
 
 /* 静态页的 lastmod 取站点内容里最新的日期，而不是每次构建都写成当天 */
