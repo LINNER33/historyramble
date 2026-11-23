@@ -483,6 +483,90 @@ for (const b of data.books) {
   generated++;
 }
 
+/* ---------- 专题系列入口页 ---------- */
+const TANG_TAGS = ['唐与高句丽', '唐丽战争'];
+const TANG_TAGS_WIDE = ['唐与高句丽', '唐丽战争', '高句丽', '唐代', '新罗', '百济', '隋与高句丽'];
+
+const inTangSeries = (item, wide = false) =>
+  (item.tags || []).some((t) => (wide ? TANG_TAGS_WIDE : TANG_TAGS).includes(t));
+
+function seriesCardHtml(dir, item, label) {
+  const meta = item.date ? timeHtml(item.date) : esc(item.period || '');
+  return `
+            <div class="article-card">
+                <h3><a href="${dir}/${item.id}.html">${esc(item.title)}</a></h3>
+                <div class="article-meta"><span>${meta}</span><span class="tag">${label}</span></div>
+                <p>${esc(item.summary || item.excerpt || '')}</p>
+                <a href="${dir}/${item.id}.html" class="read-more">阅读全文 →</a>
+            </div>`;
+}
+
+function buildTangSeriesPage() {
+  const byDate = (a, b) => String(b.date || '').localeCompare(String(a.date || ''));
+  const researchList = data.research.filter((it) => inTangSeries(it)).sort(byDate);
+  const snippetList = data.snippets.filter((it) => inTangSeries(it, true)).sort(byDate);
+  const articleList = data.articles.filter((it) => inTangSeries(it, true)).sort(byDate);
+  const bioList = data.biographies.filter((it) => inTangSeries(it, true)).reverse();
+
+  const section = (title, desc, items, dir, label) =>
+    items.length
+      ? `<section class="series-section">
+            <h2 class="series-title">${title}<span class="series-count">${items.length} 篇</span></h2>
+            <p class="series-desc">${desc}</p>
+            <div class="article-list">
+${items.map((it) => seriesCardHtml(dir, it, label)).join('\n')}
+            </div>
+        </section>`
+      : '';
+
+  const body = `
+            <h1 class="section-title">隋唐与高句丽战争研究</h1>
+            <p class="page-lead">七世纪前后，隋唐两代先后与高句丽、百济、新罗在辽东与朝鲜半岛反复交锋。这个系列把站内相关的专题、史料、文章与人物聚在一处，方便按线索读下去。</p>
+            <p class="page-lead">建议的读法：先看专题里的脉络梳理，再回到原始史料对照原文，最后读人物与背景文章，理解当时的人如何决策与记述。</p>
+            <p class="series-jump">按栏目浏览：<a href="research.html">专题研究</a> · <a href="snippets.html">史料</a> · <a href="articles.html">文章</a> · <a href="biographies.html">人物</a></p>
+${section('专题研究', '围绕战役、制度、后勤与外交的专题梳理，按写作时间倒序。', researchList, 'research', '专题')}
+${section('史料', '原始记载与按语，可与专题对读。', snippetList, 'snippets', '史料')}
+${section('文章', '相关背景与史学方法的讨论。', articleList, 'articles', '文章')}
+${section('人物', '当事人、将领与研究者。', bioList, 'biographies', '人物')}`;
+
+  const url = `${SITE}/series-tang-goguryeo.html`;
+  write(
+    'series-tang-goguryeo.html',
+    page({
+      title: '隋唐与高句丽战争研究',
+      desc: '隋唐与高句丽战争研究的专题索引：战役、制度、后勤、外交的研究与原始史料，附相关文章与人物。',
+      url,
+      body,
+      prefix: '',
+      active: 'research.html',
+      type: 'series',
+      ld: {
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'CollectionPage',
+            name: '隋唐与高句丽战争研究',
+            description: '隋唐与高句丽战争研究的专题、史料、文章与人物索引。',
+            url,
+            inLanguage: 'zh-CN',
+            isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: `${SITE}/` },
+          },
+          {
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: '首页', item: `${SITE}/` },
+              { '@type': 'ListItem', position: 2, name: '专题研究', item: `${SITE}/research.html` },
+              { '@type': 'ListItem', position: 3, name: '隋唐与高句丽战争研究', item: url },
+            ],
+          },
+        ],
+      },
+    })
+  );
+  sitemapUrls.push({ loc: url, lastmod: null });
+  generated++;
+}
+
 /* ---------- 标签索引页 ---------- */
 const KIND_BY_KEY = { articles: '文章', research: '专题', snippets: '史料', biographies: '人物' };
 const tagIndex = new Map();
@@ -659,6 +743,8 @@ ${feedItems}
   </channel>
 </rss>
 `;
+buildTangSeriesPage();
+
 write('feed.xml', feed);
 
 /* ---------- 给静态资源加版本号，避免缓存错配 ---------- */

@@ -964,4 +964,27 @@ body.game-body > header { flex: 0 0 auto; }
         height: 140px;
     }
 }
-
+/* ===== 专题系列入口页 ===== */
+.page-lead {
+    margin: 0 0 14px;
+    font-size: 15px;
+    line-height: 1.95;
+    color: #4a4034;
+}
+.series-jump {
+    margin: 18px 0 30px;
+    padding: 12px 16px;
+    background: #fbf7ef;
+    border-left: 3px solid #d3c3a5;
+    font-size: 14px;
+    color: #6f6253;
+}
+.series-jump a {
+    color: #8b4513;
+}
+.series-section {
+    margin-bottom: 40px;
+}
+.series-section .article-list {
+    gap: 18px;
+}
