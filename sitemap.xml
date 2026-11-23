@@ -1400,6 +1400,16 @@
     <priority>0.7</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/biographies/tang-gaozong.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/biographies/tang-changru.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/biographies/tan-qixiang.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

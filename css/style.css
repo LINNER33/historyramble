@@ -784,3 +784,25 @@ body.game-body > header { flex: 0 0 auto; }
     color: #6f6253;
     letter-spacing: 0.02em;
 }
+/* 关于页引文 */
+.about-page blockquote {
+    margin: 30px 0 0;
+    padding: 4px 0 4px 18px;
+    border-left: 3px solid #8b4513;
+}
+.about-page blockquote p {
+    margin: 0;
+    text-indent: 0;
+    font-family: KaiTi, STKaiti, "Kaiti SC", serif;
+    font-size: 17px;
+    line-height: 1.9;
+    color: #4a3a2a;
+}
+.about-page blockquote cite {
+    display: block;
+    margin-top: 8px;
+    text-align: right;
+    font-style: normal;
+    font-size: 13px;
+    color: #6f6253;
+}
