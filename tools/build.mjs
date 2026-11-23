@@ -502,12 +502,18 @@ const feedSource = [
   ...data.articles.map((a) => ({ kind: '文章', dir: 'articles', id: a.id, title: a.title, date: a.date, desc: a.summary })),
   ...data.research.map((r) => ({ kind: '专题', dir: 'research', id: r.id, title: r.title, date: r.date, desc: r.summary })),
   ...data.snippets.map((s) => ({ kind: '史料', dir: 'snippets', id: s.id, title: s.title, date: s.date, desc: s.excerpt })),
-]
-  .filter((x) => x.date)
-  .sort((a, b) => String(b.date).localeCompare(String(a.date)))
-  .slice(0, 30);
+].filter((x) => x.date);
 
-const feedItems = feedSource
+// 每个栏目各取最新的若干条，再按日期混排，避免某一栏目把 30 条全占满
+const takePerKind = (kind, n) =>
+  feedSource
+    .filter((x) => x.kind === kind)
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+    .slice(0, n);
+
+const feedItems = [...takePerKind('文章', 12), ...takePerKind('专题', 10), ...takePerKind('史料', 10)]
+  .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+  .slice(0, 30)
   .map(
     (x) => `    <item>
       <title>${esc(stripTags(x.title))}</title>
