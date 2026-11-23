@@ -17,6 +17,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import { indexText } from './lib/index-data.mjs';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const SITE = 'https://historyramble.org';
@@ -171,6 +172,17 @@ ${footerHtml()}
 const tagsHtml = (tags = []) =>
   `<span>${tags.map((t) => `<span class="tag">${esc(t)}</span>`).join('')}</span>`;
 
+const timeHtml = (date) => (date ? `<time datetime="${date}">${date}</time>` : '');
+
+const breadcrumbHtml = (listLabel, listPage, title) => `
+            <nav class="breadcrumb" aria-label="面包屑">
+                <a href="../index.html">首页</a>
+                <span aria-hidden="true">/</span>
+                <a href="../${listPage}">${listLabel}</a>
+                <span aria-hidden="true">/</span>
+                <span>${esc(stripTags(title))}</span>
+            </nav>`;
+
 const prevNext = (list, i, prefix, dir) => {
   const newer = list[i - 1];
   const older = list[i + 1];
@@ -196,7 +208,7 @@ const collections = [
     render: (a) => `
             <h1>${a.title}</h1>
             <div class="article-meta">
-                <span>${a.date}</span>
+                ${timeHtml(a.date)}
                 <span>${a.category}</span>
                 ${tagsHtml(a.tags)}
             </div>
@@ -213,7 +225,7 @@ const collections = [
             <h1>${s.title}</h1>
             <div class="article-meta">
                 <span class="snippet-source">📜 ${s.source}</span>
-                <span>${s.date}</span>
+                ${timeHtml(s.date)}
                 ${tagsHtml(s.tags)}
             </div>
             <blockquote class="snippet-quote">${s.excerpt}</blockquote>
@@ -244,7 +256,7 @@ const collections = [
     render: (r) => `
             <h1>${r.title}</h1>
             <div class="article-meta">
-                <span>${r.date}</span>
+                ${timeHtml(r.date)}
                 ${tagsHtml(r.tags)}
             </div>
             <div class="article-body">${r.content}</div>`,
@@ -254,17 +266,57 @@ const collections = [
 let generated = 0;
 const sitemapUrls = [];
 
+// 跨栏目索引：给详情页生成「相关阅读」
+const ALL_ITEMS = [];
+for (const c of collections) {
+  for (const item of c.list) {
+    ALL_ITEMS.push({
+      coll: c.key,
+      dir: c.dir,
+      label: c.listLabel,
+      id: item.id,
+      title: stripTags(item.title),
+      tags: item.tags || [],
+      date: item.date || '',
+    });
+  }
+}
+
+const relatedHtml = (item, collKey) => {
+  const tags = new Set(item.tags || []);
+  if (!tags.size) return '';
+  const scored = ALL_ITEMS.filter((x) => !(x.coll === collKey && x.id === item.id))
+    .map((x) => ({ x, score: x.tags.filter((t) => tags.has(t)).length }))
+    .filter((o) => o.score > 0)
+    .sort((a, b) => b.score - a.score || b.x.date.localeCompare(a.x.date) || a.x.title.localeCompare(b.x.title))
+    .slice(0, 4);
+  if (!scored.length) return '';
+  return `
+            <aside class="related">
+                <h2 class="related-title">相关阅读</h2>
+                <ul>
+${scored
+  .map(
+    (o) =>
+      `                    <li><a href="../${o.x.dir}/${o.x.id}.html">${esc(o.x.title)}</a><span class="related-label">${o.x.label}</span></li>`
+  )
+  .join('\n')}
+                </ul>
+            </aside>`;
+};
+
 for (const c of collections) {
   const list = [...c.list].sort(c.sort);
   list.forEach((item, i) => {
     const url = `${SITE}/${c.dir}/${item.id}.html`;
     const desc = clip(item.summary || item.commentary || item.content || item.excerpt);
     const body =
+      breadcrumbHtml(c.listLabel, c.listPage, item.title) +
       c.render(item) +
       `
             <div class="post-footer">
                 <a href="../${c.listPage}">← 返回${c.listLabel}列表</a>
-            </div>${prevNext(list, i, '../', c.dir)}`;
+            </div>${prevNext(list, i, '../', c.dir)}${relatedHtml(item, c.key)}`;
 
     const itemLd = {
       '@type': c.key === 'snippets' ? 'Quotation' : 'Article',
@@ -339,11 +391,14 @@ const totalTagged = tagSorted.reduce((n, entry) => n + entry[1].length, 0);
 
 const tagCloud = tagSorted
   .map(([t, items]) => {
-    const href =
-      items.length >= TAG_SECTION_MIN
+    const single = items.length === 1 ? items[0] : null;
+    const href = single
+      ? `${single.dir}/${single.id}.html`
+      : items.length >= TAG_SECTION_MIN
         ? `#tag-${encodeURIComponent(t)}`
         : `search.html?q=${encodeURIComponent(t)}`;
-    return `<a href="${href}" class="tag">${esc(t)}<span class="tag-count">${items.length}</span></a>`;
+    const titleAttr = single ? ` title="${esc(single.title)}"` : '';
+    return `<a href="${href}" class="tag"${titleAttr}>${esc(t)}<span class="tag-count">${items.length}</span></a>`;
   })
   .join('\n');
 
@@ -442,17 +497,25 @@ ${sitemapUrls
 
 write('sitemap.xml', sitemap);
 
-/* ---------- RSS 订阅（最新 20 篇文章） ---------- */
-const feedItems = [...data.articles]
+/* ---------- RSS 订阅（文章 / 专题 / 史料 混合，最新 30 条） ---------- */
+const feedSource = [
+  ...data.articles.map((a) => ({ kind: '文章', dir: 'articles', id: a.id, title: a.title, date: a.date, desc: a.summary })),
+  ...data.research.map((r) => ({ kind: '专题', dir: 'research', id: r.id, title: r.title, date: r.date, desc: r.summary })),
+  ...data.snippets.map((s) => ({ kind: '史料', dir: 'snippets', id: s.id, title: s.title, date: s.date, desc: s.excerpt })),
+]
+  .filter((x) => x.date)
   .sort((a, b) => String(b.date).localeCompare(String(a.date)))
-  .slice(0, 20)
+  .slice(0, 30);
+
+const feedItems = feedSource
   .map(
-    (a) => `    <item>
-      <title>${esc(stripTags(a.title))}</title>
-      <link>${SITE}/articles/${a.id}.html</link>
-      <guid isPermaLink="true">${SITE}/articles/${a.id}.html</guid>
-      <pubDate>${new Date(`${a.date}T08:00:00+08:00`).toUTCString()}</pubDate>
-      <description>${esc(clip(a.summary, 200))}</description>
+    (x) => `    <item>
+      <title>${esc(stripTags(x.title))}</title>
+      <link>${SITE}/${x.dir}/${x.id}.html</link>
+      <guid isPermaLink="true">${SITE}/${x.dir}/${x.id}.html</guid>
+      <category>${x.kind}</category>
+      <pubDate>${new Date(`${x.date}T08:00:00+08:00`).toUTCString()}</pubDate>
+      <description>${esc(clip(x.desc, 200))}</description>
     </item>`
   )
   .join('\n');
@@ -519,6 +582,10 @@ for (const f of htmlFiles) {
     stamped++;
   }
 }
+
+/* ---------- 把列表页与首页的卡片预渲染成静态 HTML（不执行 JS 的抓取器也能读到内容） ---------- */
+const pre = spawnSync(process.execPath, [path.join(ROOT, 'tools', 'prerender-lists.mjs')], { stdio: 'inherit' });
+if (pre.status !== 0) process.exitCode = 1;
 
 console.log(`✓ 生成 ${generated} 个详情页`);
 console.log(`✓ 生成 sitemap.xml（${staticPages.length + sitemapUrls.length} 条 URL）`);

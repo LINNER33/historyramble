@@ -806,3 +806,74 @@ body.game-body > header { flex: 0 0 auto; }
     font-size: 13px;
     color: #6f6253;
 }
+/* ===== 详情页面包屑与相关阅读 ===== */
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 14px;
+    font-size: 13px;
+    color: #6f6253;
+}
+.breadcrumb a {
+    color: #6f6253;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+}
+.breadcrumb a:hover {
+    color: #8b4513;
+    border-bottom-color: #8b4513;
+}
+.breadcrumb span[aria-hidden] {
+    color: #b9ae9c;
+}
+
+.related {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e0d6c4;
+}
+.related-title {
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #2c2416;
+    letter-spacing: 0.04em;
+}
+.related ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.related li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 14px;
+}
+.related li a {
+    color: #2c2416;
+    text-decoration: none;
+    line-height: 1.6;
+}
+.related li a:hover {
+    color: #8b4513;
+    text-decoration: underline;
+}
+.related-label {
+    flex: 0 0 auto;
+    font-size: 12px;
+    color: #6f6253;
+    padding: 1px 6px;
+    border: 1px solid #ddd2be;
+    border-radius: 3px;
+}
+
+.article-meta time {
+    font-variant-numeric: tabular-nums;
+}
