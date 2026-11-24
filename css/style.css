@@ -1237,3 +1237,29 @@ summary:focus-visible {
         white-space: normal;
     }
 }
+/* 年表页：内容比常规栏宽，给表格更多横向空间 */
+.wrapper-wide {
+    max-width: 1320px;
+}
+@media (max-width: 1400px) {
+    .wrapper-wide {
+        max-width: 1180px;
+    }
+}
+@media (max-width: 1000px) {
+    .wrapper-wide {
+        max-width: 100%;
+    }
+}
+@media (min-width: 1500px) {
+    .wrapper-wide {
+        max-width: 1440px;
+    }
+}
+.chrono-page .chrono-table,
+.wrapper-wide .chrono-table {
+    min-width: 920px;
+}
+.wrapper-wide .chrono-period {
+    width: 170px;
+}

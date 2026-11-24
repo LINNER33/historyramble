@@ -807,7 +807,7 @@ const buildChronologyPage = () => {
     .join('\n');
 
   const body = `
-    <div class="wrapper">
+    <div class="wrapper wrapper-wide">
         <h1 class="section-title">中日韩年表</h1>
         <h2 class="visually-hidden">中日韩历史年表</h2>
         <p class="page-lead">以中国朝代为主轴，同一时期并列朝鲜半岛与日本的政权、在位君主、年号与重要事件。年代以通行说法为准，标「约」者为约数，学界有争议处已在相应位置注明。</p>
