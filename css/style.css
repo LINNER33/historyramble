@@ -1029,3 +1029,38 @@ summary:focus-visible {
 }
 .search-sort a { color: #8b4513; }
 .search-sort [aria-current] { color: #2c2416; font-weight: 600; }
+/* ===== 首页：更新时间与快捷入口 ===== */
+.hero-note {
+    margin: 16px 0 0;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: #d8cbb2;
+}
+.hero-note a {
+    color: #eadfc8;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(234, 223, 200, 0.35);
+}
+.hero-note a:hover,
+.hero-note a:focus-visible {
+    color: #fff;
+    border-bottom-color: #fff;
+}
+.hero-note time {
+    font-variant-numeric: tabular-nums;
+}
+
+/* 首页专题卡片加栏目徽标，与文章卡片区分 */
+#homeResearch .article-card h3::before {
+    content: '专题';
+    display: inline-block;
+    margin-right: 8px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: #8b4513;
+    background: #f3e7d7;
+    border-radius: 3px;
+    vertical-align: 2px;
+}

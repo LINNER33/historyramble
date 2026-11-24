@@ -17,6 +17,8 @@ const data = vm.runInNewContext(
 const stars = (n) => '★'.repeat(n) + '☆'.repeat(5 - n);
 const countLine = (total, unit, shown) =>
   '<p class="section-count">共 ' + total + ' ' + unit + (shown < total ? '，下面列出最新 ' + shown + ' ' + unit : '') + '</p>';
+// 首页只做摘要，统计行不再重复“下面列出最新 N 篇”
+const homeCount = (total, unit) => '<p class="section-count">共 ' + total + ' ' + unit + '</p>';
 const tagHtml = (tags) => (tags || []).map((t) => '<span class="tag">' + t + '</span>').join('');
 const byDateDesc = (arr) => [...arr].sort((a, b) => String(b.date).localeCompare(String(a.date)));
 
@@ -168,13 +170,13 @@ function bioHtml() {
 }
 
 const targets = [
-  ['index.html', 'homeArticles', () => countLine(data.articles.length, '篇', 5) + byDateDesc(data.articles).slice(0, 5).map((a) => articleCard(a, 'articles')).join('\n')],
-  ['index.html', 'homeBooks', () => countLine(data.books.length, '本', 4) + [...data.books].reverse().slice(0, 4).map(bookItem).join('\n')],
-  ['index.html', 'homeSnippets', () => countLine(data.snippets.length, '条', 2) + byDateDesc(data.snippets).slice(0, 2).map(snippetCard).join('\n')],
-  ['index.html', 'homeBiographies', () => countLine(data.biographies.length, '篇', 2) + [...data.biographies].reverse().slice(0, 2).map(bioCard).join('\n')],
-  ['index.html', 'homeResearch', () => countLine(data.research.length, '篇', 3) + byDateDesc(data.research).slice(0, 3).map((r) => articleCard(r, 'research')).join('\n')],
-  ['index.html', 'homeResources', () => countLine(data.resources.length, '组', 2) + data.resources.slice(0, 2).map(resourceGroup).join('')],
-  ['index.html', 'homeDownloads', () => countLine(data.downloads.length, '项', 3) + data.downloads.slice().reverse().slice(0, 3).map(downloadCard).join('')],
+  ['index.html', 'homeArticles', () => homeCount(data.articles.length, '篇') + byDateDesc(data.articles).slice(0, 5).map((a) => articleCard(a, 'articles')).join('\n')],
+  ['index.html', 'homeBooks', () => homeCount(data.books.length, '本') + [...data.books].reverse().slice(0, 4).map(bookItem).join('\n')],
+  ['index.html', 'homeSnippets', () => homeCount(data.snippets.length, '条') + byDateDesc(data.snippets).slice(0, 2).map(snippetCard).join('\n')],
+  ['index.html', 'homeBiographies', () => homeCount(data.biographies.length, '篇') + [...data.biographies].reverse().slice(0, 2).map(bioCard).join('\n')],
+  ['index.html', 'homeResearch', () => homeCount(data.research.length, '篇') + byDateDesc(data.research).slice(0, 3).map((r) => articleCard(r, 'research')).join('\n')],
+  ['index.html', 'homeResources', () => homeCount(data.resources.length, '组') + data.resources.slice(0, 2).map(resourceGroup).join('')],
+  ['index.html', 'homeDownloads', () => homeCount(data.downloads.length, '项') + data.downloads.slice().reverse().slice(0, 3).map(downloadCard).join('')],
   ['articles.html', 'allArticles', () => countLine(data.articles.length, '篇', data.articles.length) + byDateDesc(data.articles).map((a) => articleCard(a, 'articles')).join('\n')],
   ['research.html', 'allResearch', researchHtml],
   ['snippets.html', 'allSnippets', () => countLine(data.snippets.length, '条', data.snippets.length) + byDateDesc(data.snippets).map(snippetCard).join('\n')],
@@ -225,3 +227,22 @@ for (const [file, id, make] of targets) {
 }
 
 console.log('预渲染列表容器 ' + changed + ' 个');
+
+// 首页 hero 的「最近更新」日期随内容自动刷新
+const latestDate = [...data.articles, ...data.research, ...data.snippets]
+  .map((i) => String(i.date || ''))
+  .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))
+  .sort()
+  .pop();
+if (latestDate) {
+  const indexPath = path.join(ROOT, 'index.html');
+  let home = fs.readFileSync(indexPath, 'utf8');
+  const updated = home.replace(
+    /(<p class="hero-note">[\s\S]*?<time datetime=")[^"]*(">)[^<]*(<\/time>)/,
+    `$1${latestDate}$2${latestDate}$3`
+  );
+  if (updated !== home) {
+    fs.writeFileSync(indexPath, updated);
+    console.log('首页最近更新日期：' + latestDate);
+  }
+}
