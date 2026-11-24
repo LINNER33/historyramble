@@ -1064,3 +1064,27 @@ summary:focus-visible {
     border-radius: 3px;
     vertical-align: 2px;
 }
+/* 标签页：一次性标签折叠 */
+.tag-more {
+    margin-top: 18px;
+    padding-top: 14px;
+    border-top: 1px dashed #e0d6c4;
+}
+.tag-more > summary {
+    cursor: pointer;
+    font-size: 14px;
+    color: #6f6253;
+    letter-spacing: 0.02em;
+}
+.tag-more > summary:hover {
+    color: #8b4513;
+}
+.tag-more[open] > summary {
+    margin-bottom: 12px;
+}
+.tag-cloud-single {
+    margin-top: 0;
+}
+.tag-more .tag-single {
+    font-size: 13px;
+}

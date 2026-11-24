@@ -686,18 +686,37 @@ const tagSorted = [...tagIndex.entries()].sort(
 const TAG_SECTION_MIN = 3;
 const totalTagged = tagSorted.reduce((n, entry) => n + entry[1].length, 0);
 
-const tagCloud = tagSorted
+const multiTagCloud = tagSorted
+  .filter(([, items]) => items.length >= 2)
   .map(([t, items]) => {
-    const single = items.length === 1 ? items[0] : null;
-    const href = single
-      ? `${single.dir}/${single.id}.html`
-      : items.length >= TAG_SECTION_MIN
+    const href =
+      items.length >= TAG_SECTION_MIN
         ? `#tag-${encodeURIComponent(t)}`
         : `search.html?q=${encodeURIComponent(t)}`;
-    const titleAttr = single ? ` title="${esc(single.title)}"` : '';
-    return `<a href="${href}" class="tag"${titleAttr}>${esc(t)}<span class="tag-count">${items.length}</span></a>`;
+    return `<a href="${href}" class="tag">${esc(t)}<span class="tag-count">${items.length}</span></a>`;
   })
   .join('\n');
+
+// 只出现一次的标签：单独折叠，且不再逐个做成链接（正文里只内链高频标签，这些用不到）
+const singleTags = tagSorted.filter(([, items]) => items.length === 1);
+const singleTagCloud = singleTags
+  .map(([t, items]) => {
+    const it = items[0];
+    return `<a href="${it.dir}/${it.id}.html" class="tag tag-single" title="${esc(it.title)}">${esc(t)}</a>`;
+  })
+  .join('\n');
+
+const tagCloud =
+  multiTagCloud +
+  (singleTags.length
+    ? `
+<details class="tag-more">
+    <summary>只出现过一次的标签（${singleTags.length} 个）</summary>
+    <div class="tag-cloud tag-cloud-single">
+${singleTagCloud}
+    </div>
+</details>`
+    : '');
 
 const tagSections = tagSorted
   .filter(([, items]) => items.length >= TAG_SECTION_MIN)
