@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>度量衡换算 — 循史漫记</title>
+<link rel="stylesheet" href="css/style.css?v=b63e7f03">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="description" content="汉、唐、宋、明、清的尺、里、升、斗、石、斤、两、亩折合现代公制的近似值换算，附各朝代系数说明。">
+<link rel="canonical" href="https://historyramble.org/duliang.html">
+<link rel="alternate" type="application/rss+xml" title="循史漫记 · 文章" href="https://historyramble.org/feed.xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="循史漫记">
+<meta property="og:title" content="度量衡换算 — 循史漫记">
+<meta property="og:description" content="汉唐宋明清的尺、里、升、斗、石、斤、两、亩折合现代公制的近似值换算。">
+<meta property="og:url" content="https://historyramble.org/duliang.html">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://historyramble.org/images/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#2c2416">
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">跳到正文</a>
+
+<header>
+    <div class="header-inner">
+        <input type="checkbox" id="navToggle" class="nav-toggle" aria-label="展开导航菜单">
+        <label for="navToggle" class="nav-toggle-label" aria-hidden="true"><span></span></label>
+        <div class="site-title">循史漫记 <small>历史学读书与思考</small></div>
+        <nav aria-label="主导航">
+            <a href="index.html">首页</a>
+            <a href="articles.html">文章</a>
+            <a href="books.html">书单</a>
+            <a href="research.html">专题</a>
+            <a href="snippets.html">史料</a>
+            <a href="biographies.html">人物</a>
+            <a href="resources.html">资源</a>
+            <a href="downloads.html">下载</a>
+            <div class="nav-dropdown">
+                <a href="tools.html" class="dropbtn active" aria-haspopup="true" aria-expanded="false">工具</a>
+                <div class="dropdown-content">
+                    <a href="tools.html">繁简转换</a>
+                    <a href="chronology.html">中日韩年表</a>
+                    <a href="jinian.html">纪年换算</a>
+                    <a href="nianhao.html">年号速查</a>
+                    <a href="duliang.html" class="active" aria-current="page">度量衡换算</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="chess.html" class="dropbtn" aria-haspopup="true" aria-expanded="false">闲暇</a>
+                <div class="dropdown-content">
+                    <a href="chess.html">中国象棋</a>
+                    <a href="chess-korean.html">朝鲜象棋</a>
+                    <a href="gomoku.html">五子棋</a>
+                </div>
+            </div>
+            <a href="about.html">关于</a>
+        </nav>
+        <a class="header-search" href="search.html" aria-label="站内搜索" title="站内搜索">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="15.5" y1="15.5" x2="21" y2="21"></line></svg>
+        </a>
+    </div>
+</header>
+
+<main id="main-content">
+    <div class="wrapper">
+        <h1 class="section-title">度量衡换算</h1>
+        <h2 class="visually-hidden">度量衡换算</h2>
+        <p class="tool-lead">读史料时常见「米一石」「绢十匹」「田五十亩」，这里的换算把各朝代的尺、里、升、斗、石、斤、两、亩折成现代单位。所有数值都是通行研究的近似值。</p>
+
+        <div class="tool-box">
+            <div class="tool-field">
+                <label for="periodSelect">朝代</label>
+                <select id="periodSelect"></select>
+                <label for="kindSelect">类别</label>
+                <select id="kindSelect"></select>
+            </div>
+            <div class="tool-field">
+                <label for="valueInput">数量</label>
+                <input id="valueInput" type="number" value="1" min="0" step="0.01" inputmode="decimal">
+                <label for="unitSelect">单位</label>
+                <select id="unitSelect"></select>
+            </div>
+            <div id="result" class="tool-result" aria-live="polite"></div>
+        </div>
+
+        <p class="tool-note">说明：各朝代度量衡有官民、地区与时段的差异，学界换算值也有分歧（如唐代大尺与小尺、汉代亩积、清代漕斛与库平）。本页取通行近似值，仅供阅读史料时估算，不作精确折算依据。重量单位「斤」一律按十六两计。</p>
+
+        <p class="tool-more">相关：<a href="chronology.html">中日韩年表</a> · <a href="jinian.html">纪年换算</a> · <a href="nianhao.html">年号速查</a></p>
+    </div>
+</main>
+
+<footer>
+    <div class="wrapper">
+        <p>© 2026 循史漫记 · 读书笔记与史学随笔 · <a href="tags.html">标签索引</a> · <a href="subscribe.html">订阅</a></p>
+    </div>
+</footer>
+
+<script src="js/measures.js?v=50f082b2"></script>
+<script>
+(function () {
+  'use strict';
+
+  var UNITS = {
+    length: { base: '米（m）', factorLabel: '米' },
+    volume: { base: '升（L）', factorLabel: '升' },
+    weight: { base: '千克（kg）', factorLabel: '千克' },
+    area: { base: '平方米（㎡）', factorLabel: '平方米' }
+  };
+
+  var periodSel = document.getElementById('periodSelect');
+  var kindSel = document.getElementById('kindSelect');
+  var unitSel = document.getElementById('unitSelect');
+  var valueInput = document.getElementById('valueInput');
+  var result = document.getElementById('result');
+
+  Object.keys(MEASURES).forEach(function (k) {
+    var opt = document.createElement('option');
+    opt.value = k;
+    opt.textContent = MEASURES[k].label;
+    periodSel.appendChild(opt);
+  });
+
+  MEASURE_KINDS.forEach(function (pair) {
+    var opt = document.createElement('option');
+    opt.value = pair[0];
+    opt.textContent = pair[1];
+    kindSel.appendChild(opt);
+  });
+
+  function fillUnits() {
+    unitSel.innerHTML = '';
+    var list = MEASURES[periodSel.value][kindSel.value];
+    list.forEach(function (row) {
+      var opt = document.createElement('option');
+      opt.value = row[0];
+      opt.textContent = row[0];
+      unitSel.appendChild(opt);
+    });
+  }
+
+  function fmt(n) {
+    if (n >= 100) return n.toFixed(0);
+    if (n >= 10) return n.toFixed(1);
+    if (n >= 1) return n.toFixed(2);
+    return n.toFixed(4);
+  }
+
+  function render() {
+    var period = periodSel.value;
+    var kind = kindSel.value;
+    var unit = unitSel.value;
+    var value = parseFloat(valueInput.value);
+    if (!isFinite(value)) value = 0;
+    var rows = MEASURES[period][kind];
+    var row = rows.filter(function (r) { return r[0] === unit; })[0];
+    if (!row) { result.innerHTML = ''; return; }
+    var total = value * row[1];
+    var html = '<div class="tool-summary">'
+      + '<div class="tool-big"><span class="tool-big-value">约 ' + fmt(total) + '</span>'
+      + '<span class="tool-big-label">' + UNITS[kind].base + '</span></div>'
+      + '<div class="tool-gz">' + MEASURES[period].label + ' · ' + value + ' ' + unit + '</div>'
+      + '</div>';
+    html += '<table class="tool-table"><thead><tr><th scope="col">单位</th><th scope="col">折算</th><th scope="col">说明</th></tr></thead><tbody>';
+    rows.forEach(function (r) {
+      html += '<tr><td>' + r[0] + '</td><td>约 ' + fmt(value * r[1]) + ' ' + UNITS[kind].factorLabel + '</td><td>' + r[2] + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    result.innerHTML = html;
+  }
+
+  periodSel.addEventListener('change', function () { fillUnits(); render(); });
+  kindSel.addEventListener('change', function () { fillUnits(); render(); });
+  unitSel.addEventListener('change', render);
+  valueInput.addEventListener('input', render);
+
+  periodSel.value = periodSel.value || Object.keys(MEASURES)[0];
+  kindSel.value = kindSel.value || MEASURE_KINDS[0][0];
+
+  fillUnits();
+  render();
+})();
+</script>
+
+</body>
+</html>

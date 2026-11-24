@@ -74,10 +74,13 @@ const NAV = [
 ];
 
 const navHtml = (prefix, active) => {
-  // 「工具」做成下拉：繁简转换 + 中日韩年表
+  // 「工具」做成下拉：繁简转换 + 中日韩年表 + 三个纪年/度量工具
   const TOOLS = [
     ['tools.html', '繁简转换'],
     ['chronology.html', '中日韩年表'],
+    ['jinian.html', '纪年换算'],
+    ['nianhao.html', '年号速查'],
+    ['duliang.html', '度量衡换算'],
   ];
   const isTool = TOOLS.some(([href]) => href === active);
   const toolItems = TOOLS.map(
@@ -869,6 +872,18 @@ ${rows}
 
 buildChronologyPage();
 
+/* ---------- 纪年工具数据（供纪年换算、年号速查使用） ---------- */
+write(
+  'js/chrono-data.js',
+  `/* 由 tools/build.mjs 生成，请勿手改 */
+const CHRONO_DATA = {
+  cn: ${JSON.stringify(CN_RULERS)},
+  kr: ${JSON.stringify(KR_RULERS)},
+  jp: ${JSON.stringify(JP_RULERS)}
+};
+`
+);
+
 /* ---------- sitemap ---------- */
 const staticPages = [
   ['index.html', '1.0'],
@@ -881,6 +896,9 @@ const staticPages = [
   ['downloads.html', '0.6'],
   ['tags.html', '0.5'],
   ['chronology.html', '0.5'],
+  ['jinian.html', '0.5'],
+  ['nianhao.html', '0.5'],
+  ['duliang.html', '0.5'],
   ['tools.html', '0.5'],
   ['chess.html', '0.3'],
   ['chess-korean.html', '0.3'],
@@ -983,6 +1001,8 @@ const V = {
   search: hashOf('js/search.js'),
   hanziData: hashOf('js/hanzi-data.js'),
   hanziTool: hashOf('js/hanzi-tool.js'),
+  chronoData: hashOf('js/chrono-data.js'),
+  measures: hashOf('js/measures.js'),
 };
 
 const stamp = (html) =>
@@ -993,7 +1013,9 @@ const stamp = (html) =>
     .replace(/((?:\.\.\/)*)js\/main\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/main.js?v=${V.main}`)
     .replace(/((?:\.\.\/)*)js\/search\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/search.js?v=${V.search}`)
     .replace(/((?:\.\.\/)*)js\/hanzi-data\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/hanzi-data.js?v=${V.hanziData}`)
-    .replace(/((?:\.\.\/)*)js\/hanzi-tool\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/hanzi-tool.js?v=${V.hanziTool}`);
+    .replace(/((?:\.\.\/)*)js\/hanzi-tool\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/hanzi-tool.js?v=${V.hanziTool}`)
+    .replace(/((?:\.\.\/)*)js\/chrono-data\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/chrono-data.js?v=${V.chronoData}`)
+    .replace(/((?:\.\.\/)*)js\/measures\.js(\?v=[0-9a-z]+)?/g, (_, p) => `${p}js/measures.js?v=${V.measures}`);
 
 const htmlFiles = fs
   .readdirSync(ROOT)

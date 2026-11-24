@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>纪年换算 — 循史漫记</title>
+<link rel="stylesheet" href="css/style.css?v=b63e7f03">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="description" content="输入公元年份，换算干支、生肖，并查出这一年中日韩三国的在位君主与年号，数据取自本站中日韩年表。">
+<link rel="canonical" href="https://historyramble.org/jinian.html">
+<link rel="alternate" type="application/rss+xml" title="循史漫记 · 文章" href="https://historyramble.org/feed.xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="循史漫记">
+<meta property="og:title" content="纪年换算 — 循史漫记">
+<meta property="og:description" content="公元年份换算干支、生肖，并查出这一年中日韩三国的在位君主与年号。">
+<meta property="og:url" content="https://historyramble.org/jinian.html">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://historyramble.org/images/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#2c2416">
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">跳到正文</a>
+
+<header>
+    <div class="header-inner">
+        <input type="checkbox" id="navToggle" class="nav-toggle" aria-label="展开导航菜单">
+        <label for="navToggle" class="nav-toggle-label" aria-hidden="true"><span></span></label>
+        <div class="site-title">循史漫记 <small>历史学读书与思考</small></div>
+        <nav aria-label="主导航">
+            <a href="index.html">首页</a>
+            <a href="articles.html">文章</a>
+            <a href="books.html">书单</a>
+            <a href="research.html">专题</a>
+            <a href="snippets.html">史料</a>
+            <a href="biographies.html">人物</a>
+            <a href="resources.html">资源</a>
+            <a href="downloads.html">下载</a>
+            <div class="nav-dropdown">
+                <a href="tools.html" class="dropbtn active" aria-haspopup="true" aria-expanded="false">工具</a>
+                <div class="dropdown-content">
+                    <a href="tools.html">繁简转换</a>
+                    <a href="chronology.html">中日韩年表</a>
+                    <a href="jinian.html" class="active" aria-current="page">纪年换算</a>
+                    <a href="nianhao.html">年号速查</a>
+                    <a href="duliang.html">度量衡换算</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="chess.html" class="dropbtn" aria-haspopup="true" aria-expanded="false">闲暇</a>
+                <div class="dropdown-content">
+                    <a href="chess.html">中国象棋</a>
+                    <a href="chess-korean.html">朝鲜象棋</a>
+                    <a href="gomoku.html">五子棋</a>
+                </div>
+            </div>
+            <a href="about.html">关于</a>
+        </nav>
+        <a class="header-search" href="search.html" aria-label="站内搜索" title="站内搜索">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="15.5" y1="15.5" x2="21" y2="21"></line></svg>
+        </a>
+    </div>
+</header>
+
+<main id="main-content">
+    <div class="wrapper">
+        <h1 class="section-title">纪年换算</h1>
+        <h2 class="visually-hidden">纪年换算</h2>
+        <p class="tool-lead">输入一个公元年份，换算出干支与生肖，并查出这一年中日韩三国各自在位的是谁、年号是什么。数据取自本站「中日韩年表」，仅覆盖表中收录的政权。</p>
+
+        <div class="tool-box">
+            <div class="tool-field">
+                <label for="yearInput">公元年份</label>
+                <input id="yearInput" type="text" inputmode="numeric" autocomplete="off" placeholder="例如 645；公元前写 -221 或 前221">
+                <button id="calcBtn" class="tool-btn" type="button">换算</button>
+            </div>
+            <div class="tool-quick" id="quickYears" aria-label="常用年份"></div>
+            <div id="result" class="tool-result" aria-live="polite"></div>
+        </div>
+
+        <p class="tool-note">干支按公元 4 年为甲子年推算；「年号第几年」仅在君主只使用一个年号时给出（以即位年为元年），多一年号者只列年号名。</p>
+
+        <p class="tool-more">相关：<a href="chronology.html">中日韩年表</a> · <a href="nianhao.html">年号速查</a> · <a href="duliang.html">度量衡换算</a></p>
+    </div>
+</main>
+
+<footer>
+    <div class="wrapper">
+        <p>© 2026 循史漫记 · 读书笔记与史学随笔 · <a href="tags.html">标签索引</a> · <a href="subscribe.html">订阅</a></p>
+    </div>
+</footer>
+
+<script src="js/chrono-data.js?v=9c68835b"></script>
+<script>
+(function () {
+  'use strict';
+
+  var STEMS = ['甲','乙','丙','丁','戊','己','庚','辛','壬','癸'];
+  var BRANCHES = ['子','丑','寅','卯','辰','巳','午','未','申','酉','戌','亥'];
+  var ZODIAC = ['鼠','牛','虎','兔','龙','蛇','马','羊','猴','鸡','狗','猪'];
+  var CN_NUM = ['〇','一','二','三','四','五','六','七','八','九'];
+
+  function parseYear(raw) {
+    var s = String(raw || '').trim().replace(/[年\s]/g, '');
+    if (!s) return null;
+    var bc = false;
+    if (/^(前|公元前|BC|bc)/.test(s)) { bc = true; s = s.replace(/^(前|公元前|BC|bc)/, ''); }
+    if (/^-/.test(s)) { bc = true; s = s.slice(1); }
+    s = s.replace(/[^0-9]/g, '');
+    if (!s) return null;
+    var n = parseInt(s, 10);
+    if (!isFinite(n) || n === 0) return null;
+    return bc ? -n : n;
+  }
+
+  function ganzhi(y) {
+    var idx = ((y - 4) % 60 + 60) % 60;
+    return STEMS[idx % 10] + BRANCHES[idx % 12];
+  }
+
+  function zodiac(y) {
+    return ZODIAC[(((y - 4) % 12) + 12) % 12];
+  }
+
+  function cnNumber(n) {
+    if (n <= 0) return String(n);
+    if (n < 10) return CN_NUM[n];
+    if (n < 20) return (n === 10 ? '十' : '十' + CN_NUM[n - 10]);
+    if (n < 100) {
+      var t = Math.floor(n / 10), o = n % 10;
+      return CN_NUM[t] + '十' + (o ? CN_NUM[o] : '');
+    }
+    return String(n);
+  }
+
+  function yearLabel(y) {
+    return (y < 0 ? '前' + (-y) : String(y)) + ' 年';
+  }
+
+  function activeRulers(list, y) {
+    return list.filter(function (r) { return r[2] <= y && r[3] >= y; });
+  }
+
+  function groupByPolity(list) {
+    var map = new Map();
+    list.forEach(function (r) {
+      if (!map.has(r[0])) map.set(r[0], []);
+      map.get(r[0]).push(r);
+    });
+    return map;
+  }
+
+  function reignHtml(r, y, side) {
+    var era = r[4] ? String(r[4]) : '';
+    var eraHtml = '';
+    if (era) {
+      var single = era.indexOf('—') < 0 && era.indexOf('-') < 0 && era.indexOf('、') < 0;
+      if (single) {
+        var nth = y - r[2] + 1;
+        eraHtml = '<span class="tool-era">' + era + ' ' + cnNumber(nth) + ' 年</span>';
+      } else {
+        eraHtml = '<span class="tool-era">' + era + '</span>';
+      }
+    }
+    return '<li><strong>' + r[1] + '</strong>'
+      + '<span class="tool-span">' + yearLabel(r[2]) + '—' + (r[3] >= 4000 ? '今' : yearLabel(r[3])) + '</span>'
+      + eraHtml + '</li>';
+  }
+
+  function render(y) {
+    var out = document.getElementById('result');
+    if (y === null) {
+      out.innerHTML = '<p class="tool-empty">请输入一个年份，例如 645、960、-221。</p>';
+      return;
+    }
+    var gz = ganzhi(y);
+    var html = '';
+    html += '<div class="tool-summary">'
+      + '<div class="tool-big"><span class="tool-big-label">' + (y < 0 ? '公元前' : '公元') + '</span>'
+      + '<span class="tool-big-value">' + Math.abs(y) + '</span><span class="tool-big-label">年</span></div>'
+      + '<div class="tool-gz"><strong>' + gz + '</strong> 年<span class="tool-dot">·</span>' + zodiac(y) + '年</div>'
+      + '</div>';
+
+    var sides = [
+      ['中国', CHRONO_DATA.cn],
+      ['朝鲜半岛', CHRONO_DATA.kr],
+      ['日本', CHRONO_DATA.jp]
+    ];
+    sides.forEach(function (pair) {
+      var label = pair[0], list = pair[1];
+      var active = activeRulers(list, y);
+      html += '<section class="tool-side">';
+      html += '<h2 class="tool-side-title">' + label + '</h2>';
+      if (!active.length) {
+        html += '<p class="tool-empty">年表未收录这一年的' + label + '君主（或此时无相应政权）。</p>';
+      } else {
+        var groups = groupByPolity(active);
+        groups.forEach(function (items, polity) {
+          html += '<div class="tool-polity"><span class="tool-polity-name">' + polity + '</span><ul class="tool-ruler-list">';
+          items.forEach(function (r) { html += reignHtml(r, y, label); });
+          html += '</ul></div>';
+        });
+      }
+      html += '</section>';
+    });
+
+    out.innerHTML = html;
+    var hint = document.getElementById('hint');
+    if (hint) hint.textContent = '';
+  }
+
+  function readInput() {
+    var raw = document.getElementById('yearInput').value;
+    var y = parseYear(raw);
+    render(y);
+  }
+
+  var quick = ['645', '663', '668', '960', '1279', '1368', '1644', '1895', '1949'];
+  var qbox = document.getElementById('quickYears');
+  quick.forEach(function (v) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tool-chip';
+    b.textContent = v + ' 年';
+    b.addEventListener('click', function () {
+      document.getElementById('yearInput').value = v;
+      render(parseYear(v));
+    });
+    qbox.appendChild(b);
+  });
+
+  document.getElementById('calcBtn').addEventListener('click', readInput);
+  document.getElementById('yearInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); readInput(); }
+  });
+
+  // 首次打开给一个示例，便于理解用法
+  document.getElementById('yearInput').value = '645';
+  render(645);
+})();
+</script>
+
+</body>
+</html>

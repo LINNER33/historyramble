@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>年号速查 — 循史漫记</title>
+<link rel="stylesheet" href="css/style.css?v=b63e7f03">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<meta name="description" content="输入年号查朝代、君主与在位年代；也可按公元年份反查当年中日韩三国的年号。数据取自本站中日韩年表。">
+<link rel="canonical" href="https://historyramble.org/nianhao.html">
+<link rel="alternate" type="application/rss+xml" title="循史漫记 · 文章" href="https://historyramble.org/feed.xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="循史漫记">
+<meta property="og:title" content="年号速查 — 循史漫记">
+<meta property="og:description" content="输入年号查朝代、君主与在位年代；也可按公元年份反查当年的年号。">
+<meta property="og:url" content="https://historyramble.org/nianhao.html">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://historyramble.org/images/og-default.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#2c2416">
+</head>
+<body>
+
+<a class="skip-link" href="#main-content">跳到正文</a>
+
+<header>
+    <div class="header-inner">
+        <input type="checkbox" id="navToggle" class="nav-toggle" aria-label="展开导航菜单">
+        <label for="navToggle" class="nav-toggle-label" aria-hidden="true"><span></span></label>
+        <div class="site-title">循史漫记 <small>历史学读书与思考</small></div>
+        <nav aria-label="主导航">
+            <a href="index.html">首页</a>
+            <a href="articles.html">文章</a>
+            <a href="books.html">书单</a>
+            <a href="research.html">专题</a>
+            <a href="snippets.html">史料</a>
+            <a href="biographies.html">人物</a>
+            <a href="resources.html">资源</a>
+            <a href="downloads.html">下载</a>
+            <div class="nav-dropdown">
+                <a href="tools.html" class="dropbtn active" aria-haspopup="true" aria-expanded="false">工具</a>
+                <div class="dropdown-content">
+                    <a href="tools.html">繁简转换</a>
+                    <a href="chronology.html">中日韩年表</a>
+                    <a href="jinian.html">纪年换算</a>
+                    <a href="nianhao.html" class="active" aria-current="page">年号速查</a>
+                    <a href="duliang.html">度量衡换算</a>
+                </div>
+            </div>
+            <div class="nav-dropdown">
+                <a href="chess.html" class="dropbtn" aria-haspopup="true" aria-expanded="false">闲暇</a>
+                <div class="dropdown-content">
+                    <a href="chess.html">中国象棋</a>
+                    <a href="chess-korean.html">朝鲜象棋</a>
+                    <a href="gomoku.html">五子棋</a>
+                </div>
+            </div>
+            <a href="about.html">关于</a>
+        </nav>
+        <a class="header-search" href="search.html" aria-label="站内搜索" title="站内搜索">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="10.5" cy="10.5" r="6.5"></circle><line x1="15.5" y1="15.5" x2="21" y2="21"></line></svg>
+        </a>
+    </div>
+</header>
+
+<main id="main-content">
+    <div class="wrapper">
+        <h1 class="section-title">年号速查</h1>
+        <h2 class="visually-hidden">年号速查</h2>
+        <p class="tool-lead">输入年号（如「贞观」「康熙」「大化」）查对应的朝代、君主与在位年代；也可以输入公元年份，反查这一年三国各自使用什么年号。</p>
+
+        <div class="tool-box">
+            <div class="tool-field">
+                <label for="eraInput">年号 / 朝代 / 君主</label>
+                <input id="eraInput" type="text" autocomplete="off" placeholder="例如 贞观、开元、康熙、大化">
+                <button id="eraBtn" class="tool-btn" type="button">查询</button>
+            </div>
+            <div class="tool-quick" id="quickEras" aria-label="常用年号"></div>
+
+            <div class="tool-field tool-field-year">
+                <label for="yearInput">或按公元年份反查</label>
+                <input id="yearInput" type="text" inputmode="numeric" autocomplete="off" placeholder="例如 645；公元前写 -221">
+                <button id="yearBtn" class="tool-btn" type="button">查这一年</button>
+            </div>
+
+            <div id="result" class="tool-result" aria-live="polite"></div>
+        </div>
+
+        <p class="tool-note">数据来源为本站「中日韩年表」中收录的君主与年号，仅覆盖年表收录的政权；同一君主使用多个年号时，按年号串一并列出，不逐年拆分。</p>
+
+        <p class="tool-more">相关：<a href="chronology.html">中日韩年表</a> · <a href="jinian.html">纪年换算</a> · <a href="duliang.html">度量衡换算</a></p>
+    </div>
+</main>
+
+<footer>
+    <div class="wrapper">
+        <p>© 2026 循史漫记 · 读书笔记与史学随笔 · <a href="tags.html">标签索引</a> · <a href="subscribe.html">订阅</a></p>
+    </div>
+</footer>
+
+<script src="js/chrono-data.js?v=9c68835b"></script>
+<script>
+(function () {
+  'use strict';
+
+  var SIDE_LABEL = { cn: '中国', kr: '朝鲜半岛', jp: '日本' };
+  var index = [];
+
+  [['cn', CHRONO_DATA.cn], ['kr', CHRONO_DATA.kr], ['jp', CHRONO_DATA.jp]].forEach(function (pair) {
+    var side = pair[0], list = pair[1];
+    list.forEach(function (r) {
+      var eraRaw = String(r[4] || '').trim();
+      var eras = eraRaw ? eraRaw.split(/[—\-、\/]/).map(function (s) { return s.trim(); }).filter(Boolean) : [];
+      index.push({
+        side: side,
+        polity: r[0],
+        ruler: r[1],
+        start: r[2],
+        end: r[3],
+        eras: eras,
+        eraRaw: eraRaw
+      });
+    });
+  });
+
+  function yearLabel(y) { return (y < 0 ? '前' + (-y) : String(y)); }
+
+  function spanText(r) {
+    return yearLabel(r.start) + '—' + (r.end >= 4000 ? '今' : yearLabel(r.end));
+  }
+
+  function searchByText(q) {
+    var key = String(q || '').trim();
+    if (!key) return [];
+    var lower = key.toLowerCase();
+    return index.filter(function (r) {
+      if (r.eraRaw && r.eraRaw.indexOf(key) >= 0) return true;
+      if (r.ruler.indexOf(key) >= 0) return true;
+      if (r.polity.indexOf(key) >= 0) return true;
+      return r.eraRaw.toLowerCase().indexOf(lower) >= 0;
+    });
+  }
+
+  function parseYear(raw) {
+    var s = String(raw || '').trim().replace(/[年\s]/g, '');
+    if (!s) return null;
+    var bc = false;
+    if (/^(前|公元前|BC|bc)/.test(s)) { bc = true; s = s.replace(/^(前|公元前|BC|bc)/, ''); }
+    if (/^-/.test(s)) { bc = true; s = s.slice(1); }
+    s = s.replace(/[^0-9]/g, '');
+    if (!s) return null;
+    var n = parseInt(s, 10);
+    if (!n) return null;
+    return bc ? -n : n;
+  }
+
+  function renderList(rows, title) {
+    var out = document.getElementById('result');
+    if (!rows.length) {
+      out.innerHTML = '<p class="tool-empty">没有找到匹配项。可以试试「贞观」「开元」「康熙」，或直接输入公元年份。</p>';
+      return;
+    }
+    var html = '<p class="tool-count">' + title + '：共 ' + rows.length + ' 条</p>';
+    html += '<table class="tool-table"><thead><tr><th scope="col">年号</th><th scope="col">朝代／政权</th><th scope="col">君主</th><th scope="col">在位</th></tr></thead><tbody>';
+    rows.forEach(function (r) {
+      html += '<tr><td>' + (r.eraRaw || '未记年号') + '</td><td>' + r.polity + '<span class="tool-side-tag">' + SIDE_LABEL[r.side] + '</span></td>'
+        + '<td>' + r.ruler + '</td><td>' + spanText(r) + '</td></tr>';
+    });
+    html += '</tbody></table>';
+    out.innerHTML = html;
+  }
+
+  function renderYear(y) {
+    var out = document.getElementById('result');
+    if (y === null) {
+      out.innerHTML = '<p class="tool-empty">请输入一个公元年份，例如 645、960、-221。</p>';
+      return;
+    }
+    var rows = index.filter(function (r) { return r.start <= y && r.end >= y; });
+    var html = '<p class="tool-count">公元 ' + (y < 0 ? '前' + (-y) : y) + ' 年，年表收录的在位君主与年号：</p>';
+    if (!rows.length) {
+      html += '<p class="tool-empty">这一年没有年表收录的条目。</p>';
+    } else {
+      var bySide = { cn: [], kr: [], jp: [] };
+      rows.forEach(function (r) { bySide[r.side].push(r); });
+      ['cn', 'kr', 'jp'].forEach(function (side) {
+        if (!bySide[side].length) return;
+        html += '<section class="tool-side"><h2 class="tool-side-title">' + SIDE_LABEL[side] + '</h2><ul class="tool-ruler-list">';
+        bySide[side].forEach(function (r) {
+          html += '<li><strong>' + r.ruler + '</strong><span class="tool-span">' + r.polity + ' · ' + spanText(r) + '</span>'
+            + (r.eraRaw ? '<span class="tool-era">' + r.eraRaw + '</span>' : '') + '</li>';
+        });
+        html += '</ul></section>';
+      });
+    }
+    out.innerHTML = html;
+  }
+
+  var quick = ['贞观', '开元', '天宝', '建元', '康熙', '乾隆', '大化', '明治'];
+  var qbox = document.getElementById('quickEras');
+  quick.forEach(function (v) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'tool-chip';
+    b.textContent = v;
+    b.addEventListener('click', function () {
+      document.getElementById('eraInput').value = v;
+      renderList(searchByText(v), '年号「' + v + '」');
+    });
+    qbox.appendChild(b);
+  });
+
+  function doEra() {
+    var q = document.getElementById('eraInput').value;
+    renderList(searchByText(q), '匹配「' + q + '」');
+  }
+  function doYear() {
+    renderYear(parseYear(document.getElementById('yearInput').value));
+  }
+
+  document.getElementById('eraBtn').addEventListener('click', doEra);
+  document.getElementById('yearBtn').addEventListener('click', doYear);
+  document.getElementById('eraInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); doEra(); }
+  });
+  document.getElementById('yearInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); doYear(); }
+  });
+
+  renderList(searchByText('贞观'), '年号「贞观」');
+})();
+</script>
+
+</body>
+</html>
