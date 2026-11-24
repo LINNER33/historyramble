@@ -796,32 +796,31 @@ const chronoCell = (c) => {
 };
 
 const buildChronologyPage = () => {
-  const jump = CHRONO_GROUPS.map((g) => `<a href="#${g.id}">${esc(g.title)}</a>`).join(' · ');
-  const groups = CHRONO_GROUPS.map(
-    (g) => `
-        <section class="chrono-group" id="${g.id}">
-            <h2 class="series-title">${esc(g.title)}<span class="series-count">${esc(g.range)}</span></h2>
-            ${g.note ? `<p class="series-desc">${esc(g.note)}</p>` : ''}
-            <div class="chrono-scroll">
-                <table class="chrono-table">
-                    <thead>
-                        <tr><th scope="col">年代</th><th scope="col">中国</th><th scope="col">朝鲜半岛</th><th scope="col">日本</th></tr>
-                    </thead>
-                    <tbody>
-${g.rows.map((r) => `                        <tr><th scope="row" class="chrono-period">${esc(r.period)}</th>${chronoCell(r.cn)}${chronoCell(r.kr)}${chronoCell(r.jp)}</tr>`).join('\n')}
-                    </tbody>
-                </table>
-            </div>
-        </section>`
-  ).join('\n');
+  // 整页只出一张表：所有分组按时间顺序铺平成行，分组名放进「时间」列的副行
+  const allRows = CHRONO_GROUPS.flatMap((g) =>
+    g.rows.map((r) => ({ ...r, group: g.title, note: g.note }))
+  );
+  const rows = allRows
+    .map(
+      (r) => `                        <tr><th scope="row" class="chrono-period"><span class="chrono-period-group"${r.note ? ` title="${esc(r.note)}"` : ''}>${esc(r.group)}</span><span class="chrono-period-date">${esc(r.period)}</span></th>${chronoCell(r.cn)}${chronoCell(r.kr)}${chronoCell(r.jp)}</tr>`
+    )
+    .join('\n');
 
   const body = `
     <div class="wrapper">
         <h1 class="section-title">中日韩年表</h1>
         <h2 class="visually-hidden">中日韩历史年表</h2>
         <p class="page-lead">以中国朝代为主轴，同一时期并列朝鲜半岛与日本的政权、在位君主、年号与重要事件。年代以通行说法为准，标「约」者为约数，学界有争议处已在相应位置注明。</p>
-        <p class="chrono-jump">${jump}</p>
-${groups}
+        <div class="chrono-scroll">
+            <table class="chrono-table">
+                <thead>
+                    <tr><th scope="col">时间</th><th scope="col">中国</th><th scope="col">朝鲜半岛</th><th scope="col">日本</th></tr>
+                </thead>
+                <tbody>
+${rows}
+                </tbody>
+            </table>
+        </div>
     </div>`;
 
   write(

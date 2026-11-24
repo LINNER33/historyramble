@@ -1199,3 +1199,41 @@ summary:focus-visible {
         width: 104px;
     }
 }
+/* 年表：单表排版 + 三国竖线分隔 */
+.chrono-table thead th + th,
+.chrono-table tbody td + td,
+.chrono-table tbody .chrono-period + td {
+    border-left: 1px solid #e6dcc9;
+}
+.chrono-period {
+    width: 152px;
+    white-space: normal;
+}
+.chrono-period-group {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 11.5px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    color: #a08c6a;
+}
+.chrono-period-date {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c2416;
+    white-space: nowrap;
+}
+.chrono-table tbody tr:hover td,
+.chrono-table tbody tr:hover th {
+    background: #f6efe1;
+}
+@media (max-width: 760px) {
+    .chrono-period {
+        width: 104px;
+    }
+    .chrono-period-date {
+        font-size: 12px;
+        white-space: normal;
+    }
+}
