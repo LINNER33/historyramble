@@ -16,7 +16,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { indexText } from './lib/index-data.mjs';
-import { CHRONO_GROUPS } from './lib/chronology.mjs';
+import { CHRONO_ROWS } from './lib/chronology.mjs';
+import { CN_RULERS } from './lib/chronology-cn.mjs';
+import { KR_RULERS } from './lib/chronology-kr.mjs';
+import { JP_RULERS } from './lib/chronology-jp.mjs';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
@@ -141,7 +144,7 @@ const footerHtml = (prefix = '') => `<footer>
 </footer>`;
 
 /* ---------- 单页模板 ---------- */
-function page({ title, desc, url, body, prefix = '../', active = '', type = 'article', ld = null }) {
+function page({ title, desc, url, body, prefix = '../', active = '', type = 'article', ld = null, wide = false }) {
   return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -174,11 +177,11 @@ ${ld ? `<script type="application/ld+json">${JSON.stringify(ld)}</script>\n` : '
 ${headerHtml(prefix, active)}
 
 <main id="main-content">
-    <div class="wrapper">
+${wide ? body : `    <div class="wrapper">
         <div class="article-page">
 ${body}
         </div>
-    </div>
+    </div>`}
 </main>
 
 ${footerHtml(prefix)}
@@ -782,39 +785,65 @@ ${tagSections}`,
 );
 
 /* ---------- 中日韩年表 ---------- */
-const chronoCell = (c) => {
-  if (!c) return '<td class="chrono-empty">—</td>';
-  const parts = [];
-  if (c.polity) parts.push(`<div class="chrono-polity">${esc(c.polity)}</div>`);
-  if (c.rulers && c.rulers.length)
-    parts.push(`<ul class="chrono-rulers">${c.rulers.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`);
-  if (c.eras && c.eras.length)
-    parts.push(`<p class="chrono-eras">年号：${c.eras.map((e) => esc(e)).join(' · ')}</p>`);
-  if (c.events && c.events.length)
-    parts.push(`<ul class="chrono-events">${c.events.map((e) => `<li>${esc(e)}</li>`).join('')}</ul>`);
-  return `<td>${parts.join('\n')}</td>`;
+const yearLabel = (s, e) => `${s < 0 ? '前' + Math.abs(s) : s}—${e < 0 ? '前' + Math.abs(e) : e}`;
+
+const rulersInWindow = (list, start, end) => list.filter((r) => r[2] <= end && r[3] >= start);
+
+const groupByPolity = (list) => {
+  const map = new Map();
+  for (const r of list) {
+    if (!map.has(r[0])) map.set(r[0], []);
+    map.get(r[0]).push(r);
+  }
+  return [...map.entries()];
+};
+
+// 一格里按政权分组列出该时间窗内的所有在位君主
+const dynastyCell = (list, start, end) => {
+  const rows = rulersInWindow(list, start, end);
+  if (!rows.length) return '<td class="chrono-empty">—</td>';
+  const html = groupByPolity(rows)
+    .map(([polity, items]) => {
+      const lis = items
+        .map(
+          (r) =>
+            `<li>${esc(r[1])}<span class="chrono-years">${yearLabel(r[2], r[3])}</span>${r[4] ? `<span class="chrono-era">${esc(r[4])}</span>` : ''}</li>`
+        )
+        .join('');
+      return `<div class="chrono-polity">${esc(polity)}</div><ul class="chrono-rulers">${lis}</ul>`;
+    })
+    .join('');
+  return `<td>${html}</td>`;
+};
+
+const chronoEventsCell = (events) => {
+  if (!events || !events.length) return '<td class="chrono-empty">—</td>';
+  return `<td><ul class="chrono-events">${events.map((e) => `<li>${esc(e)}</li>`).join('')}</ul></td>`;
 };
 
 const buildChronologyPage = () => {
-  // 整页只出一张表：所有分组按时间顺序铺平成行，分组名放进「时间」列的副行
-  const allRows = CHRONO_GROUPS.flatMap((g) =>
-    g.rows.map((r) => ({ ...r, group: g.title, note: g.note }))
-  );
-  const rows = allRows
-    .map(
-      (r) => `                        <tr><th scope="row" class="chrono-period"><span class="chrono-period-group"${r.note ? ` title="${esc(r.note)}"` : ''}>${esc(r.group)}</span><span class="chrono-period-date">${esc(r.period)}</span></th>${chronoCell(r.cn)}${chronoCell(r.kr)}${chronoCell(r.jp)}</tr>`
-    )
-    .join('\n');
+  // 整页一张表：时间 / 中国 / 朝鲜半岛 / 日本 / 大事
+  const rows = CHRONO_ROWS.map(
+    (r) =>
+      `                        <tr><th scope="row" class="chrono-period"><span class="chrono-period-group"${r.note ? ` title="${esc(r.note)}"` : ''}>${esc(r.group)}</span><span class="chrono-period-date">${esc(r.period)}</span></th>${dynastyCell(CN_RULERS, r.start, r.end)}${dynastyCell(KR_RULERS, r.start, r.end)}${dynastyCell(JP_RULERS, r.start, r.end)}${chronoEventsCell(r.events)}</tr>`
+  ).join('\n');
 
   const body = `
     <div class="wrapper wrapper-wide">
         <h1 class="section-title">中日韩年表</h1>
         <h2 class="visually-hidden">中日韩历史年表</h2>
-        <p class="page-lead">以中国朝代为主轴，同一时期并列朝鲜半岛与日本的政权、在位君主、年号与重要事件。年代以通行说法为准，标「约」者为约数，学界有争议处已在相应位置注明。</p>
+        <p class="page-lead">以中国朝代为主轴，并列朝鲜半岛与日本的政权、在位君主、年号，最后一列单列重大事件。年代以通行说法为准，标「约」者为约数；日本前十四代天皇按传统纪年，标注为传说时代。</p>
         <div class="chrono-scroll">
             <table class="chrono-table">
+                <colgroup>
+                    <col class="chrono-col-time" />
+                    <col class="chrono-col-cn" />
+                    <col class="chrono-col-kr" />
+                    <col class="chrono-col-jp" />
+                    <col class="chrono-col-event" />
+                </colgroup>
                 <thead>
-                    <tr><th scope="col">时间</th><th scope="col">中国</th><th scope="col">朝鲜半岛</th><th scope="col">日本</th></tr>
+                    <tr><th scope="col">时间</th><th scope="col">中国</th><th scope="col">朝鲜半岛</th><th scope="col">日本</th><th scope="col">大事</th></tr>
                 </thead>
                 <tbody>
 ${rows}
@@ -832,6 +861,7 @@ ${rows}
       body,
       prefix: '',
       active: 'chronology.html',
+      wide: true,
     })
   );
 };
