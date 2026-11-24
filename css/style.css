@@ -1088,3 +1088,114 @@ summary:focus-visible {
 .tag-more .tag-single {
     font-size: 13px;
 }
+/* ===== 中日韩年表 ===== */
+.chrono-jump {
+    margin: 0 0 26px;
+    font-size: 14px;
+    color: #6f6253;
+    letter-spacing: 0.02em;
+}
+.chrono-jump a {
+    color: #8b4513;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(139, 69, 19, 0.25);
+}
+.chrono-jump a:hover {
+    border-bottom-color: #8b4513;
+}
+.chrono-group {
+    margin-bottom: 46px;
+}
+.chrono-scroll {
+    overflow-x: auto;
+    border: 1px solid #e2d8c6;
+    border-radius: 6px;
+    background: #fffdf8;
+}
+.chrono-table {
+    width: 100%;
+    min-width: 800px;
+    border-collapse: collapse;
+    font-size: 14px;
+    line-height: 1.65;
+}
+.chrono-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: #5b4a35;
+    background: #f3ead9;
+    border-bottom: 2px solid #8b4513;
+}
+.chrono-table tbody th,
+.chrono-table td {
+    vertical-align: top;
+    padding: 14px 12px;
+    border-bottom: 1px solid #eee3d2;
+}
+.chrono-table tbody tr:nth-child(even) td,
+.chrono-table tbody tr:nth-child(even) th {
+    background: #fbf7ef;
+}
+.chrono-table tbody tr:last-child th,
+.chrono-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+.chrono-period {
+    width: 132px;
+    white-space: nowrap;
+    font-size: 13px;
+    font-weight: 600;
+    color: #2c2416;
+}
+.chrono-polity {
+    margin-bottom: 4px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #8b4513;
+}
+.chrono-rulers,
+.chrono-events {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+}
+.chrono-rulers li {
+    margin: 2px 0;
+}
+.chrono-rulers li::before {
+    content: '·';
+    margin-right: 6px;
+    color: #b09a72;
+}
+.chrono-events {
+    margin-top: 6px;
+    padding-left: 14px;
+    list-style: disc;
+    font-size: 13px;
+    color: #5c5348;
+}
+.chrono-events li {
+    margin: 2px 0;
+}
+.chrono-eras {
+    margin: 6px 0 4px;
+    font-size: 12.5px;
+    color: #7a6a52;
+}
+.chrono-empty {
+    color: #b9ad9a;
+}
+@media (max-width: 760px) {
+    .chrono-table {
+        min-width: 660px;
+        font-size: 13px;
+    }
+    .chrono-period {
+        width: 104px;
+    }
+}

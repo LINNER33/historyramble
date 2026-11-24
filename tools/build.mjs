@@ -16,6 +16,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import { indexText } from './lib/index-data.mjs';
+import { CHRONO_GROUPS } from './lib/chronology.mjs';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
@@ -70,12 +71,30 @@ const NAV = [
 ];
 
 const navHtml = (prefix, active) => {
-  const items = NAV.map(
+  // 「工具」做成下拉：繁简转换 + 中日韩年表
+  const TOOLS = [
+    ['tools.html', '繁简转换'],
+    ['chronology.html', '中日韩年表'],
+  ];
+  const isTool = TOOLS.some(([href]) => href === active);
+  const toolItems = TOOLS.map(
     ([href, label]) =>
-      `            <a href="${prefix}${href}"${
-        href === active ? ' class="active" aria-current="page"' : ''
-      }>${label}</a>`
-  );
+      `                    <a href="${prefix}${href}"${href === active ? ' class="active" aria-current="page"' : ''}>${label}</a>`
+  ).join('\n');
+
+  const items = NAV.map(([href, label]) => {
+    if (href === 'tools.html') {
+      return `            <div class="nav-dropdown">
+                <a href="${prefix}tools.html" class="dropbtn${isTool ? ' active' : ''}" aria-haspopup="true" aria-expanded="false">${label}</a>
+                <div class="dropdown-content">
+${toolItems}
+                </div>
+            </div>`;
+    }
+    return `            <a href="${prefix}${href}"${
+      href === active ? ' class="active" aria-current="page"' : ''
+    }>${label}</a>`;
+  });
   // 「闲暇」下拉插在下载和关于之间
   const idx = NAV.findIndex(([href]) => href === 'about.html');
   const GAMES = [
@@ -762,6 +781,64 @@ ${tagSections}`,
   })
 );
 
+/* ---------- 中日韩年表 ---------- */
+const chronoCell = (c) => {
+  if (!c) return '<td class="chrono-empty">—</td>';
+  const parts = [];
+  if (c.polity) parts.push(`<div class="chrono-polity">${esc(c.polity)}</div>`);
+  if (c.rulers && c.rulers.length)
+    parts.push(`<ul class="chrono-rulers">${c.rulers.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>`);
+  if (c.eras && c.eras.length)
+    parts.push(`<p class="chrono-eras">年号：${c.eras.map((e) => esc(e)).join(' · ')}</p>`);
+  if (c.events && c.events.length)
+    parts.push(`<ul class="chrono-events">${c.events.map((e) => `<li>${esc(e)}</li>`).join('')}</ul>`);
+  return `<td>${parts.join('\n')}</td>`;
+};
+
+const buildChronologyPage = () => {
+  const jump = CHRONO_GROUPS.map((g) => `<a href="#${g.id}">${esc(g.title)}</a>`).join(' · ');
+  const groups = CHRONO_GROUPS.map(
+    (g) => `
+        <section class="chrono-group" id="${g.id}">
+            <h2 class="series-title">${esc(g.title)}<span class="series-count">${esc(g.range)}</span></h2>
+            ${g.note ? `<p class="series-desc">${esc(g.note)}</p>` : ''}
+            <div class="chrono-scroll">
+                <table class="chrono-table">
+                    <thead>
+                        <tr><th scope="col">年代</th><th scope="col">中国</th><th scope="col">朝鲜半岛</th><th scope="col">日本</th></tr>
+                    </thead>
+                    <tbody>
+${g.rows.map((r) => `                        <tr><th scope="row" class="chrono-period">${esc(r.period)}</th>${chronoCell(r.cn)}${chronoCell(r.kr)}${chronoCell(r.jp)}</tr>`).join('\n')}
+                    </tbody>
+                </table>
+            </div>
+        </section>`
+  ).join('\n');
+
+  const body = `
+    <div class="wrapper">
+        <h1 class="section-title">中日韩年表</h1>
+        <h2 class="visually-hidden">中日韩历史年表</h2>
+        <p class="page-lead">以中国朝代为主轴，同一时期并列朝鲜半岛与日本的政权、在位君主、年号与重要事件。年代以通行说法为准，标「约」者为约数，学界有争议处已在相应位置注明。</p>
+        <p class="chrono-jump">${jump}</p>
+${groups}
+    </div>`;
+
+  write(
+    'chronology.html',
+    page({
+      title: '中日韩年表',
+      desc: '中日韩三国从上古到当代的对照年表：中国朝代与帝王年号、朝鲜半岛政权与君主、日本时代与天皇年号，并列重要历史事件。',
+      url: `${SITE}/chronology.html`,
+      body,
+      prefix: '',
+      active: 'chronology.html',
+    })
+  );
+};
+
+buildChronologyPage();
+
 /* ---------- sitemap ---------- */
 const staticPages = [
   ['index.html', '1.0'],
@@ -773,6 +850,7 @@ const staticPages = [
   ['resources.html', '0.6'],
   ['downloads.html', '0.6'],
   ['tags.html', '0.5'],
+  ['chronology.html', '0.5'],
   ['tools.html', '0.5'],
   ['chess.html', '0.3'],
   ['chess-korean.html', '0.3'],
