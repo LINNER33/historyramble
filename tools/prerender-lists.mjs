@@ -144,11 +144,18 @@ function researchHtml() {
   for (const key of order) {
     const g = groups[key];
     if (!g || !g.items.length) continue;
-    html += `<section class="series-block"><h3 class="series-title">${g.name}<span class="series-count">${g.items.length} 篇</span></h3>`;
+    html += `<section class="series-block" id="series-${key}"><h3 class="series-title">${g.name}<span class="series-count">${g.items.length} 篇</span></h3>`;
     html += g.items.map((r) => articleCard(r, 'research')).join('\n');
     html += '</section>';
   }
-  return html;
+  let nav = '<nav class="series-nav" aria-label="专题系列">';
+  for (const key of order) {
+    const g = groups[key];
+    if (!g || !g.items.length) continue;
+    nav += `<a href="#series-${key}">${g.name}<span class="series-nav-count">${g.items.length}</span></a>`;
+  }
+  nav += '</nav>';
+  return nav + html;
 }
 
 function bioHtml() {
