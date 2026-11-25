@@ -141,7 +141,8 @@ for (const s of data.snippets) {
   const excerptLen = nospace(s.excerpt).length;
   if (paras !== 3) snippetIssues.push(`${s.id}：按语 ${paras} 段（应为 3 段）`);
   if (excerptLen < 20) snippetIssues.push(`${s.id}：引文仅 ${excerptLen} 字`);
-  if (!/卷|志|传|纪|表|书|诏|集|碑/.test(source)) snippetIssues.push(`${s.id}：出处「${source}」缺少卷/篇名`);
+  // 有卷次、篇名（·）、序/表/传/志等定位信息之一即可；单篇文字（《原道》《捕蛇者说》之类）本无需卷号
+  if (!/卷|志|传|纪|表|书|诏|集|碑|篇|·|自序|序|说|论|上|下|章/.test(source)) snippetIssues.push(`${s.id}：出处「${source}」缺少卷/篇名`);
   if (/[0-9]/.test(source) && /[〇一二三四五六七八九十百千]/.test(source)) {
     snippetIssues.push(`${s.id}：出处数字体例混用「${source}」`);
   }
