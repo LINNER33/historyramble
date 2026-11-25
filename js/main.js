@@ -240,11 +240,20 @@ function renderResearch(container, count) {
         order.forEach(function (key) {
             const g = groups[key];
             if (!g || !g.items.length) return;
-            html += '<section class="series-block">';
+            html += '<section class="series-block" id="series-' + key + '">';
             html += '<h3 class="series-title">' + g.name + '<span class="series-count">' + g.items.length + ' 篇</span></h3>';
             html += g.items.map(cardHtml).join('\n');
             html += '</section>';
         });
+        // 顶部系列导航，便于在 100 篇专题里切换
+        let nav = '<nav class="series-nav" aria-label="专题系列">';
+        order.forEach(function (key) {
+            const g = groups[key];
+            if (!g || !g.items.length) return;
+            nav += '<a href="#series-' + key + '">' + g.name + '<span class="series-nav-count">' + g.items.length + '</span></a>';
+        });
+        nav += '</nav>';
+        html = nav + html;
     }
     if (!list.length) html = '<div class="empty-state">还没有专题研究</div>';
     container.innerHTML = countLine(research.length, '篇', list.length) + html;
