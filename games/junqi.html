@@ -1,0 +1,2164 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, follow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>军棋 · 双模式人机对战</title>
+<style>
+  :root{
+    --red:#c0392b; --reddark:#96281b; --redbg:#fff4f2;
+    --blue:#2c6cb0; --blue2:#1f5f9e; --bluebg:#f1f7ff;
+    --ink:#2b241c; --muted:#7b6c58;
+    --paper:#f6f1e7; --card:#fffdf8;
+    --rail:#8d7b5f; --road:#cfc2a9;
+    --gold:#b98a3c;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:#efe7d8;color:var(--ink);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB","Source Han Sans SC",-apple-system,"Segoe UI",sans-serif;}
+  body{padding:18px 16px 32px;min-height:100vh;}
+  .wrap{max-width:1000px;margin:0 auto;}
+  h1,h2{margin:0;font-weight:800;letter-spacing:2px;}
+  .btn{font-family:inherit;font-size:15px;padding:9px 18px;border-radius:10px;border:1px solid #b8a68a;
+    background:linear-gradient(#fffdf8,#f1e7d6);color:#4a3a26;cursor:pointer;transition:.15s;font-weight:600;}
+  .btn:hover{background:linear-gradient(#fff,#f7eddd);transform:translateY(-1px);}
+  .btn:active{transform:translateY(0);}
+  .btn.primary{background:linear-gradient(#d8553f,#b8341f);border-color:#8f2413;color:#fff;}
+  .btn.primary:hover{background:linear-gradient(#e46952,#c33c25);}
+  .btn.ghost{background:transparent;border-color:#cbbba0;color:#6b563b;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;}
+  .btn.small{font-size:13px;padding:6px 12px;border-radius:8px;}
+
+  /* ---------- 首页 ---------- */
+  #home{padding:26px 0 0;}
+  .hero{text-align:center;margin-bottom:26px;}
+  .hero h1{font-size:40px;letter-spacing:10px;color:#5a3f22;text-shadow:0 2px 0 #fff8ea,0 4px 10px rgba(120,90,50,.16);}
+  .hero p{margin:10px 0 0;color:var(--muted);font-size:15px;letter-spacing:1px;}
+  .modes{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:30px;}
+  .modecard{width:352px;background:var(--card);border:1px solid #e0d3bb;border-radius:18px;padding:22px 22px 18px;
+    box-shadow:0 6px 22px rgba(120,92,50,.12);cursor:pointer;transition:.18s;position:relative;overflow:hidden;}
+  .modecard:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(120,92,50,.2);border-color:#c9b291;}
+  .modecard h2{font-size:22px;color:#5a3f22;margin-bottom:8px;}
+  .modecard .tag{display:inline-block;font-size:12px;padding:2px 8px;border-radius:6px;background:#eee3cf;
+    color:#7c6541;margin-left:8px;vertical-align:2px;font-weight:600;letter-spacing:1px;}
+  .modecard p{color:#6d5c46;font-size:14px;line-height:1.85;margin:8px 0 14px;}
+  .modecard .go{font-weight:700;color:var(--reddark);font-size:14px;}
+  .modecard.blue .go{color:var(--blue2);}
+  .modecard .deco{position:absolute;right:-18px;top:-18px;width:78px;height:78px;border-radius:50%;
+    background:radial-gradient(circle,#e8d9c0,#f6f1e7);opacity:.7;}
+  .hint{text-align:center;color:#9b8a72;font-size:13px;margin-top:26px;line-height:1.9;}
+
+  /* ---------- 对局区 ---------- */
+  #game{display:none;}
+  .topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .topbar .title{font-size:20px;font-weight:800;color:#5a3f22;letter-spacing:2px;margin-right:auto;}
+  .layout{display:flex;gap:16px;align-items:flex-start;justify-content:center;}
+  .boardcol{flex:1 1 auto;min-width:0;}
+  .sidecol{width:312px;flex:0 0 312px;display:flex;flex-direction:column;gap:12px;}
+
+  .statusbar{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid #e0d3bb;
+    border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 2px 10px rgba(120,92,50,.08);}
+  .dot{width:11px;height:11px;border-radius:50%;background:#c9bca6;flex:0 0 auto;}
+  .statusbar .txt{font-weight:700;font-size:15px;}
+  .statusbar .sub{font-size:13px;color:var(--muted);margin-left:auto;}
+
+  .boardbox{background:var(--card);border:1px solid #ded0b6;border-radius:16px;padding:10px;
+    box-shadow:0 6px 24px rgba(120,92,50,.13);position:relative;}
+  .board{position:relative;width:382px;height:676px;margin:0 auto;}
+  .board svg{position:absolute;left:0;top:0;width:382px;height:676px;pointer-events:none;}
+  .nodes{position:absolute;left:0;top:0;width:382px;height:676px;}
+  .node{position:absolute;width:54px;height:40px;display:flex;align-items:center;justify-content:center;border-radius:8px;}
+  .node .pz{width:52px;height:38px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+    font-size:15px;font-weight:800;line-height:1;letter-spacing:1px;position:relative;
+    border:2px solid transparent;transition:.12s;user-select:none;}
+  .pz.red{background:var(--redbg);border-color:var(--red);color:var(--reddark);box-shadow:0 1px 3px rgba(120,40,30,.2);}
+  .pz.blue{background:var(--bluebg);border-color:var(--blue);color:var(--blue2);box-shadow:0 1px 3px rgba(30,70,120,.2);}
+  .pz.back{font-size:17px;color:#7d6b52;border-color:#a8997e;
+    background:repeating-linear-gradient(45deg,#e2d7c3 0 5px,#d5c8b1 5px 10px);}
+  .pz.back.rback{background:repeating-linear-gradient(45deg,#ecd6d1 0 5px,#e0c6c0 5px 10px);border-color:#b99089;color:#8b6157;}
+  .pz.back.bback{background:repeating-linear-gradient(45deg,#dce4ee 0 5px,#cbd6e3 5px 10px);border-color:#93a4b8;color:#5f7186;}
+  .pz .own{position:absolute;top:-5px;right:-4px;font-size:8px;font-weight:700;padding:0 3px;border-radius:3px;
+    color:#fff;line-height:1.4;letter-spacing:0;opacity:.82;}
+  .pz.red .own{background:var(--red);} .pz.blue .own{background:var(--blue);}
+  .node.cansel .pz{box-shadow:0 0 0 3px #f0b429,0 0 12px rgba(240,180,41,.75);}
+  .node.canmove .pz::after{content:"";position:absolute;inset:-6px;border-radius:11px;
+    border:2px dashed #3f9c6d;box-shadow:0 0 0 3px rgba(63,156,109,.14);}
+  .node.canflip .pz::after{content:"";position:absolute;inset:-6px;border-radius:11px;
+    border:2px dashed #7a5cae;box-shadow:0 0 0 3px rgba(122,92,174,.14);}
+  .node.bad .pz{box-shadow:0 0 0 3px #e2574a,0 0 12px rgba(226,87,74,.6);}
+  .node.lastfrom .pz{outline:3px solid rgba(90,140,200,.5);outline-offset:2px;}
+  .node.lastto .pz{outline:3px solid rgba(90,140,200,.9);outline-offset:2px;}
+  .boardbox .thinking{position:absolute;left:0;top:0;right:0;bottom:0;display:none;align-items:center;
+    justify-content:center;background:rgba(255,253,248,.55);border-radius:16px;font-weight:700;color:#7c6541;
+    font-size:16px;letter-spacing:2px;z-index:5;}
+  .boardbox .thinking.on{display:flex;}
+
+  .card{background:var(--card);border:1px solid #e0d3bb;border-radius:12px;padding:12px 14px;
+    box-shadow:0 2px 10px rgba(120,92,50,.08);}
+  .card h3{margin:0 0 8px;font-size:14px;color:#6b563b;letter-spacing:1px;font-weight:800;
+    display:flex;align-items:center;gap:6px;}
+  .card h3::before{content:"";width:3px;height:13px;background:var(--gold);border-radius:2px;}
+  .statrow{display:flex;align-items:center;justify-content:space-between;font-size:13px;padding:3px 0;
+    border-bottom:1px dashed #eee1cc;}
+  .statrow:last-child{border-bottom:0;}
+  .statrow .n{font-weight:700;font-family:Consolas,Menlo,monospace;}
+  .statrow .n.zero{color:#c0392b;}
+  .sidebadge{display:inline-flex;align-items:center;gap:5px;font-weight:800;font-size:13px;letter-spacing:1px;}
+  .sidebadge .sw{width:12px;height:12px;border-radius:3px;border:2px solid;}
+  .badge-red .sw{border-color:var(--red);background:var(--redbg);}
+  .badge-blue .sw{border-color:var(--blue);background:var(--bluebg);}
+  .totals{font-size:13px;color:#6d5c46;line-height:2;}
+
+  .log{height:206px;overflow-y:auto;font-size:13px;line-height:1.75;}
+  .log .li{padding:3px 0;border-bottom:1px dashed #f0e6d5;}
+  .log .li:last-child{border-bottom:0;}
+  .log .no{color:#a79579;font-family:Consolas,monospace;font-size:11px;margin-right:5px;}
+  .log .r{color:var(--reddark);font-weight:700;}
+  .log .b{color:var(--blue2);font-weight:700;}
+  .log .g{color:#6a5a44;}
+
+  /* ---------- 摆阵面板 ---------- */
+  #setupbar{display:none;margin-bottom:10px;}
+  #setupbar.on{display:block;}
+  .palette{display:flex;flex-wrap:wrap;gap:7px;margin:6px 0 4px;}
+  .pchip{font-family:inherit;font-size:13px;font-weight:700;padding:6px 10px;border-radius:8px;cursor:pointer;
+    border:2px solid var(--red);background:var(--redbg);color:var(--reddark);transition:.12s;letter-spacing:1px;}
+  .pchip.sel{background:var(--red);color:#fff;box-shadow:0 0 0 3px rgba(192,57,43,.2);}
+  .pchip.done{opacity:.35;cursor:not-allowed;border-color:#c3b49c;background:#efe7d9;color:#8b795f;}
+  .setupmsg{font-size:13px;color:#b0463a;min-height:19px;line-height:1.6;margin-top:4px;}
+  .setupmsg.ok{color:#3f7f58;}
+
+  /* ---------- 弹层 ---------- */
+  .modal{position:fixed;inset:0;background:rgba(46,34,20,.55);display:none;align-items:center;
+    justify-content:center;z-index:40;padding:20px;}
+  .modal.on{display:flex;}
+  .modalbox{background:var(--card);border-radius:18px;padding:26px 28px;max-width:520px;width:100%;
+    box-shadow:0 20px 60px rgba(40,26,10,.4);border:1px solid #e2d3b8;}
+  .modalbox h2{font-size:24px;color:#5a3f22;text-align:center;margin-bottom:6px;letter-spacing:3px;}
+  .modalbox .reason{text-align:center;color:#8a6d4b;font-size:15px;margin-bottom:16px;}
+  .modalbox .nums{display:flex;gap:12px;justify-content:center;margin-bottom:18px;flex-wrap:wrap;}
+  .numbox{background:#f8f1e4;border:1px solid #e3d5bd;border-radius:10px;padding:8px 16px;text-align:center;min-width:104px;}
+  .numbox .k{font-size:12px;color:#8a7357;letter-spacing:1px;}
+  .numbox .v{font-size:20px;font-weight:800;font-family:Consolas,monospace;}
+  .modalbox .btnrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+  .rules{font-size:14px;line-height:1.9;color:#5c4a34;max-height:62vh;overflow-y:auto;}
+  .rules h4{margin:14px 0 4px;color:#8a6a3f;font-size:15px;letter-spacing:1px;}
+  .rules li{margin:2px 0;}
+  .toast{position:fixed;left:50%;top:18px;transform:translateX(-50%) translateY(-14px);
+    background:rgba(52,38,22,.94);color:#fdf6e6;padding:10px 20px;border-radius:10px;font-size:14px;
+    font-weight:600;letter-spacing:1px;opacity:0;transition:.25s;pointer-events:none;z-index:60;max-width:80vw;text-align:center;}
+  .toast.on{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  @media (max-width:1000px){
+    .layout{flex-direction:column;align-items:center;}
+    .sidecol{width:382px;flex:0 0 auto;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 首页 -->
+  <section id="home">
+    <div class="hero">
+      <h1>军 棋</h1>
+      <p>单文件网页 · 双模式人机对战 · 无需联网</p>
+    </div>
+    <div class="modes">
+      <div class="modecard" data-mode="normal">
+        <div class="deco"></div>
+        <h2>军棋 · 正常模式<span class="tag">暗棋</span></h2>
+        <p>标准陆战棋。红蓝各 25 枚，先摆阵，再沿公路与铁路运子；铁路可长驱、工兵能任意拐弯。敌方棋子背面朝上，靠碰子结果推断强弱，扛走军旗即胜。</p>
+        <div class="go">进入对局 →</div>
+      </div>
+      <div class="modecard blue" data-mode="flip">
+        <div class="deco"></div>
+        <h2>翻棋模式<span class="tag">翻牌</span></h2>
+        <p>50 枚棋子全部背面随机布于盘上。轮流翻开或走子；第一枚翻开的颜色决定你执哪一色。已翻开的棋子按军衔吃子，对方已无兵可动即败。</p>
+        <div class="go">进入对局 →</div>
+      </div>
+    </div>
+    <div class="hint">你将执红方并先行 · 电脑执蓝方<br>本文件不联网、无任何外部依赖，双击即可开玩</div>
+  </section>
+
+  <!-- 对局 -->
+  <section id="game">
+    <div class="topbar">
+      <div class="title" id="gameTitle">军棋</div>
+      <button class="btn small ghost" id="btnRules">规则说明</button>
+      <button class="btn small ghost" id="btnSurrender">认输</button>
+      <button class="btn small" id="btnNew">新开一局</button>
+      <button class="btn small ghost" id="btnHome">返回首页</button>
+    </div>
+
+    <div class="statusbar">
+      <span class="dot" id="stDot"></span>
+      <span class="txt" id="stText">准备中</span>
+      <span class="sub" id="stSub"></span>
+    </div>
+
+    <div class="layout">
+      <div class="boardcol">
+        <div id="setupbar" class="card">
+          <h3>摆阵 · 点击左侧棋子再点棋盘空位放置（点已放置的棋子可收回）</h3>
+          <div class="palette" id="palette"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+            <button class="btn small" id="btnRandSetup">随机布阵</button>
+            <button class="btn small ghost" id="btnClearSetup">清空重摆</button>
+            <button class="btn small primary" id="btnStart">开始对局</button>
+          </div>
+          <div class="setupmsg" id="setupMsg"></div>
+        </div>
+        <div class="boardbox">
+          <div class="board">
+            <svg id="lines" viewBox="0 0 382 676"></svg>
+            <div class="nodes" id="nodes"></div>
+          </div>
+          <div class="thinking" id="thinking">电脑思考中…</div>
+        </div>
+      </div>
+
+      <div class="sidecol">
+        <div class="card">
+          <h3>战况</h3>
+          <div id="sideStatus" class="totals">—</div>
+        </div>
+        <div class="card">
+          <h3>子力</h3>
+          <div id="troops"></div>
+        </div>
+        <div class="card">
+          <h3>对局记录</h3>
+          <div class="log" id="log"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- 结果面板 -->
+<div class="modal" id="resultModal">
+  <div class="modalbox">
+    <h2 id="resTitle">对局结束</h2>
+    <div class="reason" id="resReason"></div>
+    <div class="nums" id="resNums"></div>
+    <div class="btnrow">
+      <button class="btn primary" id="btnAgain">再来一局</button>
+      <button class="btn ghost" id="btnToHome">返回首页</button>
+    </div>
+  </div>
+</div>
+
+<!-- 规则 -->
+<div class="modal" id="rulesModal">
+  <div class="modalbox">
+    <h2>规则说明</h2>
+    <div class="rules" id="rulesBody"></div>
+    <div class="btnrow" style="margin-top:18px;">
+      <button class="btn primary" id="btnCloseRules">知道了</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= 规则引擎 ================= */
+/* ============================================================
+ * 军棋规则引擎（陆战棋 / 翻棋）
+ * 纯逻辑，无 DOM 依赖：浏览器挂到 window.JQ，Node 下可 require
+ * ============================================================ */
+(function (global) {
+  'use strict';
+
+  var COLS = 5, ROWS = 12;
+  var BLUE = 0, RED = 1;              // 蓝方在上半场（第 1-6 行），红方在下半场（第 7-12 行）
+
+  /* ---------- 棋子定义 ---------- */
+  var PIECES = [
+    { key: 'siling',    name: '司令', rank: 9, count: 1 },
+    { key: 'junzhang',  name: '军长', rank: 8, count: 1 },
+    { key: 'shizhang',  name: '师长', rank: 7, count: 2 },
+    { key: 'lvzhang',   name: '旅长', rank: 6, count: 2 },
+    { key: 'tuanzhang', name: '团长', rank: 5, count: 2 },
+    { key: 'yingzhang', name: '营长', rank: 4, count: 2 },
+    { key: 'lianzhang', name: '连长', rank: 3, count: 3 },
+    { key: 'paizhang',  name: '排长', rank: 2, count: 3 },
+    { key: 'gongbing',  name: '工兵', rank: 1, count: 3 },
+    { key: 'zhadan',    name: '炸弹', rank: 0, count: 2 },
+    { key: 'dilei',     name: '地雷', rank: 0, count: 3 },
+    { key: 'junqi',     name: '军旗', rank: 0, count: 1 }
+  ];
+
+  var P = {};   // key -> 定义
+  PIECES.forEach(function (p) { P[p.key] = p; });
+  var TYPE_ORDER = PIECES.map(function (p) { return p.key; });
+
+  function isCombat(t) { var d = P[t]; return d && d.rank > 0; }
+  function isBomb(t)  { return t === 'zhadan'; }
+  function isMine(t)  { return t === 'dilei'; }
+  function isFlag(t)  { return t === 'junqi'; }
+  function immobile(t) { return t === 'dilei' || t === 'junqi'; }
+
+  /* ---------- 棋盘几何 ---------- */
+  var NT_STATION = 0, NT_CAMP = 1, NT_HQ = 2;
+
+  function idx(r, c) { return r * COLS + c; }
+  function rowOf(i) { return Math.floor(i / COLS); }
+  function colOf(i) { return i % COLS; }
+  function ownerOfRow(r) { return r <= 5 ? BLUE : RED; }
+
+  var CAMP_ROWS = { 2: [1, 3], 3: [2], 4: [1, 3], 7: [1, 3], 8: [2], 9: [1, 3] };
+  var RAIL_ROWS = [1, 5, 6, 10];
+  var RAIL_COLS = [0, 4];
+  var MID_COL = 2;   // 中线第 3 列有短段铁路
+  var MID_BLOCK_COLS = [1, 3];  // 山界：中线第 2、4 列断开
+
+  var N = COLS * ROWS;
+  var NODE_TYPE = new Array(N);
+  var NODE_OWNER = new Array(N);
+  var RAIL = new Array(N);        // 是否铁路点位
+  var ROADS = [];                 // 公路邻接
+  var RAILS = [];                 // 铁路邻接
+
+  (function buildBoard() {
+    var r, c, i;
+    for (i = 0; i < N; i++) { ROADS[i] = []; RAILS[i] = []; RAIL[i] = false; }
+
+    for (r = 0; r < ROWS; r++) {
+      for (c = 0; c < COLS; c++) {
+        i = idx(r, c);
+        NODE_OWNER[i] = ownerOfRow(r);
+        NODE_TYPE[i] = NT_STATION;
+        if ((r === 0 || r === ROWS - 1) && (c === 1 || c === 3)) NODE_TYPE[i] = NT_HQ;
+        else if (CAMP_ROWS[r] && CAMP_ROWS[r].indexOf(c) >= 0) NODE_TYPE[i] = NT_CAMP;
+        // 铁路点位：两侧纵向贯通 + 每半场两条横向 + 中线第 3 列短段
+        if (RAIL_COLS.indexOf(c) >= 0) RAIL[i] = true;
+        if (RAIL_ROWS.indexOf(r) >= 0) RAIL[i] = true;
+        if (c === MID_COL && (r === 5 || r === 6)) RAIL[i] = true;
+      }
+    }
+
+    function link(a, b) {
+      if (ROADS[a].indexOf(b) < 0) ROADS[a].push(b);
+      if (ROADS[b].indexOf(a) < 0) ROADS[b].push(a);
+    }
+    function rail(a, b) {
+      if (RAILS[a].indexOf(b) < 0) RAILS[a].push(b);
+      if (RAILS[b].indexOf(a) < 0) RAILS[b].push(a);
+    }
+
+    // 公路：横向、纵向相邻；中线第 2/4 列（山界）上下半场断开
+    for (r = 0; r < ROWS; r++) {
+      for (c = 0; c < COLS; c++) {
+        i = idx(r, c);
+        if (c + 1 < COLS) link(i, idx(r, c + 1));
+        if (r + 1 < ROWS) {
+          var blocked = (r === 5 && MID_BLOCK_COLS.indexOf(c) >= 0);
+          if (!blocked) link(i, idx(r + 1, c));
+        }
+      }
+    }
+    // 行营额外与八个方向相通（含斜向）
+    for (i = 0; i < N; i++) {
+      if (NODE_TYPE[i] !== NT_CAMP) continue;
+      r = rowOf(i); c = colOf(i);
+      for (var dr = -1; dr <= 1; dr++) {
+        for (var dc = -1; dc <= 1; dc++) {
+          if (!dr && !dc) continue;
+          var rr = r + dr, cc = c + dc;
+          if (rr < 0 || rr >= ROWS || cc < 0 || cc >= COLS) continue;
+          link(i, idx(rr, cc));
+        }
+      }
+    }
+    // 铁路邻接：横向在铁路行内、纵向在第 1/5 列内、中线第 3 列 5-6 行短段
+    for (r = 0; r < ROWS; r++) {
+      for (c = 0; c < COLS; c++) {
+        i = idx(r, c);
+        if (!RAIL[i]) continue;
+        if (c + 1 < COLS && RAIL[idx(r, c + 1)]) rail(i, idx(r, c + 1));
+        // 山界（PRD A3 / A7）：中线第 2、4 列上下半场断开，纵向不得连通。
+        // 必须与上方公路分支的 MID_BLOCK_COLS 过滤保持同一口径，
+        // 否则 26↔31（第 2 列）、28↔33（第 4 列）会成为隐形铁路通道，棋子可直穿中线。
+        if (r + 1 < ROWS && RAIL[idx(r + 1, c)] && !(r === 5 && MID_BLOCK_COLS.indexOf(c) >= 0)) {
+          rail(i, idx(r + 1, c));
+        }
+      }
+    }
+  })();
+
+  var RAIL_NODE_COUNT = RAIL.filter(Boolean).length;
+  var CAMP_LIST = [], HQ_LIST = [];
+  for (var ii = 0; ii < N; ii++) {
+    if (NODE_TYPE[ii] === NT_CAMP) CAMP_LIST.push(ii);
+    if (NODE_TYPE[ii] === NT_HQ) HQ_LIST.push(ii);
+  }
+
+  function isCamp(i) { return NODE_TYPE[i] === NT_CAMP; }
+  function isHQ(i) { return NODE_TYPE[i] === NT_HQ; }
+
+  /* 双方可布阵点位：己方 23 兵站 + 2 大本营 = 25，行营开局为空 */
+  function deploySlots(side) {
+    var out = [];
+    for (var i = 0; i < N; i++) {
+      if (NODE_OWNER[i] !== side) continue;
+      if (isCamp(i)) continue;
+      out.push(i);
+    }
+    return out;
+  }
+
+  function hqOf(side) {
+    return HQ_LIST.filter(function (i) { return NODE_OWNER[i] === side; });
+  }
+
+  /* 行号（0 基）→ 中文显示行号（1 基） */
+  function posLabel(i) {
+    return '第' + (rowOf(i) + 1) + '行第' + (colOf(i) + 1) + '列';
+  }
+  function shortLabel(i) {
+    var col = '一二三四五'[colOf(i)];
+    return col + (rowOf(i) + 1);
+  }
+
+
+  /* ---------- 随机数（可注入种子，便于测试复现） ---------- */
+  function mulberry32(a) {
+    return function () {
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      var t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+  function shuffle(arr, rnd) {
+    for (var i = arr.length - 1; i > 0; i--) {
+      var j = Math.floor(rnd() * (i + 1));
+      var t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+    }
+    return arr;
+  }
+
+  /* ---------- 棋子集合 ---------- */
+  function pieceList(side) {
+    var out = [], n = 0;
+    TYPE_ORDER.forEach(function (k) {
+      for (var c = 0; c < P[k].count; c++) {
+        out.push({ id: (side === RED ? 'r' : 'b') + (n++), side: side, type: k });
+      }
+    });
+    return out;
+  }
+
+  /* ---------- 状态构造 ---------- */
+  /* 回合模型：st.turn 是行动者 0=玩家 1=电脑；颜色由 playerSide 决定 */
+  function sideOfActor(st, actor) {
+    if (st.playerSide === null) return null;          // 翻棋尚未定色
+    return actor === 0 ? st.playerSide : 1 - st.playerSide;
+  }
+  function actorOfSide(st, side) { return side === st.playerSide ? 0 : 1; }
+  function curSide(st) { return sideOfActor(st, st.turn); }
+
+  function newState(mode, seed) {
+    var rnd = mulberry32(seed === undefined ? Math.floor(Math.random() * 4294967296) : seed);
+    var st = {
+      mode: mode,
+      board: new Array(N).fill(null),
+      turn: 0,
+      phase: 'setup',           // setup | play | over
+      playerSide: mode === 'normal' ? RED : null,   // 翻棋：首翻定色后填入
+      winner: null,
+      winnerSide: null,
+      winReason: '',
+      log: [],
+      moveNo: 0,
+      noCaptureStreak: 0,
+      lastAction: null,
+      // 公开情报台账：node -> 该点敌方棋子可被推定的军衔下界。
+      // 来源只有「已经发生的碰撞结果」这一双方都看得到的公开事实，
+      // 不含任何暗子身份，因此 AI 与玩家据此得到的是同一份信息。
+      intel: {},
+      // 局面指纹历史：fingerprint -> 该局面已出现的次数。用于「同一局面重复 3 次判和」。
+      posSeen: {},
+      rng: rnd
+    };
+    if (mode === 'flip') {
+      var pool = pieceList(BLUE).concat(pieceList(RED));
+      pool.forEach(function (p) { p.revealed = false; });
+      shuffle(pool, rnd);
+      var spots = [];
+      for (var i = 0; i < N; i++) if (!isCamp(i)) spots.push(i);
+      shuffle(spots, rnd);
+      for (var k = 0; k < pool.length && k < spots.length; k++) st.board[spots[k]] = pool[k];
+      st.phase = 'play';
+      st.turn = 0;
+    }
+    return st;
+  }
+
+  /* ---------- 布阵 ---------- */
+  function setupViolations(placements, side) {
+    // placements: { nodeIndex: type }
+    var errs = [];
+    var used = Object.keys(placements).length;
+    var slots = deploySlots(side);
+    Object.keys(placements).forEach(function (k) {
+      var i = Number(k);
+      if (slots.indexOf(i) < 0) errs.push({ node: i, msg: '该点位不能布置棋子（行营开局必须为空）' });
+      if (placements[k] === 'junqi' && !isHQ(i)) errs.push({ node: i, msg: '军旗必须放在大本营' });
+    });
+    // 数量校验
+    var cnt = {};
+    Object.keys(placements).forEach(function (k) {
+      var t = placements[k]; cnt[t] = (cnt[t] || 0) + 1;
+    });
+    TYPE_ORDER.forEach(function (t) {
+      var need = P[t].count, got = cnt[t] || 0;
+      if (got !== need) errs.push({ node: -1, msg: t + ' 应放 ' + need + ' 枚，当前 ' + got + ' 枚' });
+    });
+    if (used !== 25) errs.push({ node: -1, msg: '应放满 25 枚棋子，当前 ' + used + ' 枚' });
+    // 军旗数量与位置
+    var flagNodes = [];
+    Object.keys(placements).forEach(function (k) { if (placements[k] === 'junqi') flagNodes.push(Number(k)); });
+    if (flagNodes.length === 1 && !isHQ(flagNodes[0])) {
+      errs.push({ node: flagNodes[0], msg: '军旗必须放在大本营' });
+    }
+    // 地雷：己方最后两排
+    var mineRows = side === RED ? [10, 11] : [0, 1];
+    Object.keys(placements).forEach(function (k) {
+      if (placements[k] === 'dilei' && mineRows.indexOf(rowOf(Number(k))) < 0) {
+        errs.push({ node: Number(k), msg: '地雷只能放在己方最后两排' });
+      }
+    });
+    // 炸弹：不在第一排
+    var firstRow = side === RED ? 6 : 5;
+    Object.keys(placements).forEach(function (k) {
+      if (placements[k] === 'zhadan' && rowOf(Number(k)) === firstRow) {
+        errs.push({ node: Number(k), msg: '炸弹不能放在己方第一排' });
+      }
+    });
+    return errs;
+  }
+
+  /* 随机生成合法布阵：先满足三条约束，再随机填充 */
+  function randomSetup(side, rnd) {
+    var slots = deploySlots(side);
+    var hq = hqOf(side);
+    var mineRows = side === RED ? [10, 11] : [0, 1];
+    var firstRow = side === RED ? 6 : 5;
+    var placements = {};
+
+    // 军旗固定放在一个大本营
+    var flagHQ = hq[Math.floor(rnd() * hq.length)];
+    placements[flagHQ] = 'junqi';
+
+    // 地雷：己方最后两排内的可用空点位
+    var mineSpots = slots.filter(function (i) {
+      return mineRows.indexOf(rowOf(i)) >= 0 && !placements[i];
+    });
+    shuffle(mineSpots, rnd);
+    for (var m = 0; m < P.dilei.count; m++) placements[mineSpots[m]] = 'dilei';
+
+    // 炸弹：非第一排
+    var bombSpots = slots.filter(function (i) {
+      return rowOf(i) !== firstRow && !placements[i];
+    });
+    shuffle(bombSpots, rnd);
+    for (var b = 0; b < P.zhadan.count; b++) placements[bombSpots[b]] = 'zhadan';
+
+    // 其余棋子随机填充剩余点位
+    var rest = [], typesLeft = [];
+    TYPE_ORDER.forEach(function (t) {
+      if (t === 'junqi' || t === 'dilei' || t === 'zhadan') return;
+      for (var c = 0; c < P[t].count; c++) typesLeft.push(t);
+    });
+    slots.forEach(function (i) { if (!placements[i]) rest.push(i); });
+    shuffle(rest, rnd);
+    shuffle(typesLeft, rnd);
+    for (var r = 0; r < rest.length; r++) placements[rest[r]] = typesLeft[r];
+    return placements;
+  }
+
+  /* 布阵落子到棋盘（正常模式开始对局时调用） */
+  function applySetup(st, redPlacements, bluePlacements) {
+    for (var i = 0; i < N; i++) st.board[i] = null;
+    Place(redPlacements, RED);
+    Place(bluePlacements, BLUE);
+    function Place(pl, side) {
+      var n = 0;
+      Object.keys(pl).forEach(function (k) {
+        var i = Number(k);
+        // 可见性：玩家自己的棋子可见；电脑棋子对玩家不可见
+        st.board[i] = { id: (side === RED ? 'r' : 'b') + 'p' + (n++), side: side, type: pl[k],
+                        revealed: side === st.playerSide };
+      });
+    }
+    st.phase = 'play';
+    st.turn = 0;
+    st.log = [];
+    st.moveNo = 0;
+    st.noCaptureStreak = 0;
+    st.intel = {};
+    st.posSeen = {};
+    st.winner = null; st.winnerSide = null; st.winReason = '';
+  }
+
+
+  /* ---------- 走法生成 ---------- */
+  function dirOf(a, b) {
+    var dr = rowOf(b) - rowOf(a), dc = colOf(b) - colOf(a);
+    if (dr === 0 && dc === 0) return null;
+    if (dr === 0) return [0, dc > 0 ? 1 : -1];
+    if (dc === 0) return [dr > 0 ? 1 : -1, 0];
+    return null;
+  }
+
+  function railTargets(st, node, piece) {
+    var out = [];
+    if (!RAIL[node]) return out;
+    var isEngineer = piece.type === 'gongbing';
+
+    if (isEngineer) {
+      // 工兵：沿铁路网络任意拐弯，路径上所有中间点位必须为空
+      var seen = {}; seen[node] = true;
+      var stack = [node];
+      while (stack.length) {
+        var cur = stack.pop();
+        var nb = RAILS[cur];
+        for (var k = 0; k < nb.length; k++) {
+          var nx = nb[k];
+          if (seen[nx]) continue;
+          seen[nx] = true;
+          if (st.board[nx]) { out.push(nx); continue; }   // 遇子：可作为攻击/阻挡目标，不再深入
+          out.push(nx);
+          stack.push(nx);
+        }
+      }
+    } else {
+      // 非工兵：沿同一条直线铁路走任意格，不可拐弯、不可越子
+      var dirs = RAILS[node].map(function (nb) { return dirOf(node, nb); })
+                            .filter(function (d) { return d !== null; });
+      var seenDir = {};
+      dirs.forEach(function (d) {
+        var key = d[0] + ',' + d[1];
+        if (seenDir[key]) return; seenDir[key] = true;
+        var cur = node;
+        while (true) {
+          var nr = rowOf(cur) + d[0], nc = colOf(cur) + d[1];
+          if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) break;
+          var nx = idx(nr, nc);
+          if (!RAIL[nx]) break;
+          if (RAILS[cur].indexOf(nx) < 0) break;      // 不是连续铁路
+          out.push(nx);
+          if (st.board[nx]) break;                    // 被挡住，到此为止
+          cur = nx;
+        }
+      });
+    }
+    return out;
+  }
+
+  function canTarget(st, mover, target) {
+    var t = st.board[target];
+    if (isCamp(target) && t) return false;                 // 行营内的棋子不可被攻击
+    if (t) {
+      if (t.side === mover.side) return false;             // 不可攻击己方
+      if (st.mode === 'flip' && !t.revealed) return false; // 翻棋：暗子不可吃
+    }
+    return true;
+  }
+
+  /* 返回某点棋子的全部合法落点（actor 为行动者） */
+  function legalMoves(st, node, actor) {
+    var p = st.board[node];
+    if (!p) return [];
+    if (actor === undefined) actor = st.turn;
+    var side = sideOfActor(st, actor);
+    if (immobile(p.type)) return [];
+    if (st.mode !== 'flip' && isHQ(node)) return [];
+    if (st.mode === 'flip') {
+      if (!p.revealed) return [];                 // 暗子不可操作
+      if (side !== null && p.side !== side) return [];
+    } else if (side !== null && p.side !== side) {
+      return [];
+    }
+    var out = [];
+    ROADS[node].forEach(function (nb) {
+      if (canTarget(st, p, nb) && out.indexOf(nb) < 0) out.push(nb);
+    });
+    railTargets(st, node, p).forEach(function (nb) {
+      if (nb === node) return;
+      if (canTarget(st, p, nb) && out.indexOf(nb) < 0) out.push(nb);
+    });
+    return out;
+  }
+
+  [ROADS, RAILS];
+
+  var TYPE_NAME = {};
+  PIECES.forEach(function (p) { TYPE_NAME[p.key] = p.name; });
+
+  /* ---------- 战报文案：只在「公开已知」的范围内具名 ---------- */
+  /* 正常模式是暗棋，设计意图是玩家靠碰子结果推断敌方军衔。因此：
+     - 己方棋子：玩家本来就知道，任何时候都可具名；
+     - 敌方棋子：只有在本步碰撞中「已阵亡」之后才允许揭晓（与状态区「敌方军衔不公开」口径一致）；
+     - 存活的敌方棋子：一律降级为中性描述，即便它正是攻方（AI 走子时 A 也可能是敌方）。
+     翻棋模式能交战的棋子必然已翻开（暗子不可被吃），身份公开，可直接具名。 */
+  function noteName(st, piece, died) {
+    if (!piece) return null;
+    if (st.mode !== 'normal') return TYPE_NAME[piece.type];
+    if (piece.side === st.playerSide) return TYPE_NAME[piece.type];
+    return died ? TYPE_NAME[piece.type] : null;
+  }
+  /* 存活的敌方棋子用中性称谓，绝不写真实军衔 */
+  function noteText(st, piece, died, fallback) {
+    return noteName(st, piece, died) || fallback;
+  }
+
+  /* ---------- 碰子结算：严格按 PRD 的 8 步顺序 ---------- */
+  /* 返回 {aDies, bDies, aMoves, winSide, note, intel} */
+  function resolveCombat(st, aNode, bNode) {
+    var A = st.board[aNode], B = st.board[bNode];
+    var res = { aDies: false, bDies: false, aMoves: false, winSide: null, note: '', intel: null };
+    if (!A || !B) return res;
+
+    // 1. B 在行营中 → 非法攻击（走法生成阶段已过滤，这里兜底）
+    if (isCamp(bNode)) { res.illegal = true; res.note = '行营内的棋子不可被攻击'; return res; }
+
+    // 2. A 炸弹 + B 军旗 → A 消失，B 不动
+    if (isBomb(A.type) && isFlag(B.type)) {
+      res.aDies = true; res.bDies = false;
+      var b2 = noteText(st, B, false, '敌方棋子');
+      res.note = '炸弹撞上' + b2 + '，炸弹自爆，' + b2 + '不动';
+      return res;
+    }
+    // 3. A 炸弹 + B 其他任何棋子（含地雷） → 同归于尽
+    if (isBomb(A.type)) {
+      res.aDies = true; res.bDies = true;
+      res.note = '炸弹与' + noteText(st, B, true, '敌方棋子') + '同归于尽';
+      return res;
+    }
+    // 4. B 炸弹 → 同归于尽
+    if (isBomb(B.type)) {
+      res.aDies = true; res.bDies = true;
+      res.note = noteText(st, A, true, '敌方棋子') + '撞上炸弹，双方同归于尽';
+      return res;
+    }
+    // 5. B 地雷 + A 工兵 → 雷毁，工兵留在落点
+    if (isMine(B.type) && A.type === 'gongbing') {
+      res.bDies = true; res.aMoves = true;
+      res.note = noteText(st, A, false, '敌方棋子') + '挖掉地雷，占领该点';
+      return res;
+    }
+    // 6. B 地雷 + A 非工兵 → A 消失，雷留原地
+    if (isMine(B.type)) {
+      res.aDies = true; res.bDies = false;
+      var b6 = noteText(st, B, false, '敌方棋子');
+      res.note = noteText(st, A, true, '敌方棋子') + '踩中' + b6 + '阵亡，' + b6 + '留在原地';
+      return res;
+    }
+    // 7. B 军旗 + A 非炸弹 → A 留在落点，B 消失，A 方胜
+    if (isFlag(B.type)) {
+      res.bDies = true; res.aMoves = true; res.winSide = A.side;
+      res.note = noteText(st, A, false, '敌方棋子') + '扛走军旗';
+      return res;
+    }
+    // 8. 双方均为作战棋子 → 比等级
+    var ra = P[A.type].rank, rb = P[B.type].rank;
+    if (ra > rb) {
+      res.bDies = true; res.aMoves = true;
+      res.note = noteText(st, A, false, '敌方棋子') + '吃掉' + noteText(st, B, true, '敌方棋子');
+      // 存活方军衔 > 阵亡方军衔，这是公开可观测量，可据以推定下界
+      res.intel = { survivor: A, minRank: rb + 1 };   // A 存活并占据 to
+    } else if (ra < rb) {
+      res.aDies = true;
+      res.note = noteText(st, A, true, '敌方棋子') + '被' + noteText(st, B, false, '敌方棋子') + '吃掉';
+      res.intel = { survivor: B, minRank: ra + 1 };   // B 存活，仍在 bNode
+    } else {
+      res.aDies = true; res.bDies = true;
+      res.note = '同级' + noteText(st, A, true, '敌方棋子') + '与' + noteText(st, B, true, '敌方棋子') + '相碰，双方同归于尽';
+    }
+    return res;
+  }
+
+  /* ---------- 终局判定 ---------- */
+  function movablePieces(st, side) {
+    var actor = actorOfSide(st, side);
+    var out = [];
+    for (var i = 0; i < N; i++) {
+      var p = st.board[i];
+      if (!p || p.side !== side) continue;
+      if (st.mode === 'flip' && !p.revealed) continue;
+      if (immobile(p.type)) continue;
+      if (st.mode !== 'flip' && isHQ(i)) continue;
+      if (legalMoves(st, i, actor).length > 0) out.push(i);
+    }
+    return out;
+  }
+
+  function countSide(st, side) {
+    var total = 0, dead = 0, byType = {};
+    TYPE_ORDER.forEach(function (t) { byType[t] = 0; });
+    for (var i = 0; i < N; i++) {
+      var p = st.board[i];
+      if (p && p.side === side) { total++; byType[p.type] = (byType[p.type] || 0) + 1; }
+    }
+    return { total: total, byType: byType };
+  }
+
+  function unrevealedCount(st) {
+    var n = 0;
+    for (var i = 0; i < N; i++) { var p = st.board[i]; if (p && !p.revealed && st.mode === 'flip') n++; }
+    return n;
+  }
+
+  /* 回合开始时的终局检查。返回 null 或 {winner, side, reason} */
+  function checkTerminal(st, side) {
+    if (st.mode === 'flip') {
+      // PRD E9 与 E10 的调和口径（详见交付评论「PRD 矛盾处理」）：
+      //  本方的暗子尚未翻完时，永远还有「翻子」这一合法动作，不能因走不动而判负（E10）；
+      //  只有当本方暗子已全部翻出后，才按「可动棋子是否还存在」判负（E9）。
+      //  统计量：
+      //   total         本方在盘上的全部棋子（含暗子）
+      //   revealedCnt   其中已翻开的数量
+      //   hidden        其中仍是背面的数量
+      //   mobileByType  已翻开且类型本可移动的数量（地雷/军旗不计）
+      //   movable       已翻开、且当前确实有合法落点的数量
+      var total = 0, revealedCnt = 0, hidden = 0, mobileByType = 0, movable = 0;
+      for (var i = 0; i < N; i++) {
+        var p = st.board[i];
+        if (!p || p.side !== side) continue;
+        total++;
+        if (!p.revealed) { hidden++; continue; }
+        revealedCnt++;
+        if (immobile(p.type)) continue;
+        mobileByType++;
+        if (legalMoves(st, i).length > 0) movable++;
+      }
+      // 条件一（E9）：本方已被吃光 → 直接判负
+      if (total === 0) return { winner: 1 - side, side: side, reason: '可动棋子已全部被消灭' };
+      // 暗子翻完之后：已翻开棋子按类型全部不可动（只剩地雷与军旗）→ 判负
+      if (hidden === 0 && revealedCnt > 0 && mobileByType === 0) {
+        return { winner: 1 - side, side: side, reason: '可动棋子已全部被消灭' };
+      }
+      // 暗子翻完之后：有可动类型的棋子却被彻底围死 → 无合法走法判负
+      if (hidden === 0 && mobileByType > 0 && movable === 0) {
+        return { winner: 1 - side, side: side, reason: '无合法走法' };
+      }
+      return null;
+    }
+    // 正常模式：该方不存在任何合法走法即判负
+    if (movablePieces(st, side).length === 0) {
+      return { winner: 1 - side, side: side, reason: '无合法走法' };
+    }
+    return null;
+  }
+
+  /* ---------- 动作执行 ---------- */
+  function applyMove(st, from, to, actor) {
+    if (actor === undefined) actor = st.turn;
+    st.turn = actor;                      // 以传入的行动者为准，避免状态漂移
+    var p = st.board[from];
+    if (!p) return { ok: false, msg: '该点没有棋子' };
+    if (legalMoves(st, from, actor).indexOf(to) < 0) return { ok: false, msg: '不属于合法落点' };
+
+    var target = st.board[to];
+    var entry = { no: st.moveNo + 1, actor: actor, side: p.side, from: from, to: to, type: p.type, result: '' };
+
+    if (!target) {
+      st.board[to] = p; st.board[from] = null;
+      entry.result = '移动';
+    } else {
+      var r = resolveCombat(st, from, to);
+      if (r.illegal) return { ok: false, msg: r.note };
+      entry.result = r.note;
+      entry.targetType = target.type;
+      entry.aDies = r.aDies; entry.bDies = r.bDies;
+      if (r.bDies) st.board[to] = null;
+      if (r.aDies) st.board[from] = null;
+      if (r.aMoves) { st.board[to] = p; st.board[from] = null; }
+      if (r.winSide !== null) { entry.win = true; }
+      // 记录「碰子推导出的军衔下界」：存活方军衔必然 > 阵亡方军衔，
+      // 而阵亡方军衔在战报中已公开，因此这是双方都能推出的公开情报。
+      if (r.intel && r.intel.survivor && r.intel.survivor.id) {
+        var sid = r.intel.survivor.id;
+        var prev = st.intel[sid] || 0;
+        st.intel[sid] = Math.max(prev, r.intel.minRank);
+      }
+      st.noCaptureStreak = 0;
+    }
+    if (!target) st.noCaptureStreak++;
+
+    st.moveNo++;
+    st.lastAction = { from: from, to: to, side: p.side };
+    st.log.push(entry);
+
+    if (entry.win) {
+      st.phase = 'over'; st.winner = p.side; st.winnerSide = p.side; st.winReason = '夺旗';
+      return { ok: true, entry: entry, over: true };
+    }
+    return finishTurn(st, entry);
+  }
+
+  function applyFlip(st, node, actor) {
+    if (actor === undefined) actor = st.turn;
+    st.turn = actor;
+    if (st.mode !== 'flip') return { ok: false, msg: '当前模式不能翻子' };
+    var p = st.board[node];
+    if (!p) return { ok: false, msg: '该点没有棋子' };
+    if (p.revealed) return { ok: false, msg: '该棋子已翻开' };
+    p.revealed = true;
+    st.moveNo++;
+    var firstFlip = st.playerSide === null;
+    if (firstFlip) st.playerSide = p.side;      // 首翻定色：翻到什么颜色就执什么颜色
+    var entry = { no: st.moveNo, actor: actor, flip: node, type: p.type, owner: p.side,
+                  result: '翻子：' + TYPE_NAME[p.type] + (firstFlip ? '（定色）' : '') };
+    st.log.push(entry);
+    st.lastAction = { flip: node, actor: actor };
+    if (firstFlip) entry.firstFlip = true;
+    return finishTurn(st, entry);
+  }
+
+  /* ---------- 局面指纹与重复判和 ---------- */
+  /* 指纹只由「棋盘每一点上的棋子归属 / 兵种 / 翻开状态」+「下一步该谁走」构成，
+     刻意不含 moveNo、noCaptureStreak 这类随时间单调变化、与局面无关的量：
+     真实僵持的机械循环会让指纹稳定复现，而两方正常来回拉锯只要棋子位置有实质变化，
+     指纹就不同，不会误判。 */
+  function posFingerprint(st) {
+    var parts = [];
+    for (var i = 0; i < N; i++) {
+      var p = st.board[i];
+      if (!p) { parts.push('.'); continue; }
+      parts.push(i + ':' + p.side + ':' + p.type + ':' + (p.revealed ? 1 : 0));
+    }
+    var side = sideOfActor(st, st.turn);
+    parts.push('T' + (side === null ? 'x' : side));
+    return parts.join('|');
+  }
+
+  function finishTurn(st, entry) {
+    var next = 1 - st.turn;
+    st.turn = next;
+    if (!st.posSeen) st.posSeen = {};
+    // 局面重复判和：同一局面第 3 次出现即判和（三重复局面和棋的常规棋规）。
+    // 只认「棋盘 + 棋子身份归属 + 可动状态 + 行棋方」完全一致的重复，
+    // 是原先「双方互避导致 noCapture 极高但可动子仍多、条件永不同时成立」僵局的收束手段。
+    var fp = posFingerprint(st);
+    var seen = (st.posSeen[fp] || 0) + 1;
+    st.posSeen[fp] = seen;
+    if (seen >= 3) {
+      st.phase = 'over'; st.winner = 'draw'; st.winnerSide = null;
+      st.winReason = '同一局面重复出现，判和';
+      return { ok: true, entry: entry, over: true };
+    }
+    if (st.mode === 'normal' && st.noCaptureStreak >= 100) {
+      var a = movablePieces(st, RED).length, b = movablePieces(st, BLUE).length;
+      if (a < 3 && b < 3) {
+        st.phase = 'over'; st.winner = 'draw'; st.winnerSide = null; st.winReason = '连续 100 回合无吃子且双方可动子均不足 3 枚';
+        return { ok: true, entry: entry, over: true };
+      }
+    }
+    var nextSide = sideOfActor(st, next);
+    var term = nextSide === null ? null : checkTerminal(st, nextSide);
+    if (term) {
+      st.phase = 'over'; st.winner = term.winner; st.winnerSide = term.winner; st.winReason = term.reason;
+      return { ok: true, entry: entry, over: true };
+    }
+    return { ok: true, entry: entry, over: false };
+  }
+
+  function legalFlipTargets(st) {
+    if (st.mode !== 'flip') return [];
+    var out = [];
+    for (var i = 0; i < N; i++) {
+      var p = st.board[i];
+      if (p && !p.revealed) out.push(i);
+    }
+    return out;
+  }
+
+  function allMovesFor(st, actor) {
+    // 收集某一行动者的全部合法动作：{type:'move'|'flip', from, to}
+    if (actor === undefined) actor = st.turn;
+    var acts = [];
+    if (st.mode === 'flip' && legalFlipTargets(st).length) {
+      legalFlipTargets(st).forEach(function (n) { acts.push({ type: 'flip', to: n }); });
+    }
+    var side = sideOfActor(st, actor);
+    for (var i = 0; i < N; i++) {
+      var p = st.board[i];
+      if (!p) continue;
+      if (side !== null && p.side !== side) continue;
+      if (st.mode === 'flip' && !p.revealed) continue;
+      var ms = legalMoves(st, i, actor);
+      ms.forEach(function (t) { acts.push({ type: 'move', from: i, to: t }); });
+    }
+    return acts;
+  }
+
+
+  /* ============================================================
+   * AI 视图：只含公开信息。AI 决策函数只接收这个对象，拿不到 board。
+   * ============================================================ */
+  function buildAIView(st, meSide) {
+    var opp = 1 - meSide;
+    var nodes = new Array(N);
+    for (var i = 0; i < N; i++) {
+      var p = st.board[i];
+      if (!p) { nodes[i] = null; continue; }
+      if (st.mode === 'flip') {
+        // 翻棋模式的信息边界：只有「已翻开」的棋子才可见身份与归属。
+        // 己方尚未翻开的棋子，即便引擎内部知道它的颜色，也不得进入 AI 视图
+        //（否则 AI 会按暗子身份行动，等于偷看）。暗子一律 {side:null, known:false, type:null}。
+        nodes[i] = p.revealed
+          ? { side: p.side, known: true, type: p.type, revealed: true }
+          : { side: null, known: false, type: null, revealed: false };
+      } else if (p.side === meSide) {
+        // 正常模式：己方棋子身份完全可见
+        nodes[i] = { side: p.side, known: true, type: p.type, revealed: true };
+      } else {
+        // 正常模式：敌方棋子身份一律未知。
+        // intelRank 是「碰子已证实的军衔下界」，只来自已经发生的碰撞结果，
+        // 属于双方都能看到的公开事实（战报里就写着谁吃掉了谁），不是暗子身份。
+        nodes[i] = { side: opp, known: false, type: null, revealed: false,
+                     intelRank: (st.intel && st.intel[p.id]) || 0 };
+      }
+    }
+    return {
+      mode: st.mode,
+      me: meSide,
+      meSide: meSide,
+      turn: st.turn,
+      nodes: nodes,
+      camps: CAMP_LIST.slice(),
+      hqs: HQ_LIST.slice(),
+      hqMine: hqOf(meSide),
+      hqOpp: hqOf(opp),
+      lastAction: st.lastAction ? { from: st.lastAction.from, to: st.lastAction.to, side: st.lastAction.side } : null,
+      noCaptureStreak: st.noCaptureStreak,
+      moveNo: st.moveNo
+    };
+  }
+
+  /* ---------- AI 决策（只用 view） ---------- */
+  // 返回 {type:'move', from, to} 或 {type:'flip', to}
+  function aiPick(view, rnd) {
+    var me = view.me;
+    var actions = aiActions(view);
+    if (!actions.length) return null;
+    var scored = actions.map(function (a) {
+      return { a: a, s: aiScore(view, a) + rnd() * 0.9 };
+    });
+    scored.sort(function (x, y) { return y.s - x.s; });
+    return scored[0].a;
+  }
+
+  function aiActions(view) {
+    var me = view.me, out = [];
+    if (view.mode === 'flip') {
+      for (var i = 0; i < N; i++) {
+        var nv = view.nodes[i];
+        if (nv && !nv.revealed && nv.known === false) out.push({ type: 'flip', to: i });
+      }
+    }
+    for (var j = 0; j < N; j++) {
+      var p = view.nodes[j];
+      if (!p || !p.known || p.side !== me) continue;
+      if (immobile(p.type)) continue;
+      if (view.mode !== 'flip' && isHQ(j)) continue;
+      var tg = aiMoves(view, j);
+      tg.forEach(function (t) { out.push({ type: 'move', from: j, to: t }); });
+    }
+    return out;
+  }
+
+  /* 走法生成（视图版，与引擎同规则） */
+  function aiMoves(view, node) {
+    var p = view.nodes[node];
+    if (!p) return [];
+    var out = [];
+    ROADS[node].forEach(function (nb) {
+      if (aiCanEnter(view, node, nb) && out.indexOf(nb) < 0) out.push(nb);
+    });
+    var rt = railTargetsView(view, node, p);
+    rt.forEach(function (nb) { if (aiCanEnter(view, node, nb) && out.indexOf(nb) < 0) out.push(nb); });
+    return out;
+  }
+
+  function aiCanEnter(view, from, to) {
+    var t = view.nodes[to];
+    if (view.camps.indexOf(to) >= 0 && t) return false;   // 行营内的棋子不可被攻击
+    if (t) {
+      if (t.side === view.me) return false;               // 不可攻击己方
+      // 暗子不可吃只发生在翻棋模式；正常模式下敌方棋子本就「未知」，
+      // 走到对方点位即发起攻击，revealed 字段不参与判定。
+      if (view.mode === 'flip' && !t.revealed) return false;
+    }
+    return true;
+  }
+
+  function railTargetsView(view, node, piece) {
+    var out = [];
+    if (!RAIL[node]) return out;
+    if (piece.type === 'gongbing') {
+      var seen = {}; seen[node] = true; var stack = [node];
+      while (stack.length) {
+        var cur = stack.pop();
+        RAILS[cur].forEach(function (nx) {
+          if (seen[nx]) return; seen[nx] = true;
+          out.push(nx);
+          if (!view.nodes[nx]) stack.push(nx);
+        });
+      }
+    } else {
+      var dirs = RAILS[node].map(function (nb) { return dirOf(node, nb); }).filter(function (d) { return d; });
+      var seenDir = {};
+      dirs.forEach(function (d) {
+        var key = d[0] + ',' + d[1]; if (seenDir[key]) return; seenDir[key] = true;
+        var cur = node;
+        while (true) {
+          var nr = rowOf(cur) + d[0], nc = colOf(cur) + d[1];
+          if (nr < 0 || nr >= ROWS || nc < 0 || nc >= COLS) break;
+          var nx = idx(nr, nc);
+          if (!RAIL[nx] || RAILS[cur].indexOf(nx) < 0) break;
+          out.push(nx);
+          if (view.nodes[nx]) break;
+          cur = nx;
+        }
+      });
+    }
+    return out;
+  }
+
+
+  /* ---------- AI 评分：只用 view 中可见的信息 ---------- */
+  /* opt.ignoreExpose 仅供自测做 A/B 对照：关掉「避开已确证更强敌子」一项后重算排序，
+     用来统计该分支真实拦下了多少次决策（不改动对局本身的行为）。 */
+  function aiScore(view, act, opt) {
+    var me = view.me;
+    if (act.type === 'flip') return scoreFlip(view, act.to);
+    var mv = scoreMove(view, act.from, act.to, opt);
+    // 翻棋模式：只要盘上还有暗子，翻子就是主行动。压低挪子权重，
+    // 否则 AI 会反复挪动已翻开的棋子、始终不翻牌，对局无法收束。
+    if (view.mode === 'flip' && hasHidden(view)) mv -= 12;
+    return mv;
+  }
+
+  function hasHidden(view) {
+    for (var i = 0; i < N; i++) {
+      var n = view.nodes[i];
+      if (n && !n.revealed && n.known === false) return true;
+    }
+    return false;
+  }
+
+  var RANK_MID = 5;
+
+  function scoreFlip(view, node) {
+    var me = view.me;
+    var s = 10;      // 翻子本身：获取信息 + 可能翻出己方棋子，是翻棋模式的主行动
+    // 翻子无信息可依赖，只能按位置风险判断（不做身份先验）
+    // 1) 靠近己方大子（能保护/能吃掉翻出来的敌子）加分
+    var nearOwnBig = 0, nearOppBig = 0;
+    neighbors(node).forEach(function (nb) {
+      var p = view.nodes[nb];
+      if (!p || !p.known) return;
+      if (p.side === me) { if (P[p.type] && P[p.type].rank >= 7) nearOwnBig++; }
+      else { if (P[p.type] && P[p.type].rank >= 7) nearOppBig++; }
+    });
+    s += nearOwnBig * 6 - nearOppBig * 8;
+    // 2) 行营不可被攻击，翻在行营旁更好；翻棋模式行营可停留
+    if (view.camps.indexOf(node) >= 0) s += 4;
+    // 3) 后两排（对方雷区常见）在翻棋模式下无约束，仍适度降低优先级
+    s += 1.0;
+    return s;
+  }
+
+  /* 敌方「未知棋子」的分布：标准 25 子编成，减去视图中已公开的敌子。
+     全部来自公开信息（每个阵营的固定编成 + 已翻开的敌子），不读取任何暗子身份。 */
+  function oppUnknownPool(view) {
+    var pool = [];
+    TYPE_ORDER.forEach(function (t) {
+      var n = P[t].count, seen = 0;
+      for (var i = 0; i < N; i++) {
+        var e = view.nodes[i];
+        if (e && e.known && e.side !== view.me && e.type === t) seen++;
+      }
+      n -= seen;
+      for (var k = 0; k < n; k++) pool.push(t);
+    });
+    return pool;
+  }
+
+  /* 攻击一枚「身份未知的敌子」的期望收益 */
+  function expectAttack(myType, pool) {
+    if (!pool.length) return 0;
+    var myRank = P[myType] ? P[myType].rank : 0;
+    var pos = 0, neg = 0;
+    pool.forEach(function (t) {
+      var theirs = P[t].rank;
+      if (isFlag(t)) { pos += myType === 'zhadan' ? -90 : 420; return; }
+      if (isBomb(t)) { (myRank >= 8 ? pos += 14 : neg += 26); return; }
+      if (isMine(t)) { myType === 'gongbing' ? pos += 40 : neg += 20 + myRank * 9; return; }
+      if (myType === 'zhadan') { pos += 10; return; }              // 炸弹撞作战子：同归于尽，换掉大子才值
+      if (myRank > theirs) pos += 18 + theirs * 3;
+      else if (myRank === theirs) neg += (theirs >= 7 ? 20 : 11);
+      else neg += 34;
+    });
+    // 损失厌恶：把负面期望放大，避免司令去赌雷
+    return (pos - neg * 1.6) / pool.length;
+  }
+
+  function scoreMove(view, from, to, opt) {
+    var me = view.me;
+    var p = view.nodes[from];
+    var t = view.nodes[to];
+    var s = 0;
+
+    /* 1) 攻击：已知敌子按确定结果算，未知敌子按公开分布算期望 */
+    if (t && t.side !== me) {
+      if (t.known && t.type) {
+        var mine = P[p.type] ? P[p.type].rank : 0;
+        var theirs = P[t.type] ? P[t.type].rank : 0;
+        if (isBomb(p.type)) s += isFlag(t.type) ? -90 : 10;
+        else if (isFlag(t.type)) s += 420;
+        else if (isMine(t.type)) s += p.type === 'gongbing' ? 42 : -(20 + mine * 9);
+        else if (isBomb(t.type)) s += (mine >= 8 ? 30 : mine >= 6 ? 6 : -32);
+        else if (mine > theirs) s += 22 + theirs * 4;
+        else if (mine === theirs) s += -(theirs >= 7 ? 22 : 12);
+        else s += -55;
+      } else {
+        // 身份未知（正常模式全部敌子）：按公开编成算期望，+6 表示接战优于空转
+        s += expectAttack(p.type, oppUnknownPool(view)) + 6;
+      }
+      // 僵持压力：久无吃子时逐步抬高接战收益，避免双方无休止避战导致对局无法收束。
+      // 该缓冲只与「多少步没吃子」这一公开事实相关，不涉及任何暗子身份。
+      var noCap = view.noCaptureStreak || 0;
+      s += Math.min(30, noCap * 0.14);
+    }
+
+    /* 2) 行营避险 */
+    if (view.camps.indexOf(to) >= 0 && !t) s += threatened(view, from) ? 16 : 1;
+
+    /* 3) 别把子送进已确证更强敌子的攻击范围（PRD F5 的另一条分支）。
+       判据只认「碰子已证实的军衔下界」，不看任何暗子身份。 */
+    if (!(opt && opt.ignoreExpose) && exposedTo(view, to, p.type)) s -= 22;
+
+    /* 4) 工兵探雷：后两排加分 */
+    if (p.type === 'gongbing') {
+      var row = rowOf(to);
+      if (row <= 1 || row >= 10) s += 12;
+    }
+
+    /* 5) 推进：靠近最近敌子/敌方大本营（权重压低，避免压过接战收益） */
+    var before = nearestEnemyDist(view, from), after = nearestEnemyDist(view, to);
+    s += (before - after) * 2.2;
+    if (view.hqOpp && view.hqOpp.length) {
+      var hqB = minDistToHq(from, view.hqOpp), hqA = minDistToHq(to, view.hqOpp);
+      s += (hqB - hqA) * 2.0;
+      if (view.hqOpp.indexOf(to) >= 0) s += 45;
+    }
+
+    /* 6) 军旗保护：大子离本方大本营过远扣分 */
+    if (view.hqMine && view.hqMine.length && P[p.type] && P[p.type].rank >= 8) {
+      if (minDistToHq(to, view.hqMine) > 5) s -= 10;
+    }
+
+    /* 7) 防抖动：不要马上走回上一步起点 */
+    if (view.lastAction && view.lastAction.side === me && to === view.lastAction.from) s -= 12;
+
+    return s;
+  }
+
+  function neighbors(i) { return ROADS[i]; }
+
+  /* 到最近「敌方占据点位」的曼哈顿距离；盘上无敌子则返回 0（不产生推进压力） */
+  function nearestEnemyDist(view, node) {
+    var best = -1;
+    for (var i = 0; i < N; i++) {
+      var e = view.nodes[i];
+      if (!e || e.side === view.me) continue;
+      var d = Math.abs(rowOf(i) - rowOf(node)) + Math.abs(colOf(i) - colOf(node));
+      if (best < 0 || d < best) best = d;
+    }
+    return best < 0 ? 0 : best;
+  }
+
+
+  function minDistToHq(i, hqs) {
+    var best = 99;
+    hqs.forEach(function (h) {
+      var d = Math.abs(rowOf(i) - rowOf(h)) + Math.abs(colOf(i) - colOf(h));
+      if (d < best) best = d;
+    });
+    return best;
+  }
+
+  /* 该点棋子是否处在敌方可攻击范围内（只用已知敌子判断） */
+  function threatened(view, node) {
+    var p = view.nodes[node];
+    if (!p || !p.known) return false;
+    for (var i = 0; i < N; i++) {
+      var e = view.nodes[i];
+      if (!e || !e.known || e.side === view.me) continue;
+      if (e.type && P[e.type].rank && legalPairs(i, node)) return true;
+    }
+    return false;
+  }
+
+  function legalPairs(a, b) { return ROADS[a].indexOf(b) >= 0 || RAILS[a].indexOf(b) >= 0; }
+
+  /* 落在 to 后是否会被已知敌方大子吃掉 */
+  /* 落在 to 之后，是否已处在「已确证更强（或同级）」的敌子攻击范围内。
+     两条判据合起来才算完整：
+       ① 身份已公开的敌子（翻棋模式翻开后）——直接比军衔；
+       ② 身份未知、但碰子已证实军衔下界 ≥ 我方军衔的敌子（正常模式）。
+     ②正是「避开已确证更强敌子」这条 PRD F5 分支的唯一入口：
+     它需要的是「确证」，不是「猜测」，所以只认碰撞推出来的下界，不做身份先验。 */
+  function exposedTo(view, to, myType) {
+    var myRank = myType && P[myType] ? P[myType].rank : 0;
+    var i, e, er;
+    /* 落点上的敌子不是「到达之后才暴露给」的对象，它本身就是本步的攻击目标，
+       因此不能靠邻接扫描发现（自己和自己不邻接），必须单独判一次：
+       若碰子已证实它 ≥ 我方军衔，这步就是明知必亏的送子。 */
+    var occ = view.nodes[to];
+    if (occ && occ.side !== view.me) {
+      if (occ.known && occ.type) {
+        if (!isBomb(occ.type) && !isMine(occ.type) && !isFlag(occ.type)) {
+          var orank = P[occ.type].rank;
+          if (!myRank ? orank > 0 : orank >= myRank) return true;
+        }
+      } else if (myRank && occ.intelRank && occ.intelRank >= myRank) {
+        return true;
+      }
+    }
+    for (i = 0; i < N; i++) {
+      e = view.nodes[i];
+      if (!e || e.side === view.me) continue;
+      if (!legalPairs(i, to)) continue;
+      // ① 身份公开
+      if (e.known && e.type) {
+        if (isBomb(e.type) || isMine(e.type) || isFlag(e.type)) continue;
+        er = P[e.type].rank;
+        if (!myRank) { if (er > 0) return true; continue; }   // 我方无军衔（炸弹/雷/旗）：遇作战子即险
+        if (er >= myRank) return true;
+        continue;
+      }
+      // ② 身份未知但已确证更强
+      if (!myRank) continue;
+      if (e.intelRank && e.intelRank >= myRank) return true;
+    }
+    return false;
+  }
+
+
+  /* ---------- 导出 ---------- */
+  var API = {
+    COLS: COLS, ROWS: ROWS, N: N, BLUE: BLUE, RED: RED,
+    NODE_TYPE: NODE_TYPE, NODE_OWNER: NODE_OWNER, RAIL: RAIL, ROADS: ROADS, RAILS: RAILS,
+    NT_STATION: NT_STATION, NT_CAMP: NT_CAMP, NT_HQ: NT_HQ,
+    RAIL_NODE_COUNT: RAIL_NODE_COUNT, CAMP_LIST: CAMP_LIST, HQ_LIST: HQ_LIST,
+    PIECES: PIECES, P: P, TYPE_ORDER: TYPE_ORDER, TYPE_NAME: TYPE_NAME,
+    idx: idx, rowOf: rowOf, colOf: colOf, isCamp: isCamp, isHQ: isHQ,
+    deploySlots: deploySlots, hqOf: hqOf, posLabel: posLabel, shortLabel: shortLabel,
+    isCombat: isCombat, isBomb: isBomb, isMine: isMine, isFlag: isFlag, immobile: immobile,
+    sideOfActor: sideOfActor, actorOfSide: actorOfSide, curSide: curSide,
+    newState: newState, randomSetup: randomSetup, setupViolations: setupViolations,
+    applySetup: applySetup, legalMoves: legalMoves, resolveCombat: resolveCombat,
+    applyMove: applyMove, applyFlip: applyFlip, legalFlipTargets: legalFlipTargets,
+    allMovesFor: allMovesFor, movablePieces: movablePieces, countSide: countSide,
+    unrevealedCount: unrevealedCount, checkTerminal: checkTerminal, pieceList: pieceList,
+    posFingerprint: posFingerprint,
+    buildAIView: buildAIView, aiPick: aiPick, aiActions: aiActions, aiScore: aiScore,
+    exposedTo: exposedTo,
+    mulberry32: mulberry32, shuffle: shuffle
+  };
+  global.JQ = API;
+  if (typeof module !== 'undefined' && module.exports) module.exports = API;
+})(typeof globalThis !== 'undefined' ? globalThis : this);
+
+</script>
+
+<script>
+/* ================= 界面逻辑 ================= */
+/* ============ 界面层：棋盘绘制、交互、AI 调度 ============ */
+(function () {
+  'use strict';
+  var E = window.JQ;
+  var COLS = E.COLS, ROWS = E.ROWS, N = E.N, RED = E.RED, BLUE = E.BLUE;
+
+  /* ---- 棋盘几何（与 CSS 中 .board 的 382×676 对应） ---- */
+  var CX = [41, 116, 191, 266, 341];
+  var RY = []; for (var r = 0; r < ROWS; r++) RY.push(37 + 56 * r);
+  var NW = 54, NH = 40;
+  function nx(c) { return CX[c] - NW / 2; }
+  function ny(r) { return RY[r] - NH / 2; }
+
+  /* ---- 全局状态 ---- */
+  var S = {
+    mode: null, st: null, sel: null, moves: [],
+    thinking: false, setup: {}, pick: null, timer: null, over: false
+  };
+
+  function $(id) { return document.getElementById(id); }
+  var nodesEl, linesEl;
+
+  /* ============ 一、静态棋盘 ============ */
+  function drawBoard() {
+    linesEl = $('lines');
+    nodesEl = $('nodes');
+    var svg = [], drawn = {};
+
+    function line(a, b, color, w) {
+      var k = a < b ? a + '-' + b : b + '-' + a;
+      if (drawn[k]) return; drawn[k] = 1;
+      svg.push('<line x1="' + CX[E.colOf(a)] + '" y1="' + RY[E.rowOf(a)] + '" x2="' +
+        CX[E.colOf(b)] + '" y2="' + RY[E.rowOf(b)] + '" stroke="' + color +
+        '" stroke-width="' + w + '" stroke-linecap="round"/>');
+    }
+
+    var i, nb;
+    for (i = 0; i < N; i++) {
+      for (var q = 0; q < E.RAILS[i].length; q++) {
+        nb = E.RAILS[i][q];
+        if (E.RAIL[i] && E.RAIL[nb]) line(i, nb, '#8d7b5f', 3.4);
+      }
+    }
+    for (i = 0; i < N; i++) {
+      for (var w2 = 0; w2 < E.ROADS[i].length; w2++) {
+        nb = E.ROADS[i][w2];
+        if (E.RAILS[i].indexOf(nb) >= 0) continue;
+        line(i, nb, '#cdbfa4', 1.3);
+      }
+    }
+
+    var midY = (RY[5] + RY[6]) / 2;
+    for (var t = 0; t < 3; t++) {
+      var x0 = CX[1] + t * 75 - 16;
+      svg.push('<polyline points="' + x0 + ',' + (midY + 7) + ' ' + (x0 + 12) + ',' + (midY - 7) +
+        ' ' + (x0 + 24) + ',' + (midY + 7) + '" fill="none" stroke="#a2907a" stroke-width="1.6"/>');
+    }
+
+    E.CAMP_LIST.forEach(function (k) {
+      var x = CX[E.colOf(k)], y = RY[E.rowOf(k)];
+      svg.push('<circle cx="' + x + '" cy="' + y + '" r="25" fill="#f6f1e7" stroke="#b9a888" stroke-width="1.6"/>');
+      svg.push('<circle cx="' + x + '" cy="' + y + '" r="20" fill="none" stroke="#e2d6c0" stroke-width="1"/>');
+      svg.push('<line x1="' + (x - 15) + '" y1="' + y + '" x2="' + (x + 15) + '" y2="' + y +
+        '" stroke="#e2d6c0" stroke-width="1"/>');
+    });
+
+    E.HQ_LIST.forEach(function (k) {
+      var x = CX[E.colOf(k)], y = RY[E.rowOf(k)];
+      svg.push('<rect x="' + (x - 26) + '" y="' + (y - 21) + '" width="52" height="42" rx="6" ' +
+        'fill="#f6f1e7" stroke="#b9a888" stroke-width="1.8" stroke-dasharray="5 3"/>');
+    });
+
+    linesEl.innerHTML = svg.join('');
+
+    var html = '';
+    for (i = 0; i < N; i++) {
+      html += '<div class="node" id="nd' + i + '" style="left:' + nx(E.colOf(i)) + 'px;top:' +
+        ny(E.rowOf(i)) + 'px;"></div>';
+    }
+    nodesEl.innerHTML = html;
+    for (i = 0; i < N; i++) {
+      (function (k) { $('nd' + k).addEventListener('click', function () { onNodeClick(k); }); })(i);
+    }
+  }
+
+  /* ============ 二、单枚棋子的 HTML ============ */
+  /* faceUp=false 时画背面；own=true 时加归属角标 */
+  function pieceHtml(p, faceUp, own, mode) {
+    if (!p) return '';
+    if (!faceUp) {
+      /* 翻棋模式下，暗子在翻开前归属不可知，背面必须两方同款中性样式，
+         否则玩家能从背面颜色直接看出归属，破坏「翻开才知归属」的规则前提 */
+      if (mode === 'flip') return '<div class="pz back">军</div>';
+      var redBack = p.side === RED;
+      return '<div class="pz back' + (redBack ? ' rback' : ' bback') + '">军</div>';
+    }
+    var cls = p.side === RED ? 'red' : 'blue';
+    var badge = own ? '<span class="own">你</span>' : '';
+    return '<div class="pz ' + cls + '">' + E.TYPE_NAME[p.type] + badge + '</div>';
+  }
+
+  /* 某个点位对「玩家」是否应该显示正面 */
+  function isFaceUpToPlayer(st, p) {
+    if (!p) return false;
+    if (st.mode === 'flip') return p.revealed;         // 翻棋：翻开即双方可见
+    return p.side === st.playerSide;                    // 正常：只有自己的棋子可见
+  }
+  /* ============ 三、渲染整盘 ============ */
+  function render() {
+    var st = S.st;
+    if (!st) return;
+    var i, el, p;
+
+    for (i = 0; i < N; i++) {
+      el = $('nd' + i);
+      if (!el) continue;
+      p = st.board[i];
+      el.className = 'node';
+      el.innerHTML = '';
+
+      /* 落点 / 选中 / 可翻 标记 */
+      if (S.sel === i) el.className += ' cansel';
+      if (S.moves.indexOf(i) >= 0) el.className += ' canmove';
+      if (st.mode === 'flip' && p && !p.revealed && st.phase === 'play' &&
+          st.turn === 0 && !S.thinking && !S.over) el.className += ' canflip';
+
+      /* 上一步高亮 */
+      var la = st.lastAction;
+      if (la) {
+        if (la.flip !== undefined && la.flip === i) el.className += ' lastto';
+        else if (la.flip === undefined) {
+          if (la.from === i) el.className += ' lastfrom';
+          if (la.to === i) el.className += ' lastto';
+        }
+      }
+
+      /* 棋子 */
+      if (!p) continue;
+      var faceUp = isFaceUpToPlayer(st, p);
+      var own = st.mode === 'flip' ? (p.revealed && st.playerSide !== null && p.side === st.playerSide)
+                                   : (p.side === st.playerSide);
+      el.innerHTML = pieceHtml(p, faceUp, own, st.mode);
+    }
+
+    renderStatus();
+    renderTroops();
+    renderLog();
+  }
+
+  /* ============ 四、状态条 ============ */
+  function renderStatus() {
+    var st = S.st, dot = $('stDot'), txt = $('stText'), sub = $('stSub');
+    if (!st) return;
+    var meSide = st.playerSide;
+
+    if (st.phase === 'over') {
+      dot.style.background = '#8e8270';
+      txt.textContent = '对局结束';
+      sub.textContent = st.winReason || '';
+      renderSideCard();
+      return;
+    }
+    if (st.phase === 'setup') {
+      dot.style.background = '#c9a227';
+      txt.textContent = '摆阵阶段';
+      sub.textContent = '布置好 25 枚棋子后点「开始对局」';
+      renderSideCard();
+      return;
+    }
+    if (S.thinking) {
+      dot.style.background = '#c9a227';
+      txt.textContent = '电脑思考中…';
+      sub.textContent = '此期间你的点击无效';
+      renderSideCard();
+      return;
+    }
+    var isPlayerTurn = st.turn === 0;
+    var curSideColor = (st.mode === 'flip' && meSide === null) ? '#8e8270'
+      : (E.sideOfActor(st, st.turn) === RED ? '#c0392b' : '#2c6cb0');
+    dot.style.background = curSideColor;
+
+    if (st.mode === 'flip' && meSide === null) {
+      txt.textContent = '轮到你 · 请翻第一枚棋子';
+      sub.textContent = '首翻定色：翻到什么颜色，你就执什么颜色';
+      renderSideCard();
+      return;
+    }
+    txt.textContent = isPlayerTurn ? '轮到你行动' : '电脑行动中';
+    var cnt = [];
+    cnt.push('已行 ' + st.moveNo + ' 步');
+    if (st.mode === 'flip') cnt.push('场上暗子 ' + E.unrevealedCount(st) + ' 枚');
+    sub.textContent = cnt.join(' · ');
+    renderSideCard();
+  }
+
+  /* 战况卡 */
+  function renderSideCard() {
+    var st = S.st, box = $('sideStatus');
+    if (!st) return;
+    if (!st.board.some(function (x) { return x; })) {
+      box.innerHTML = st.phase === 'setup'
+        ? '摆阵中：已放置 ' + Object.keys(S.setup).length + ' / 25 枚'
+        : '<span style="color:#a79579;">等待对局开始</span>';
+      return;
+    }
+    var meSide = st.playerSide, h = '';
+    if (meSide === null) {
+      h = '尚未定色 · 盘上暗子 ' + E.unrevealedCount(st) + ' 枚<br>翻开第一枚棋子即可看到双方子力';
+    } else {
+      var mine = E.countSide(st, meSide), opp = E.countSide(st, 1 - meSide);
+      h += '<div class="statrow"><span>' + (meSide === RED ? '红方（你）' : '蓝方（你）') +
+        '</span><span class="n">' + mine.total + ' 枚</span></div>';
+      h += '<div class="statrow"><span>' + (meSide === RED ? '蓝方（电脑）' : '红方（电脑）') +
+        '</span><span class="n">' + opp.total + ' 枚</span></div>';
+      if (st.mode === 'flip') {
+        h += '<div class="statrow"><span>场上暗子</span><span class="n">' + E.unrevealedCount(st) + ' 枚</span></div>';
+      }
+      h += '<div class="statrow"><span>已行步数</span><span class="n">' + st.moveNo + '</span></div>';
+      h += '<div style="font-size:12px;color:#9b8a72;margin-top:6px;line-height:1.7;">' +
+        (st.mode === 'normal' ? '你执红方 · 先手<br>敌方军衔不公开，靠碰子推断'
+                              : '首翻定色 · 暗子不可被吃') + '</div>';
+    }
+    box.innerHTML = h;
+  }
+
+  /* ============ 五、子力统计 ============ */
+  function renderTroops() {
+    var st = S.st;
+    var box = $('troops');
+    if (!st || !st.board.some(function (x) { return x; })) {
+      // 空盘（尚未布阵）也按 0 / 总 的口径列出来，与状态条「已放置 0 / 25」保持一致，
+      // 避免用「—」占位让玩家误以为数据没加载。
+      var h0 = '<div class="sidebadge badge-red"><span class="sw"></span>红方（你）已放置 0 / 25</div>' +
+               '<div style="margin-top:8px;">';
+      E.TYPE_ORDER.forEach(function (t0) {
+        h0 += '<div class="statrow"><span>' + E.TYPE_NAME[t0] + '</span><span class="n zero">0 / ' +
+          E.P[t0].count + '</span></div>';
+      });
+      h0 += '</div>';
+      box.innerHTML = h0;
+      return;
+    }
+    var meSide = st.playerSide;
+
+    // 翻棋未定色阶段：只显示总数与暗子数
+    if (st.mode === 'flip' && meSide === null) {
+      box.innerHTML = '<div class="totals">尚未定色<br>场上共 50 枚棋子，其中暗子 ' +
+        E.unrevealedCount(st) + ' 枚<br>翻开第一枚棋子后即可看到双方子力</div>';
+      return;
+    }
+
+    var mine = E.countSide(st, meSide);
+    var oppSide = 1 - meSide;
+    var opp = E.countSide(st, oppSide);
+    var h = '';
+
+    // 己方明细
+    h += '<div class="sidebadge ' + (meSide === RED ? 'badge-red' : 'badge-blue') + '">' +
+      '<span class="sw"></span>' + (meSide === RED ? '红方（你）' : '蓝方（你）') + ' · ' + mine.total + ' 枚</div>';
+    h += '<div style="margin:6px 0 10px;">';
+    E.TYPE_ORDER.forEach(function (t) {
+      var n = mine.byType[t] || 0;
+      var total = E.P[t].count;
+      h += '<div class="statrow"><span>' + E.TYPE_NAME[t] + '</span><span class="n' +
+        (n === 0 ? ' zero' : '') + '">' + n + ' / ' + total + '</span></div>';
+    });
+    h += '</div>';
+
+    // 敌方：正常模式只给总数；翻棋模式已翻开的按类显示
+    var oppLabel = (oppSide === RED ? '红方' : '蓝方') + '（电脑）';
+    h += '<div class="sidebadge ' + (oppSide === RED ? 'badge-red' : 'badge-blue') + '" style="margin-top:4px;">' +
+      '<span class="sw"></span>' + oppLabel + '</div>';
+    h += '<div class="totals" style="margin-top:4px;">剩余 ' + opp.total + ' 枚 · 已阵亡 ' + (25 - opp.total) + ' 枚';
+    if (st.mode === 'flip') {
+      h += '<br>已翻开：';
+      var rev = [];
+      E.TYPE_ORDER.forEach(function (t) {
+        var seen = 0;
+        for (var i = 0; i < N; i++) {
+          var p = st.board[i];
+          if (p && p.revealed && p.side === oppSide && p.type === t) seen++;
+        }
+        if (seen) rev.push(E.TYPE_NAME[t] + '×' + seen);
+      });
+      h += rev.length ? rev.join('、') : '（暂无）';
+    } else {
+      h += '<br><span style="color:#9b8a72;">敌方军衔不公开</span>';
+    }
+    h += '</div>';
+    box.innerHTML = h;
+  }
+
+  /* ============ 六、对局记录 ============ */
+  function renderLog() {
+    var st = S.st;
+    var box = $('log');
+    if (!st) return;
+    var items = st.log.slice(-80);
+    var h = '';
+    items.forEach(function (e) {
+      var who = e.side === RED ? '<span class="r">红</span>'
+                : e.side === BLUE ? '<span class="b">蓝</span>' : '<span class="g">·</span>';
+      if (e.flip !== undefined && e.flip !== null) {
+        h += '<div class="li"><span class="no">' + e.no + '</span>' + who + ' 翻子 → ' +
+          '<span class="g">' + e.result + '</span></div>';
+      } else {
+        h += '<div class="li"><span class="no">' + e.no + '</span>' + who + ' ' +
+          E.shortLabel(e.from) + '→' + E.shortLabel(e.to) + ' ' +
+          '<span class="g">' + e.result + '</span></div>';
+      }
+    });
+    box.innerHTML = h || '<div class="totals" style="color:#a79579;">尚无记录</div>';
+    box.scrollTop = box.scrollHeight;
+  }
+
+  /* ============ 七、提示条 ============ */
+  var toastTimer = null;
+  function toast(msg, ms) {
+    var el = $('toast');
+    el.textContent = msg;
+    el.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('on'); }, ms || 2000);
+  }
+  /* ============ 八、点击处理 ============ */
+  function onNodeClick(k) {
+    var st = S.st;
+    if (!st || S.over) return;
+    if (S.thinking) { toast('电脑正在思考，请稍候'); return; }
+
+    if (st.phase === 'setup') { onSetupClick(k); return; }
+    if (st.phase !== 'play') return;
+    if (st.turn !== 0) { toast('现在不是你的回合'); return; }
+
+    var p = st.board[k];
+
+    /* --- 翻棋模式 --- */
+    if (st.mode === 'flip') {
+      // 点到落点：执行移动
+      if (S.moves.indexOf(k) >= 0) { doMove(S.sel, k); return; }
+      // 点暗子：翻子
+      if (p && !p.revealed) { doFlip(k); return; }
+      // 点己方明子：选中
+      if (p && p.revealed && st.playerSide !== null && p.side === st.playerSide) {
+        selectPiece(k); return;
+      }
+      if (p && p.revealed && st.playerSide !== null && p.side !== st.playerSide) {
+        toast('这是对手的棋子，不能操作'); return;
+      }
+      clearSel(); return;
+    }
+
+    /* --- 正常模式 --- */
+    if (S.moves.indexOf(k) >= 0) { doMove(S.sel, k); return; }
+    if (p && p.side === st.playerSide) { selectPiece(k); return; }
+    if (p) { toast('这是敌方的棋子'); return; }
+    clearSel();
+  }
+
+  function selectPiece(k) {
+    var st = S.st;
+    var mv = E.legalMoves(st, k, 0);
+    if (E.immobile(st.board[k].type)) {
+      toast(st.board[k].type === 'dilei' ? '地雷不能移动' : '军旗不能移动');
+      clearSel(); return;
+    }
+    if (!mv.length) { toast('这枚棋子当前无路可走'); clearSel(); return; }
+    S.sel = k; S.moves = mv;
+    render();
+  }
+
+  function clearSel() { S.sel = null; S.moves = []; render(); }
+
+  function doMove(from, to) {
+    var st = S.st;
+    var res = E.applyMove(st, from, to, 0);
+    if (!res.ok) { toast(res.msg || '该步不合法'); return; }
+    clearSelState();
+    render();
+    if (res.over) { showResult(); return; }
+    scheduleAI();
+  }
+
+  function doFlip(node) {
+    var st = S.st;
+    var p = st.board[node];
+    var res = E.applyFlip(st, node, 0);
+    if (!res.ok) { toast(res.msg || '无法翻开'); return; }
+    clearSelState();
+    render();
+    if (p.side === st.playerSide && st.mode === 'flip') { /* 刚翻出的是自己的子 */ }
+    if (res.over) { showResult(); return; }
+    if (st.mode === 'flip' && st.playerSide !== null) {
+      var just = st.log[st.log.length - 1];
+      if (just && just.flip === node) {
+        toast(just.owner === st.playerSide ? '翻开的是你的棋子（' + E.TYPE_NAME[just.type] + '）'
+                                           : '翻开的是对手的棋子（' + E.TYPE_NAME[just.type] + '）');
+      }
+    }
+    scheduleAI();
+  }
+
+  function clearSelState() { S.sel = null; S.moves = []; }
+
+  /* ============ 九、AI 调度 ============ */
+  function scheduleAI() {
+    var st = S.st;
+    if (!st || st.phase !== 'play' || st.turn !== 1) return;
+    S.thinking = true;
+    $('thinking').classList.add('on');
+    renderStatus();
+    clearTimeout(S.timer);
+    S.timer = setTimeout(function () {
+      try { aiStep(); }
+      catch (err) { S.thinking = false; $('thinking').classList.remove('on'); toast('电脑出错：' + err.message, 3500); }
+    }, 420);
+  }
+
+  function aiStep() {
+    var st = S.st;
+    if (!st || st.phase !== 'play' || st.turn !== 1) {
+      S.thinking = false; $('thinking').classList.remove('on'); return;
+    }
+    var rnd = E.mulberry32(Date.now() ^ (st.moveNo * 7919));
+    var view, act;
+
+    if (st.mode === 'flip' && st.playerSide === null) {
+      // 首手未定色：AI 只能翻子，翻哪枚不涉及任何身份信息
+      var targets = E.legalFlipTargets(st);
+      if (!targets.length) { S.thinking = false; $('thinking').classList.remove('on'); return; }
+      var pick = targets[Math.floor(rnd() * targets.length)];
+      var r0 = E.applyFlip(st, pick, 1);
+      S.thinking = false; $('thinking').classList.remove('on');
+      render();
+      if (r0.over) { showResult(); return; }
+      toast('电脑翻开了 ' + E.shortLabel(pick) + '：' + (st.board[pick].side === st.playerSide ? '你的' : '它的') +
+        E.TYPE_NAME[st.board[pick].type]);
+      return;
+    }
+
+    var aiSide = E.actorOfSide(st, 1);
+    view = E.buildAIView(st, aiSide);
+    act = E.aiPick(view, rnd);
+    S.thinking = false;
+    $('thinking').classList.remove('on');
+
+    if (!act) { render(); toast('电脑无动作可执行'); return; }
+    var res;
+    if (act.type === 'flip') res = E.applyFlip(st, act.to, 1);
+    else res = E.applyMove(st, act.from, act.to, 1);
+    if (!res.ok) { render(); toast('电脑动作无效：' + res.msg, 3000); return; }
+    render();
+    if (res.over) { showResult(); return; }
+
+    // 电脑行动结果的提示
+    var e = st.log[st.log.length - 1];
+    if (e) {
+      if (e.flip !== undefined) toast('电脑翻开了 ' + E.shortLabel(e.flip) + '：' + e.result);
+      else if (e.targetType) toast('电脑 ' + E.shortLabel(e.from) + '→' + E.shortLabel(e.to) + '：' + e.result, 2400);
+      else toast('电脑走子 ' + E.shortLabel(e.from) + '→' + E.shortLabel(e.to), 1500);
+    }
+  }
+
+  /* ============ 十、结果面板 ============ */
+  function showResult() {
+    var st = S.st;
+    S.over = true;
+    S.thinking = false;
+    $('thinking').classList.remove('on');
+    clearTimeout(S.timer);
+    render();
+
+    var meSide = st.playerSide;
+    var title = '对局结束', reason = st.winReason || '';
+    if (st.winner === 'draw') {
+      title = '和棋';
+    } else if (st.winnerSide === meSide) {
+      title = '你赢了';
+    } else if (st.winnerSide !== null) {
+      title = '你输了';
+    }
+
+    $('resTitle').textContent = title;
+    $('resReason').textContent = reason;
+
+    var mine = meSide !== null ? E.countSide(st, meSide) : { total: 0 };
+    var opp = meSide !== null ? E.countSide(st, 1 - meSide) : { total: 0 };
+    var nums = '';
+    nums += '<div class="numbox"><div class="k">你（' + (meSide === RED ? '红' : meSide === BLUE ? '蓝' : '—') +
+      '）剩余</div><div class="v">' + (mine.total || 0) + '</div></div>';
+    nums += '<div class="numbox"><div class="k">电脑剩余</div><div class="v">' + (opp.total || 0) + '</div></div>';
+    nums += '<div class="numbox"><div class="k">总步数</div><div class="v">' + st.moveNo + '</div></div>';
+    $('resNums').innerHTML = nums;
+
+    $('resultModal').classList.add('on');
+  }
+
+  /* ============ 十一、开局流程 ============ */
+  function enterMode(mode) {
+    S.mode = mode;
+    S.over = false;
+    S.thinking = false;
+    S.sel = null; S.moves = [];
+    ClearAi();
+    $('home').style.display = 'none';
+    $('game').style.display = 'block';
+    $('gameTitle').textContent = mode === 'normal' ? '军棋 · 正常模式' : '军棋 · 翻棋模式';
+    $('resultModal').classList.remove('on');
+
+    if (mode === 'normal') startNormalSetup();
+    else startFlip();
+  }
+
+  function ClearAi() { clearTimeout(S.timer); S.timer = null; $('thinking').classList.remove('on'); }
+
+  /* ---- 正常模式：摆阵 ---- */
+  function startNormalSetup() {
+    var st = E.newState('normal', Math.floor(Math.random() * 4294967296));
+    S.st = st;
+    S.setup = {};
+    S.pick = null;
+    $('setupbar').classList.add('on');
+    renderPalette();
+    drawBoard();
+    render();
+    updateSetupMsg();
+  }
+
+  function renderPalette() {
+    var box = $('palette');
+    var h = '';
+    E.TYPE_ORDER.forEach(function (t) {
+      var used = 0;
+      Object.keys(S.setup).forEach(function (k) { if (S.setup[k] === t) used++; });
+      var left = E.P[t].count - used;
+      h += '<button class="pchip' + (left === 0 ? ' done' : '') + (S.pick === t ? ' sel' : '') +
+        '" data-t="' + t + '"' + (left === 0 ? ' disabled' : '') + '>' +
+        E.TYPE_NAME[t] + ' ×' + left + '</button>';
+    });
+    box.innerHTML = h;
+    Array.prototype.forEach.call(box.querySelectorAll('.pchip'), function (b) {
+      b.addEventListener('click', function () {
+        if (b.disabled) return;
+        var t = b.getAttribute('data-t');
+        S.pick = (S.pick === t ? null : t);
+        renderPalette();
+      });
+    });
+  }
+
+  function onSetupClick(k) {
+    var st = S.st;
+    // 点已放置的棋子 → 收回
+    if (S.setup[k]) {
+      delete S.setup[k];
+      renderPalette(); renderSetupBoard(); updateSetupMsg();
+      return;
+    }
+    if (!S.pick) { toast('先在左侧选择要放置的棋子'); return; }
+    if (E.deploySlots(RED).indexOf(k) < 0) {
+      toast(E.isCamp(k) ? '行营开局必须为空，不能放置棋子' : '这个点位不能放置棋子'); return;
+    }
+    S.setup[k] = S.pick;
+    var used = 0;
+    Object.keys(S.setup).forEach(function (n) { if (S.setup[n] === S.pick) used++; });
+    if (used >= E.P[S.pick].count) S.pick = null;
+    renderPalette(); renderSetupBoard(); updateSetupMsg();
+  }
+
+  /* 摆阵阶段的棋盘渲染（只显示已放置的红方棋子） */
+  function renderSetupBoard() {
+    var st = S.st;
+    for (var i = 0; i < N; i++) {
+      var el = $('nd' + i);
+      if (!el) continue;
+      el.className = 'node';
+      var t = S.setup[i];
+      if (t === undefined) { el.innerHTML = ''; continue; }
+      el.innerHTML = '<div class="pz red">' + E.TYPE_NAME[t] + '</div>';
+      // 违规点位标红
+      var v = E.setupViolations(S.setup, RED);
+      if (v.some(function (x) { return x.node === i; })) el.className = 'node bad';
+    }
+    renderStatus();
+    renderTroopsSetup();
+    renderLog();
+  }
+
+  function renderTroopsSetup() {
+    var box = $('troops');
+    var placed = Object.keys(S.setup).length;
+    var h = '<div class="sidebadge badge-red"><span class="sw"></span>红方（你）待布 ' + (25 - placed) +
+      ' / 25</div><div style="margin-top:8px;">';
+    E.TYPE_ORDER.forEach(function (t) {
+      var used = 0;
+      Object.keys(S.setup).forEach(function (k) { if (S.setup[k] === t) used++; });
+      var total = E.P[t].count;
+      h += '<div class="statrow"><span>' + E.TYPE_NAME[t] + '</span><span class="n' +
+        (used < total ? ' zero' : '') + '">' + used + ' / ' + total + '</span></div>';
+    });
+    h += '</div>';
+    box.innerHTML = h;
+  }
+
+  function updateSetupMsg() {
+    var box = $('setupMsg');
+    var v = E.setupViolations(S.setup, RED);
+    var placed = Object.keys(S.setup).length;
+    if (placed === 0) {
+      box.className = 'setupmsg';
+      box.textContent = '点「随机布阵」一键生成合法阵型，或手动逐枚放置。';
+      $('btnStart').disabled = true;
+      return;
+    }
+    if (v.length) {
+      box.className = 'setupmsg';
+      var msgs = {};
+      v.forEach(function (x) { msgs[x.msg] = (msgs[x.msg] || 0) + 1; });
+      var arr = [];
+      Object.keys(msgs).forEach(function (m) { arr.push(m); });
+      box.textContent = arr.slice(0, 3).join('；') + '（违规点位已标红）';
+      $('btnStart').disabled = true;
+      return;
+    }
+    box.className = 'setupmsg ok';
+    box.textContent = placed === 25 ? '布阵合法，可以开始对局。' : '当前合法，还需放置 ' + (25 - placed) + ' 枚。';
+    $('btnStart').disabled = (placed !== 25);
+  }
+
+  /* ---- 翻棋模式 ---- */
+  function startFlip() {
+    $('setupbar').classList.remove('on');
+    S.st = E.newState('flip', Math.floor(Math.random() * 4294967296));
+    S.st.phase = 'play';
+    drawBoard();
+    render();
+    toast('你执先手，点击任意暗子翻开第一枚');
+  }
+  /* ============ 十二、按钮与初始化 ============ */
+  function bindButtons() {
+    // 首页模式卡
+    Array.prototype.forEach.call(document.querySelectorAll('.modecard'), function (c) {
+      c.addEventListener('click', function () { enterMode(c.getAttribute('data-mode')); });
+    });
+
+    $('btnRandSetup').addEventListener('click', function () {
+      var rnd = E.mulberry32(Date.now() % 2147483647);
+      S.setup = E.randomSetup(RED, rnd);
+      S.pick = null;
+      renderPalette(); renderSetupBoard(); updateSetupMsg();
+      toast('已随机布阵，可直接开始或继续手动调整');
+    });
+
+    $('btnClearSetup').addEventListener('click', function () {
+      S.setup = {}; S.pick = null;
+      renderPalette(); renderSetupBoard(); updateSetupMsg();
+    });
+
+    $('btnStart').addEventListener('click', function () {
+      var v = E.setupViolations(S.setup, RED);
+      if (v.length) { toast(v[0].msg); return; }
+      if (Object.keys(S.setup).length !== 25) { toast('请放置满 25 枚棋子'); return; }
+      var blue = E.randomSetup(BLUE, E.mulberry32(Date.now() % 2147483647));
+      E.applySetup(S.st, S.setup, blue);
+      $('setupbar').classList.remove('on');
+      S.sel = null; S.moves = [];
+      render();
+      toast('对局开始，你执红方先行');
+    });
+
+    $('btnNew').addEventListener('click', function () {
+      if (!S.st) return;
+      if (!S.over && S.st.phase === 'play') {
+        if (!window.confirm('当前对局尚未结束，确定要新开一局吗？')) return;
+      }
+      enterMode(S.mode);
+    });
+
+    $('btnSurrender').addEventListener('click', function () {
+      if (!S.st || S.st.phase !== 'play' || S.over) return;
+      if (!window.confirm('确定认输吗？认输后本局判电脑获胜。')) return;
+      S.st.phase = 'over';
+      S.st.winner = 'ai'; S.st.winnerSide = 1 - S.st.playerSide;
+      S.st.winReason = '主动认输';
+      showResult();
+    });
+
+    $('btnHome').addEventListener('click', goHome);
+    $('btnToHome').addEventListener('click', function () {
+      $('resultModal').classList.remove('on');
+      goHome();
+    });
+    $('btnAgain').addEventListener('click', function () {
+      $('resultModal').classList.remove('on');
+      enterMode(S.mode);
+    });
+
+    $('btnRules').addEventListener('click', function () { $('rulesModal').classList.add('on'); });
+    $('btnCloseRules').addEventListener('click', function () { $('rulesModal').classList.remove('on'); });
+
+    // 点遮罩关闭规则层
+    $('rulesModal').addEventListener('click', function (e) {
+      if (e.target === $('rulesModal')) $('rulesModal').classList.remove('on');
+    });
+  }
+
+  function goHome() {
+    ClearAi();
+    S.thinking = false; S.over = false;
+    $('game').style.display = 'none';
+    $('home').style.display = 'block';
+  }
+
+  /* ---- 规则说明正文 ---- */
+  function fillRules() {
+    var h = '';
+    h += '<h4>棋盘</h4><ul>' +
+      '<li>5 列 × 12 行共 60 个点位，中线为山界，只有第 1、3、5 列可以越过。</li>' +
+      '<li>粗线是铁路，细线是公路；圆圈内带斜线的是行营，方框是大本营。</li>' +
+      '<li>行营内的棋子不可被攻击，且可从八个方向进出。</li>' +
+      '<li>棋子进入大本营后不可再移动。</li></ul>';
+    h += '<h4>棋子与大小</h4><ul>' +
+      '<li>司令 &gt; 军长 &gt; 师长 &gt; 旅长 &gt; 团长 &gt; 营长 &gt; 连长 &gt; 排长 &gt; 工兵。</li>' +
+      '<li>双方各 25 枚：司令、军长各 1，师长、旅长、团长、营长各 2，连长、排长、工兵各 3，炸弹 2、地雷 3，军旗 1。</li></ul>';
+    h += '<h4>移动</h4><ul>' +
+      '<li>公路：每次走一步，可走横竖相邻或行营的八个方向。</li>' +
+      '<li>铁路：可沿直线任意距离行走，中途不得有棋子阻挡，但不能拐弯。</li>' +
+      '<li>工兵在铁路上可以任意拐弯，只要路径上的点位全为空。</li>' +
+      '<li>地雷与军旗不能移动。</li></ul>';
+    h += '<h4>碰子结算（按顺序判定）</h4><ul>' +
+      '<li>炸弹碰军旗：炸弹自爆，军旗不动。</li>' +
+      '<li>炸弹碰其他任何棋子（含地雷）：双方同归于尽。</li>' +
+      '<li>其他棋子碰炸弹：双方同归于尽。</li>' +
+      '<li>工兵碰地雷：地雷被挖掉，工兵占领该点。</li>' +
+      '<li>非工兵碰地雷：该棋子阵亡，地雷留在原地。</li>' +
+      '<li>任意棋子（炸弹除外）碰军旗：扛旗成功，本方获胜。</li>' +
+      '<li>其余情况比军衔：大者吃小者，同级同归于尽。</li></ul>';
+    h += '<h4>摆阵约束</h4><ul>' +
+      '<li>军旗必须且只能放在己方大本营。</li>' +
+      '<li>3 枚地雷必须全部放在己方最后两排。</li>' +
+      '<li>2 枚炸弹不能放在己方第一排。</li>' +
+      '<li>行营开局必须为空；每个可布点位放且只放一枚。</li></ul>';
+    h += '<h4>胜负</h4><ul>' +
+      '<li>扛走对方军旗即胜。</li>' +
+      '<li>对方回合开始时无任何合法走法，判该方负。</li>' +
+      '<li>连续 100 回合无吃子且双方可动子均不足 3 枚，判和棋。</li>' +
+      '<li>同一局面重复出现 3 次，判和棋。</li>' +
+      '<li>玩家认输，判电脑胜。</li></ul>';
+    h += '<h4>翻棋模式</h4><ul>' +
+      '<li>50 枚棋子全部背面随机布在非行营点位，行营为空。</li>' +
+      '<li>第一枚翻开的颜色决定你执哪一色（首翻定色），此后归属固定。</li>' +
+      '<li>每回合二选一：翻开一枚暗子，或移动一枚己方已翻开的棋子。</li>' +
+      '<li>暗子不可被吃，也不能被移动；只能操作己方已翻开的棋子。</li>' +
+      '<li>已翻开的棋子碰子按与正常模式完全相同的规则结算。</li>' +
+      '<li>吃掉对方已翻开的军旗即胜；对方已翻开的棋子不再有任何一个可动（只剩地雷与军旗）即判其负。</li>' +
+      '<li>只要盘上还有暗子，翻子始终合法，不会因无子可动判负。</li></ul>';
+    h += '<h4>电脑对手</h4><ul>' +
+      '<li>电脑只能看到与你相同的信息：正常模式看不到你的军衔，翻棋模式看不到暗子身份。</li>' +
+      '<li>翻棋模式的首手由你翻，电脑不会替你定色。</li></ul>';
+    $('rulesBody').innerHTML = h;
+  }
+
+  /* ---- 启动 ---- */
+  function boot() {
+    drawBoard();
+    bindButtons();
+    fillRules();
+  }
+
+  window.JQGame = { boot: boot, state: S, enterMode: enterMode };
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+ 
+
+</script>
+
+</body>
+</html>

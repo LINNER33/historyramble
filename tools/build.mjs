@@ -107,6 +107,8 @@ ${toolItems}
     ['chess.html', '中国象棋'],
     ['chess-korean.html', '朝鲜象棋'],
     ['gomoku.html', '五子棋'],
+    ['weiqi.html', '围棋'],
+    ['junqi.html', '军棋'],
   ];
   const isGame = GAMES.some(([href]) => href === active);
   const gameItems = GAMES.map(
@@ -903,6 +905,8 @@ const staticPages = [
   ['chess.html', '0.3'],
   ['chess-korean.html', '0.3'],
   ['gomoku.html', '0.3'],
+  ['weiqi.html', '0.3'],
+  ['junqi.html', '0.3'],
   ['about.html', '0.5'],
   ['subscribe.html', '0.4'],
 ];

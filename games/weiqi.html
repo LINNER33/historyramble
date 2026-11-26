@@ -1,0 +1,1861 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, follow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>围棋 · 人机对战</title>
+<style>
+:root{
+  --bg:#15181c; --panel:#1f242a; --panel2:#262c34; --line:#333a44;
+  --text:#e9edf2; --dim:#9aa5b1; --accent:#d9a755; --accent2:#e3b264;
+  --ok:#4fa86a; --warn:#d98b3a; --err:#d15c5c;
+  --wood1:#e6bb6d; --wood2:#d8a854; --woodLine:#8a6224;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:var(--bg); color:var(--text);
+  font-family:-apple-system,"Microsoft YaHei","PingFang SC","Noto Sans SC","Source Han Sans SC",sans-serif;
+  font-size:14px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  display:flex; flex-direction:column;
+}
+.app{flex:1;display:flex;flex-direction:column;min-height:0}
+
+header{
+  padding:14px 20px; border-bottom:1px solid var(--line);
+  display:flex; align-items:baseline; gap:12px; flex-wrap:wrap;
+  background:linear-gradient(180deg,#1b2027,#171b21);
+}
+header h1{font-size:17px;font-weight:600;letter-spacing:.5px}
+header .sub{color:var(--dim);font-size:12px}
+header .spacer{flex:1}
+
+main{flex:1;display:flex;min-height:0;overflow:hidden}
+
+/* ===== 配置面板 ===== */
+#configPanel{
+  flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  padding:24px; overflow:auto;
+}
+.cfgCard{
+  width:100%; max-width:520px; background:var(--panel); border:1px solid var(--line);
+  border-radius:14px; padding:26px 26px 20px;
+}
+.cfgCard h2{font-size:15px;font-weight:600;margin-bottom:18px;color:var(--accent2)}
+.cfgGroup{margin-bottom:18px}
+.cfgGroup .label{font-size:12px;color:var(--dim);margin-bottom:8px;letter-spacing:.5px}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.opt{
+  border:1px solid var(--line); background:var(--panel2); color:var(--text);
+  padding:8px 15px; border-radius:9px; cursor:pointer; font-size:13px;
+  font-family:inherit; transition:all .13s; line-height:1.4;
+}
+.opt:hover{border-color:#4a5462;background:#2c333c}
+.opt.on{background:var(--accent);border-color:var(--accent);color:#1d1a12;font-weight:600}
+.opt small{display:block;font-size:11px;opacity:.72;font-weight:400;margin-top:1px}
+.opt.on small{opacity:.8}
+.optDel{font-size:13px}
+.cfgNote{font-size:11.5px;color:var(--dim);margin-top:2px;line-height:1.55}
+.cfgActions{display:flex;gap:10px;margin-top:24px}
+.btn{
+  border:1px solid var(--line); background:var(--panel2); color:var(--text);
+  padding:9px 18px; border-radius:9px; cursor:pointer; font-size:13px;
+  font-family:inherit; transition:all .13s;
+}
+.btn:hover:not(:disabled){background:#2f3741;border-color:#4d5867}
+.btn:disabled{opacity:.38;cursor:not-allowed}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#1d1a12;font-weight:600}
+.btn.primary:hover:not(:disabled){background:#e8bd6b;border-color:#e8bd6b}
+.btn.ghost{background:transparent}
+.btn.danger:hover:not(:disabled){border-color:var(--err);color:#ef9a9a}
+
+/* ===== 对局面板 ===== */
+#gamePanel{flex:1;display:flex;min-height:0;overflow:hidden}
+.boardWrap{
+  flex:1; display:flex; align-items:center; justify-content:center;
+  padding:22px; overflow:auto; position:relative; min-width:0; min-height:0;
+}
+#board{
+  display:block; border-radius:6px; cursor:pointer;
+  box-shadow:0 10px 34px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.07);
+  touch-action:manipulation;
+}
+#board.locked{cursor:default}
+
+aside{
+  width:272px; flex:0 0 272px; border-left:1px solid var(--line);
+  background:var(--panel); padding:18px 16px; overflow:auto;
+  display:flex; flex-direction:column; gap:14px;
+}
+.sideBlock{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 13px}
+.sideBlock .cap{font-size:11px;color:var(--dim);letter-spacing:.6px;margin-bottom:6px}
+.turnLine{display:flex;align-items:center;gap:9px;font-size:14px;font-weight:600}
+.stoneDot{width:16px;height:16px;border-radius:50%;flex:0 0 16px;border:1px solid #0006}
+.stoneDot.b{background:radial-gradient(circle at 33% 30%,#5a5a5a,#0c0c0c 72%)}
+.stoneDot.w{background:radial-gradient(circle at 33% 30%,#fff,#cdcdcd 72%);border-color:#0002}
+.turnTag{font-size:11.5px;color:var(--dim);font-weight:400;margin-left:auto}
+.thinkTag{font-size:12px;color:var(--accent2);margin-top:6px;display:none}
+.thinkTag.on{display:block}
+
+.kv{display:flex;justify-content:space-between;font-size:12.5px;padding:2.5px 0}
+.kv span:first-child{color:var(--dim)}
+.kv span:last-child{font-variant-numeric:tabular-nums}
+.kv.hl span:last-child{color:var(--accent2);font-weight:600}
+
+.actions{display:flex;flex-direction:column;gap:8px}
+.actions .row{display:flex;gap:8px}
+.actions .row .btn{flex:1;padding:9px 0}
+
+.hintBox{
+  font-size:12px;color:var(--dim);background:rgba(255,255,255,.03);
+  border:1px dashed var(--line);border-radius:8px;padding:9px 11px;line-height:1.55;
+  min-height:52px;
+}
+.hintBox.on{color:#ffd18a;border-color:#6a5324;background:rgba(217,167,85,.09)}
+.hintBox.err{color:#f2a0a0;border-color:#6e3434;background:rgba(209,92,92,.1)}
+.hintBox.ok{color:#9fe0b4;border-color:#2f5a3d;background:rgba(79,168,106,.1)}
+
+.markBar{display:none;flex-direction:column;gap:8px}
+.markBar.on{display:flex}
+.markBar .tip{font-size:12px;color:var(--accent2);line-height:1.5}
+.markBar .row{display:flex;gap:8px}
+.markBar .row .btn{flex:1}
+
+.resultBox{display:none;flex-direction:column;gap:10px}
+.resultBox.on{display:flex}
+.resultTitle{font-size:15px;font-weight:700;color:var(--accent2);letter-spacing:.5px}
+.resultDetail{font-size:12.5px;color:var(--dim);line-height:1.7}
+.resultDetail b{color:var(--text);font-weight:600}
+
+/* ===== 弹窗 ===== */
+#modal{
+  position:fixed; inset:0; background:rgba(0,0,0,.62); z-index:60;
+  display:none; align-items:center; justify-content:center; padding:20px;
+  backdrop-filter:blur(2px);
+}
+#modal.on{display:flex}
+.modalBox{
+  width:100%; max-width:400px; background:var(--panel); border:1px solid var(--line);
+  border-radius:13px; padding:22px 22px 18px; box-shadow:0 18px 50px rgba(0,0,0,.6);
+}
+.modalBox h3{font-size:15px;margin-bottom:10px;font-weight:600}
+.modalBox p{font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:18px;white-space:pre-line}
+.modalBox .row{display:flex;gap:9px;justify-content:flex-end}
+.modalBox .row .btn{min-width:88px;padding:8px 16px}
+
+/* ===== 轻提示 ===== */
+#toast{
+  position:fixed; left:50%; bottom:36px; transform:translateX(-50%) translateY(8px);
+  background:#2a313a; border:1px solid #45505f; color:var(--text);
+  padding:9px 18px; border-radius:9px; font-size:13px; z-index:80;
+  opacity:0; pointer-events:none; transition:opacity .2s,transform .2s;
+  box-shadow:0 8px 24px rgba(0,0,0,.45); max-width:88vw;
+}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@media (max-width:880px){
+  #gamePanel{flex-direction:column}
+  aside{width:auto;flex:0 0 auto;border-left:none;border-top:1px solid var(--line);max-height:46vh}
+  .boardWrap{padding:14px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>围棋 · 人机对战</h1>
+    <span class="sub">中国规则 · 离线单文件</span>
+    <span class="spacer"></span>
+    <button class="btn ghost" id="btnBackCfg" style="display:none">返回配置</button>
+  </header>
+
+  <main>
+    <section id="configPanel">
+      <div class="cfgCard">
+        <h2>新局设置</h2>
+
+        <div class="cfgGroup">
+          <div class="label">棋盘尺寸</div>
+          <div class="opts" id="optSize">
+            <button class="opt on" data-v="19">19 路<small>361 点 · 标准盘</small></button>
+            <button class="opt" data-v="13">13 路<small>169 点</small></button>
+            <button class="opt" data-v="9">9 路<small>81 点</small></button>
+          </div>
+        </div>
+
+        <div class="cfgGroup">
+          <div class="label">我方执子</div>
+          <div class="opts" id="optColor">
+            <button class="opt on" data-v="1">执黑<small>我先下</small></button>
+            <button class="opt" data-v="2">执白<small>AI 先下</small></button>
+          </div>
+        </div>
+
+        <div class="cfgGroup">
+          <div class="label">AI 难度</div>
+          <div class="opts" id="optLevel">
+            <button class="opt" data-v="easy">初级<small>会走随手棋</small></button>
+            <button class="opt on" data-v="medium">中级<small>懂基本棋理</small></button>
+            <button class="opt" data-v="hard">高级<small>需认真对待</small></button>
+          </div>
+        </div>
+
+        <div class="cfgGroup">
+          <div class="label">让子</div>
+          <div class="opts" id="optHandicap">
+            <button class="opt on" data-v="0">不让子</button>
+            <button class="opt" data-v="2">2 子</button>
+            <button class="opt" data-v="3">3 子</button>
+            <button class="opt" data-v="4">4 子</button>
+            <button class="opt" data-v="5">5 子</button>
+            <button class="opt" data-v="6">6 子</button>
+            <button class="opt" data-v="7">7 子</button>
+            <button class="opt" data-v="8">8 子</button>
+            <button class="opt" data-v="9">9 子</button>
+          </div>
+          <div class="cfgNote" id="handicapNote">让子时黑方在星位预摆棋子，白方先行，且不贴目。</div>
+        </div>
+
+        <div class="cfgNote" id="komiNote"></div>
+
+        <div class="cfgActions">
+          <button class="btn primary" id="btnStart">开始对局</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="gamePanel" style="display:none">
+      <div class="boardWrap">
+        <canvas id="board"></canvas>
+      </div>
+      <aside>
+        <div class="sideBlock">
+          <div class="cap">当前轮到</div>
+          <div class="turnLine">
+            <span class="stoneDot" id="turnDot"></span>
+            <span id="turnText">黑棋</span>
+            <span class="turnTag" id="turnTag"></span>
+          </div>
+          <div class="thinkTag" id="thinkTag">AI 思考中…</div>
+        </div>
+
+        <div class="sideBlock">
+          <div class="kv"><span>手数</span><span id="stMoves">0</span></div>
+          <div class="kv"><span>黑方提子</span><span id="stCapB">0</span></div>
+          <div class="kv"><span>白方提子</span><span id="stCapW">0</span></div>
+          <div class="kv"><span>贴目</span><span id="stKomi"></span></div>
+          <div class="kv"><span>难度</span><span id="stLevel"></span></div>
+          <div class="kv" id="rowHc" style="display:none"><span>让子</span><span id="stHc"></span></div>
+        </div>
+
+        <div class="hintBox" id="hintBox">点击棋盘交叉点落子。</div>
+
+        <div class="markBar" id="markBar">
+          <div class="tip" id="markTip">终局：点击棋子标记死子（再点一次取消），确认后按数子法计算。</div>
+          <div class="row">
+            <button class="btn" id="btnAutoDead">自动预估</button>
+            <button class="btn primary" id="btnConfirmScore">确认并数子</button>
+          </div>
+        </div>
+
+        <div class="resultBox" id="resultBox">
+          <div class="resultTitle" id="resultTitle"></div>
+          <div class="resultDetail" id="resultDetail"></div>
+        </div>
+
+        <div class="actions">
+          <div class="row">
+            <button class="btn" id="btnPass">虚手</button>
+            <button class="btn" id="btnUndo">悔棋</button>
+          </div>
+          <div class="row">
+            <button class="btn" id="btnNewGame">重新开局</button>
+            <button class="btn danger" id="btnResign">认输</button>
+          </div>
+          <button class="btn" id="btnExport">导出棋谱（SGF）</button>
+        </div>
+      </aside>
+    </section>
+  </main>
+</div>
+
+<div id="modal">
+  <div class="modalBox">
+    <h3 id="mdTitle">确认</h3>
+    <p id="mdText"></p>
+    <div class="row">
+      <button class="btn" id="mdCancel">取消</button>
+      <button class="btn primary" id="mdOk">确认</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>/* ===== 围棋规则引擎（中国规则） =====
+ * 纯逻辑层，不依赖 DOM。Node 与浏览器通用。
+ * 口径：连接块+气判提子、先提对方后判自身、禁止全局同形（状态哈希）、
+ *      禁着点先提后判、数子法（活子+围空、公气各半）。
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory();
+  else root.WQRules = factory();
+})(typeof self !== 'undefined' ? self : this, function () {
+  'use strict';
+  var BLACK = 1, WHITE = 2;
+  function other(c) { return c === BLACK ? WHITE : BLACK; }
+
+  /* Zobrist 表：同一尺寸内确定性生成，便于跨进程一致 */
+  var ZOB = {};
+  function zobrist(n) {
+    if (ZOB[n]) return ZOB[n];
+    var seed = (n * 2654435761) >>> 0;
+    function rnd() { seed ^= seed << 13; seed >>>= 0; seed ^= seed >>> 17; seed ^= seed << 5; seed >>>= 0; return seed; }
+    var w = n + 2, N = w * w;
+    var t = [new Int32Array(N), new Int32Array(N), new Int32Array(N)];
+    for (var c = 1; c <= 2; c++) for (var i = 0; i < N; i++) t[c][i] = rnd() | 0;
+    var side = [0, rnd() | 0, rnd() | 0];
+    ZOB[n] = { stone: t, side: side };
+    return ZOB[n];
+  }
+
+  function Board(n) {
+    this.n = n; this.w = n + 2; this.N = this.w * this.w;
+    this.stones = new Int8Array(this.N);
+    this.hash = 0;
+    this.z = zobrist(n);
+    // 预计算邻居表，避免热点路径分配
+    this.nbT = new Array(this.N);
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) {
+      var p = (y + 1) * this.w + (x + 1), a = [];
+      if (y > 0) a.push(p - this.w);
+      if (y < n - 1) a.push(p + this.w);
+      if (x > 0) a.push(p - 1);
+      if (x < n - 1) a.push(p + 1);
+      this.nbT[p] = a;
+    }
+  }
+
+  Board.prototype.idx = function (x, y) { return (y + 1) * this.w + (x + 1); };
+  Board.prototype.xOf = function (p) { return p % this.w - 1; };
+  Board.prototype.yOf = function (p) { return Math.floor(p / this.w) - 1; };
+  Board.prototype.get = function (x, y) { return this.stones[this.idx(x, y)]; };
+  Board.prototype.copyFrom = function (o) {
+    this.stones.set(o.stones); this.hash = o.hash;
+  };
+  Board.prototype.clone = function () { var b = new Board(this.n); b.copyFrom(this); return b; };
+
+  /* 取点所在连接块及其气（气去重，避免同气点被重复计数） */
+  var _gpBufs = {};
+  function gpBuf(N) {
+    var b = _gpBufs[N];
+    if (!b) { b = { seen: new Uint8Array(N), lib: new Uint8Array(N), tS: [], tL: [] }; _gpBufs[N] = b; }
+    return b;
+  }
+  Board.prototype.groupAt = function (p) {
+    var st = this.stones, col = st[p];
+    if (col === 0) return null;
+    var buf = gpBuf(this.N), seen = buf.seen, lib = buf.lib;
+    var touchS = buf.tS, touchL = buf.tL;
+    // 只清理用到的位置，避免整块清零
+    var stones = [], libs = [], stack = [p];
+    seen[p] = 1; touchS.push(p); touchL.push(-1);
+    while (stack.length) {
+      var q = stack.pop(); stones.push(q);
+      var nb = this.nbT[q];
+      for (var i = 0; i < nb.length; i++) {
+        var r = nb[i], v = st[r];
+        if (v === 0) {
+          if (!lib[r]) { lib[r] = 1; libs.push(r); touchL.push(r); }
+        } else if (v === col && !seen[r]) { seen[r] = 1; stack.push(r); touchS.push(r); }
+      }
+    }
+    // 复位缓冲区，供下次复用
+    for (var a = 0; a < touchS.length; a++) seen[touchS[a]] = 0;
+    for (var b = 0; b < touchL.length; b++) if (touchL[b] >= 0) lib[touchL[b]] = 0;
+    touchS.length = 0; touchL.length = 0;
+    return { color: col, stones: stones, libs: libs };
+  };
+
+
+  /* 落子（不做同形校验，由上层 Game 负责）。返回 {ok, reason, captured, rec}
+   * 顺序：先提对方 → 再判自身无气（禁着点） */
+  Board.prototype.play = function (x, y, c) {
+    if (x < 0 || y < 0 || x >= this.n || y >= this.n) return { ok: false, reason: 'out' };
+    var p = this.idx(x, y);
+    if (this.stones[p] !== 0) return { ok: false, reason: 'occupied' };
+    var st = this.stones, prevHash = this.hash, zs = this.z.stone[c];
+    st[p] = c; this.hash ^= zs[p];
+    var captured = [], occ = other(c), zi = this.z.stone[occ];
+
+    var nb = this.nbT[p];
+    for (var i = 0; i < nb.length; i++) {
+      var q = nb[i];
+      if (st[q] !== occ) continue;
+      var g = this.groupAt(q);
+      if (g.libs.length === 0) {
+        for (var k = 0; k < g.stones.length; k++) { var s = g.stones[k]; st[s] = 0; this.hash ^= zi[s]; captured.push(s); }
+      }
+    }
+    // 判自身：先提后判
+    if (captured.length === 0) {
+      var own = this.groupAt(p);
+      if (own.libs.length === 0) {
+        st[p] = 0; this.hash ^= zs[p];
+        return { ok: false, reason: 'suicide' };
+      }
+    } else {
+      var own2 = this.groupAt(p);
+      if (own2.libs.length === 0) { // 提了对方但自己也无气（理论上不会发生）
+        for (var m = 0; m < captured.length; m++) { st[captured[m]] = occ; this.hash ^= zi[captured[m]]; }
+        st[p] = 0; this.hash ^= zs[p];
+        return { ok: false, reason: 'suicide' };
+      }
+    }
+    return { ok: true, captured: captured, rec: { p: p, c: c, captured: captured, prevHash: prevHash } };
+  };
+
+  Board.prototype.undo = function (rec) {
+    var st = this.stones;
+    st[rec.p] = 0;
+    var occ = other(rec.c), zi = this.z.stone[occ];
+    for (var i = 0; i < rec.captured.length; i++) { st[rec.captured[i]] = occ; this.hash ^= zi[rec.captured[i]]; }
+    this.hash = rec.prevHash;
+  };
+
+  /* 局面哈希（含轮次）：禁止全局同形以它为准 */
+  Board.prototype.positionHash = function (toPlay) { return this.hash ^ this.z.side[toPlay]; };
+
+  /* 甜点/星位（0 基坐标） */
+  var STAR_DEF = { 19: [3, 9, 15], 13: [3, 6, 9], 9: [2, 4, 6] };
+  function starLines(n) { return STAR_DEF[n] || []; }
+  /* 星位：19 路九星；13 路/9 路各四角星 + 天元 = 5 点 */
+  function starPoints(n) {
+    var L = starLines(n), out = [];
+    if (n === 19) {
+      for (var i = 0; i < L.length; i++) for (var j = 0; j < L.length; j++) out.push([L[i], L[j]]);
+      return out;
+    }
+    var lo = L[0], hi = L[L.length - 1], mid = (n - 1) / 2;
+    out.push([lo, lo], [hi, lo], [lo, hi], [hi, hi], [mid, mid]);
+    return out;
+  }
+
+  /* 让子点序（常规顺序，0 基） */
+  function handicapPoints(n, count) {
+    var s = starPoints(n), m = {};
+    function key(x, y) { return x + ',' + y; }
+    // 星位按行列相对位置索引
+    for (var i = 0; i < s.length; i++) { var a = s[i]; m[key(a[0], a[1])] = a; }
+    var L2 = starLines(n), lo = L2[0], hi = L2[L2.length - 1], mid = (n - 1) / 2;
+    var seq = [];
+    // 常规让子摆子次序（0 基、y 向下）：
+    // 2 子 = 右上 + 左下；3 子 +左上；4 子 +右下；5 子 +天元；
+    // 6 子 +左边；7 子 +右边；8 子 +下边；9 子 +上边。
+    // SGF 记法下 2 子为 AB[pd][dp]，4 子为 AB[pd][dp][dd][pp]。
+    seq.push([hi, lo]);   // 右上
+    seq.push([lo, hi]);   // 左下
+    seq.push([lo, lo]);   // 左上
+    seq.push([hi, hi]);   // 右下
+    seq.push([mid, mid]); // 天元
+    seq.push([lo, mid]);  // 左边
+    seq.push([hi, mid]);  // 右边
+    seq.push([mid, hi]);  // 下边
+    seq.push([mid, lo]);  // 上边
+    var out = [];
+    for (var k = 0; k < seq.length && out.length < count; k++) if (m[key(seq[k][0], seq[k][1])]) out.push(seq[k]);
+    return out;
+  }
+  /* 各尺寸可支持的最大让子数 = 星位数（19 路 9、13/9 路 5） */
+  function maxHandicap(n) { return starPoints(n).length; }
+
+  /* ===== 对局 ===== */
+  var KOMI_TABLE = { 19: 7.5, 13: 6.5, 9: 5.5 }; // 目；3¾/3¼/2¾ 子
+  function Game(opts) {
+    opts = opts || {};
+    var n = opts.size || 19;
+    this.size = n;
+    this.board = new Board(n);
+    this.toPlay = BLACK;
+    this.handicap = opts.handicap || 0;
+    this.komi = (opts.komi !== undefined) ? opts.komi : (this.handicap > 1 ? 0 : KOMI_TABLE[n]);
+    this.komiBase = this.komi;
+    this.moves = [];          // {c, x, y, pass, captured:[...]}
+    this.history = [];        // 位置哈希序列
+    this.captures = { 1: 0, 2: 0 };
+    this.stonesLeft = { 1: 0, 2: 0 };
+    this.passes = 0;
+    this.ended = false;
+    this.result = null;
+    if (this.handicap > 1) {
+      var pts = handicapPoints(n, this.handicap);
+      this.handicap = pts.length;   // 实摆数量（13/9 路星位上限 5）
+      for (var i = 0; i < pts.length; i++) {
+        var p = this.board.idx(pts[i][0], pts[i][1]);
+        this.board.stones[p] = BLACK;
+        this.board.hash ^= this.board.z.stone[BLACK][p];
+        this.stonesLeft[BLACK]++;
+      }
+      this.toPlay = WHITE;
+    }
+    this.history.push(this.board.positionHash(this.toPlay));
+  }
+
+  Game.prototype.sideToPlay = function () { return this.toPlay; };
+  Game.prototype.countStones = function (c) {
+    var s = 0, st = this.board.stones, n = this.board.n;
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) if (st[this.board.idx(x, y)] === c) s++;
+    return s;
+  };
+
+  /* 合法性检查（不修改棋盘）：返回 {ok, reason} */
+  Game.prototype.check = function (x, y) {
+    if (this.ended) return { ok: false, reason: 'ended' };
+    var p = this.board.idx(x, y);
+    if (this.board.stones[p] !== 0) return { ok: false, reason: 'occupied' };
+    // 用一次试落判断自杀/提子
+    var res = this.board.play(x, y, this.toPlay);
+    if (!res.ok) return res;
+    // 全局同形
+    var h = this.board.positionHash(other(this.toPlay));
+    var dup = this.history.indexOf(h) >= 0;
+    this.board.undo(res.rec);
+    if (dup) return { ok: false, reason: 'ko' };
+    return { ok: true };
+  };
+
+  /* 落子（含同形校验），返回 {ok, reason} */
+  Game.prototype.move = function (x, y) {
+    var c = this.check(x, y);
+    if (!c.ok) return c;
+    var res = this.board.play(x, y, this.toPlay);
+    if (!res.ok) return res;
+    var cap = res.captured.length;
+    this.captures[this.toPlay] += cap;
+    this.moves.push({ c: this.toPlay, x: x, y: y, pass: false, captured: res.captured.slice(), rec: res.rec });
+    this.passes = 0;
+    this.toPlay = other(this.toPlay);
+    this.history.push(this.board.positionHash(this.toPlay));
+    return { ok: true, captured: res.captured };
+  };
+
+  Game.prototype.pass = function () {
+    if (this.ended) return { ok: false, reason: 'ended' };
+    this.moves.push({ c: this.toPlay, pass: true, captured: [] });
+    this.passes++;
+    this.toPlay = other(this.toPlay);
+    this.history.push(this.board.positionHash(this.toPlay));
+    if (this.passes >= 2) { this.ended = true; this.result = { type: 'two-pass' }; return { ok: true, ended: true }; }
+    return { ok: true, ended: false };
+  };
+
+  Game.prototype.undo = function (n) {
+    n = n || 1; var undone = 0;
+    while (n-- > 0 && this.moves.length) {
+      var m = this.moves.pop();
+      this.ended = false; this.result = null;
+      this.history.pop();
+      if (m.pass) { this.toPlay = m.c; this.passes = Math.max(0, this.passes - 1); }
+      else {
+        this.board.undo(m.rec);
+        this.toPlay = m.c;
+        this.captures[m.c] -= m.captured.length;
+        this.passes = 0;
+      }
+      undone++;
+    }
+    // 让子局回退到底时保持白先
+    if (this.moves.length === 0 && this.handicap > 1) { this.toPlay = WHITE; this.passes = 0; }
+    this.history = this.history.slice(0, this.moves.length + 1);
+    return undone;
+  };
+
+  /* ===== 数子（中国规则） =====
+   * deadSet: 死子点索引集合（0 基坐标的 key "x,y"） */
+  Game.prototype.score = function (deadPoints) {
+    var n = this.size, b = new Board(n);
+    b.copyFrom(this.board);
+    var dead = deadPoints || {};
+    var deadCount = { 1: 0, 2: 0 };
+    for (var key in dead) {
+      if (!Object.prototype.hasOwnProperty.call(dead, key)) continue;
+      var xy = key.split(','), x = +xy[0], y = +xy[1], p = b.idx(x, y), c = b.stones[p];
+      if (c) { deadCount[c]++; b.stones[p] = 0; }
+    }
+    var area = { 1: 0, 2: 0 }, neutral = 0, regions = [];
+    // 活子
+    for (var yy = 0; yy < n; yy++) for (var xx = 0; xx < n; xx++) {
+      var v = b.stones[b.idx(xx, yy)];
+      if (v) area[v]++;
+    }
+    // 空区归属
+    var seen = new Uint8Array(b.N);
+    for (var y2 = 0; y2 < n; y2++) for (var x2 = 0; x2 < n; x2++) {
+      var p2 = b.idx(x2, y2);
+      if (b.stones[p2] !== 0 || seen[p2]) continue;
+      var stack = [p2], pts = [], touch = { 1: false, 2: false };
+      seen[p2] = 1;
+      while (stack.length) {
+        var q = stack.pop(); pts.push(q);
+        var nb = b.nbT[q];
+        for (var i = 0; i < nb.length; i++) {
+          var r = nb[i], val = b.stones[r];
+          if (val === 0) { if (!seen[r]) { seen[r] = 1; stack.push(r); } }
+          else touch[val] = true;
+        }
+      }
+      if (touch[1] && !touch[2]) { area[1] += pts.length; regions.push({ owner: 1, size: pts.length }); }
+      else if (touch[2] && !touch[1]) { area[2] += pts.length; regions.push({ owner: 2, size: pts.length }); }
+      else if (touch[1] && touch[2]) { neutral += pts.length; area[1] += pts.length / 2; area[2] += pts.length / 2; regions.push({ owner: 0, size: pts.length }); }
+      else { neutral += pts.length; area[1] += pts.length / 2; area[2] += pts.length / 2; regions.push({ owner: 0, size: pts.length }); }
+    }
+    var black = area[1], white = area[2];
+    var diff = black - (white + this.komi); // 以「子」为单位；目差 = 2*diff
+    var res = {
+      black: black, white: white, komi: this.komi, diff: diff,
+      dead: deadCount, neutral: neutral, regions: regions,
+      winner: diff > 0 ? BLACK : (diff < 0 ? WHITE : 0),
+      margin: Math.abs(diff)
+    };
+    return res;
+  };
+
+  /* 以「子」为单位的分数格式：185.25 → 185¼ */
+  function fmtZi(v) {
+    var neg = v < 0; v = Math.abs(v);
+    var i = Math.floor(v + 1e-9), f = Math.round((v - i) * 4);
+    if (f >= 4) { i += 1; f = 0; }
+    var fr = ['', '¼', '½', '¾'][f] || '';
+    if (i === 0 && fr) return (neg ? '-' : '') + fr;
+    return (neg ? '-' : '') + i + fr;
+  }
+  function fmtMu(v) {
+    var neg = v < 0; v = Math.abs(v);
+    var i = Math.floor(v + 1e-9), half = Math.round((v - i) * 2);
+    if (half >= 2) { i += 1; half = 0; }
+    var s = (i === 0 && half) ? '½' : (i + (half ? '½' : ''));
+    return (neg ? '-' : '') + s;
+  }
+
+  /* 单位口径（与规格一致）：盘面每交叉点计 1 子，双方子数之和 = 边长²。
+   * 贴目参数以「目」存（19 路 7.5、13 路 6.5、9 路 5.5），胜负差同样以目计；
+   * 1 子 = 2 目，故「黑需超过 (边长²+贴目)/2 子判胜」，19 路即 184.25 子。 */
+  function resultText(res, size) {
+    if (!res) return '';
+    var head = '黑 ' + fmtZi(res.black) + ' 子，白 ' + fmtZi(res.white) + ' 子，贴 ' +
+      fmtMu(res.komi) + ' 目（' + fmtZi(res.komi / 2) + ' 子）';
+    if (res.winner === 0) return head + '；和棋';
+    var w = res.winner === BLACK ? '黑' : '白';
+    return head + '；' + w + '棋胜 ' + fmtMu(res.margin) + ' 目（' + fmtZi(res.margin / 2) + ' 子）';
+  }
+  /* SGF 的 RE 用标准十进制（如 B+1.5 / W+2.5），不使用 ½ 字符 */
+  function sgfNum(v) {
+    var r = Math.round(v * 100) / 100;
+    return String(r);
+  }
+  function resultSGF(res) {
+    if (!res) return '';
+    if (res.winner === 0) return '0';
+    var w = res.winner === BLACK ? 'B' : 'W';
+    return w + '+' + sgfNum(res.margin);
+  }
+
+  /* SGF 导出 */
+  var SGFCOL = 'abcdefghijklmnopqrstuvwxyz';
+  function sgfPoint(x, y) { return SGFCOL[x] + SGFCOL[y]; }
+  function toSGF(game, meta) {
+    meta = meta || {};
+    var sz = game.size, km = game.komi;
+    var out = '(;GM[1]FF[4]CA[UTF-8]AP[离线围棋:1.0]RU[Chinese]SZ[' + sz + ']KM[' + km + ']';
+    if (game.handicap > 1) out += 'HA[' + game.handicap + ']';
+    // 让子摆子
+    if (game.handicap > 1) {
+      var pts = handicapPoints(sz, game.handicap), ab = '';
+      for (var i = 0; i < pts.length; i++) ab += '[' + sgfPoint(pts[i][0], pts[i][1]) + ']';
+      out += 'AB' + ab;
+    }
+    out += 'PB[' + (meta.pb || '玩家') + ']PW[' + (meta.pw || 'AI') + ']';
+    if (meta.re) out += 'RE[' + meta.re + ']';
+    if (meta.dt) out += 'DT[' + meta.dt + ']';
+    for (var k = 0; k < game.moves.length; k++) {
+      var m = game.moves[k];
+      out += ';' + (m.c === BLACK ? 'B' : 'W') + (m.pass ? '[]' : '[' + sgfPoint(m.x, m.y) + ']');
+    }
+    out += ')';
+    return out;
+  }
+
+  /* 死子自动预估（P1，用于终局提示与自对弈数子） */
+  Game.prototype.estimateDead = function () {
+    var n = this.size, b = this.board, dead = {};
+    var seen = new Uint8Array(b.N);
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) {
+      var p = b.idx(x, y);
+      if (b.stones[p] === 0 || seen[p]) continue;
+      var g = b.groupAt(p);
+      for (var i = 0; i < g.stones.length; i++) seen[g.stones[i]] = 1;
+      // 无气或仅 1 气 → 判死
+      if (g.libs.length <= 1) { for (var j = 0; j < g.stones.length; j++) { var q = g.stones[j]; dead[b.xOf(q) + ',' + b.yOf(q)] = true; } continue; }
+      // 无任何「真眼」且被对方完全包围 → 判死
+      var eyes = countRealEyes(b, g);
+      if (eyes < 2 && surroundedBy(b, g, other(g.color))) { for (var k2 = 0; k2 < g.stones.length; k2++) { var q2 = g.stones[k2]; dead[b.xOf(q2) + ',' + b.yOf(q2)] = true; } }
+    }
+    return dead;
+  };
+  function countRealEyes(b, g) {
+    // 统计被本块完全包围的小空区（眼），并排除假眼（对角关键点被对方占据）
+    var n = b.n, eyes = 0, seen = new Uint8Array(b.N);
+    for (var i = 0; i < g.stones.length; i++) {
+      var nb = b.nbT[g.stones[i]];
+      for (var j = 0; j < nb.length; j++) {
+        var q = nb[j];
+        if (b.stones[q] !== 0 || seen[q]) continue;
+        var stack = [q], pts = [], touchOther = false;
+        seen[q] = 1;
+        while (stack.length) {
+          var r = stack.pop(); pts.push(r);
+          var nn = b.nbT[r];
+          for (var k = 0; k < nn.length; k++) {
+            var s = nn[k], v = b.stones[s];
+            if (v === 0) { if (!seen[s]) { seen[s] = 1; stack.push(s); } }
+            else if (v !== g.color) touchOther = true;
+          }
+        }
+        if (touchOther) continue;
+        // 假眼判定：空区很小(≤2)，且其边界上存在「对角被对方占」的角点
+        if (pts.length <= 3) {
+          var c = pts[0], cx = b.xOf(c), cy = b.yOf(c), diagBad = false;
+          var diag = [[cx - 1, cy - 1], [cx + 1, cy - 1], [cx - 1, cy + 1], [cx + 1, cy + 1]];
+          for (var d = 0; d < 4; d++) {
+            var dx = diag[d][0], dy = diag[d][1];
+            if (dx < 0 || dy < 0 || dx >= n || dy >= n) { diagBad = true; continue; }
+            var dv = b.get(dx, dy);
+            if (dv !== 0 && dv !== g.color) diagBad = true;
+          }
+          if (diagBad) continue;
+        }
+        eyes++;
+      }
+    }
+    return eyes;
+  }
+  function surroundedBy(b, g, opp) {
+    // 本块所有气都落在「仅被对方触碰」的空区 → 被完全包围
+    var libRegions = {}, anyLib = false;
+    for (var i = 0; i < g.libs.length; i++) libRegions[g.libs[i]] = true;
+    var seen = new Uint8Array(b.N), allOpp = true, checked = 0;
+    for (var key in libRegions) {
+      var p = +key; if (seen[p]) continue;
+      var stack = [p], touchOwn = false; seen[p] = 1;
+      while (stack.length) {
+        var q = stack.pop();
+        var nb = b.nbT[q];
+        for (var j = 0; j < nb.length; j++) {
+          var r = nb[j], v = b.stones[r];
+          if (v === 0) { if (!seen[r]) { seen[r] = 1; stack.push(r); } }
+          else if (v === g.color) touchOwn = true;
+        }
+      }
+      checked++;
+      if (touchOwn) { allOpp = false; break; }
+    }
+    return checked > 0 && allOpp;
+  }
+
+  return {
+    BLACK: BLACK, WHITE: WHITE, other: other, Board: Board, Game: Game,
+    KOMI_TABLE: KOMI_TABLE, starPoints: starPoints, handicapPoints: handicapPoints, maxHandicap: maxHandicap,
+    fmtZi: fmtZi, fmtMu: fmtMu, resultText: resultText, resultSGF: resultSGF, toSGF: toSGF,
+    sgfPoint: sgfPoint, countRealEyes: countRealEyes
+  };
+});
+</script>
+<script>/* ===== AI 策略层（本地轻量引擎 · 规则型） =====
+ * 架构：着法生成 → 分类打分（离散优先级）→ 可选浅层搜索 → 严格非法/禁手过滤
+ * 三档差异：允许的失误类别 + 优先级表 + 噪声 + 搜索深度。
+ * 底线：所有着法经 game.check 复核，绝不下非法手。
+ */
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) module.exports = factory(require('./rules.js'));
+  else root.WQAI = factory(root.WQRules);
+})(typeof self !== 'undefined' ? self : this, function (R) {
+  'use strict';
+  var BLACK = R.BLACK, WHITE = R.WHITE, other = R.other;
+
+  function RNG(seed) { this.s = ((seed || 1) >>> 0) || 1; }
+  RNG.prototype.next = function () {
+    var s = this.s; s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0;
+    this.s = s; return s / 4294967296;
+  };
+  RNG.prototype.int = function (n) { return Math.floor(this.next() * n); };
+
+  var LEVELS = {
+    easy:   { name: '初级', noise: 12, allowBad: true,  depth: 0, topK: 1,  rand: 15,  badProb: 0.7, rescue: false, eyeGuard: false, terrGuard: false },
+    medium: { name: '中级', noise: 4,  allowBad: true,  depth: 0, topK: 8,  rand: 1,  rescue: true,  eyeGuard: true,  terrGuard: true,
+              selfAtariPen: 60, squeezePen: 12, hardNoGive: true },
+    hard:   { name: '高级', noise: 1,  allowBad: false, depth: 2, topK: 10, rand: 1,  rescue: true,  eyeGuard: true,  terrGuard: true }
+  };
+
+  /* 真眼：四正邻全为本色（盘外算墙），对角本方 ≥3 且对方 ≤1 */
+  function isRealEye(b, p, c) {
+    var nbs = b.nbT[p];
+    if (nbs.length < 2) return false;
+    for (var i = 0; i < nbs.length; i++) if (b.stones[nbs[i]] !== c) return false;
+    var n = b.n, x = b.xOf(p), y = b.yOf(p), own = 0, bad = 0;
+    var ds = [[-1, -1], [1, -1], [-1, 1], [1, 1]];
+    for (var j = 0; j < 4; j++) {
+      var dx = x + ds[j][0], dy = y + ds[j][1];
+      if (dx < 0 || dy < 0 || dx >= n || dy >= n) { own++; continue; }
+      var v = b.get(dx, dy);
+      if (v === c) own++; else if (v === other(c)) bad++;
+    }
+    return own >= 3 && bad <= 1;
+  }
+  /* 该块是否已具备 2 个以上真眼（活形） */
+  function blockEyes(b, gr) {
+    var seen = {}, eyes = 0, i, j;
+    for (i = 0; i < gr.stones.length; i++) {
+      var nb = b.nbT[gr.stones[i]];
+      for (j = 0; j < nb.length; j++) {
+        var q = nb[j];
+        if (b.stones[q] === 0 && !seen[q] && isRealEye(b, q, gr.color)) { seen[q] = 1; eyes++; }
+      }
+    }
+    return eyes;
+  }
+
+  /* 落子会把邻接己方块压到 ≤1 气时的总规模 */
+  function squeezeRisk(b, p, c) {
+    var nbs = b.nbT[p], seen = {}, risk = 0;
+    for (var i = 0; i < nbs.length; i++) {
+      if (b.stones[nbs[i]] !== c) continue;
+      var gr = b.groupAt(nbs[i]);
+      if (seen[gr.stones[0]]) continue;
+      seen[gr.stones[0]] = 1;
+      var libs = gr.libs;
+      if (libs.length === 1) risk += gr.stones.length * 2;      // 本来就只有 1 气（自己填死自己）
+      else if (libs.length === 2 && (libs[0] === p || libs[1] === p)) risk += gr.stones.length;
+    }
+    return risk;
+  }
+
+  /* 空区是否为本方独占实地（只被本方触碰） */
+  function isOwnTerritory(b, p, c, limit) {
+    if (b.nbT[p].length < 2) return 0;
+    var seen = {}, stack = [p], pts = 0, touchOwn = false, touchOpp = false;
+    seen[p] = 1;
+    while (stack.length && pts < (limit || 40)) {
+      var q = stack.pop(); pts++;
+      var nb = b.nbT[q];
+      for (var i = 0; i < nb.length; i++) {
+        var r = nb[i];
+        if (r === p) continue;
+        var v = b.stones[r];
+        if (v === 0) { if (!seen[r]) { seen[r] = 1; stack.push(r); } }
+        else if (v === c) touchOwn = true; else touchOpp = true;
+      }
+    }
+    if (touchOpp || !touchOwn) return 0;
+    return pts;
+  }
+
+  /* 单点特征 */
+  function features(g, x, y) {
+    var b = g.board, c = g.toPlay, p = b.idx(x, y);
+    if (b.stones[p] !== 0) return null;
+    var nb = b.nbT[p], opp = other(c), i, q;
+    var f = {
+      x: x, y: y, p: p,
+      save: 0, atari: 0, capture: 0, ownNb: 0, oppNb: 0, selfAtari: false,
+      squeeze: 0, ownTerr: 0, ownEye: 0, libsAfter: 0, deadChild: false
+    };
+    var seenO = {}, seenP = {};
+    for (i = 0; i < nb.length; i++) {
+      q = nb[i];
+      if (b.stones[q] === c) {
+        f.ownNb++;
+        var go = b.groupAt(q);
+        if (!seenO[go.stones[0]]) {
+          seenO[go.stones[0]] = 1;
+          if (go.libs.length === 1 && go.libs[0] === p) f.save += go.stones.length;
+        }
+      } else if (b.stones[q] === opp) {
+        f.oppNb++;
+        var gp = b.groupAt(q);
+        if (!seenP[gp.stones[0]]) {
+          seenP[gp.stones[0]] = 1;
+          if (gp.libs.length === 1 && gp.libs[0] === p) f.atari += gp.stones.length;
+          else if (gp.libs.length === 2 && gp.libs.indexOf(p) >= 0) f.atari += gp.stones.length * 0.55;
+        }
+      }
+    }
+    var res = b.play(x, y, c);
+    if (!res.ok) return null;
+    f.capture = res.captured.length;
+    var own = b.groupAt(p);
+    f.libsAfter = own.libs.length;
+    f.selfAtari = (f.libsAfter === 1 && f.capture === 0);
+    // 自紧气：落子后邻接己方块变 1 气
+    var seenQ = {};
+    for (i = 0; i < nb.length; i++) {
+      q = nb[i];
+      if (b.stones[q] !== c) continue;
+      var gq = b.groupAt(q);
+      if (seenQ[gq.stones[0]]) continue;
+      seenQ[gq.stones[0]] = 1;
+      if (gq.libs.length <= 1 && gq.stones.length >= 2) f.squeeze += gq.stones.length;
+    }
+    f.ownEye = isRealEye(b, p, c) ? 1 : 0;
+    var h = b.positionHash(opp), isKo = g.history.indexOf(h) >= 0;
+    b.undo(res.rec);
+    if (isKo) return null;
+    f.ownTerr = isOwnTerritory(b, p, c, 30);
+    return f;
+  }
+
+  /* 分档打分：不同档用不同优先级表 */
+  function scoreMove(g, f, cfg, ctx) {
+    var s = 0;
+    // 提子
+    s += f.capture * (cfg.allowBad ? 8 : 12);
+    if (f.capture >= 3) s += f.capture * 3;
+    // 救自己
+    s += f.save * (cfg.rescue ? 16 : 2);
+    // 叫吃对方
+    s += f.atari * (cfg.rescue ? 8 : 3);
+    // 气
+    s += Math.min(f.libsAfter, 6) * (cfg.allowBad ? 1.0 : 1.4);
+    // 连接 / 接触
+    s += f.ownNb * 2.2;
+    s += f.oppNb * (g.moves.length < g.size * g.size * 0.3 ? 2.4 : 1.2);
+    // 自撞气：cfg.selfAtariPen 可显式覆盖（中级档提到与高级同级，见 P1-01 修复）
+    var penAtari = cfg.selfAtariPen !== undefined ? cfg.selfAtariPen : (cfg.allowBad ? 8 : 60);
+    if (f.selfAtari) s -= penAtari;
+    // 自紧气（关键失误项）：cfg.squeezePen 同上
+    var penSq = cfg.squeezePen !== undefined ? cfg.squeezePen : (cfg.allowBad ? 1.2 : 12);
+    if (f.squeeze > 0) s -= f.squeeze * penSq;
+    // 自填真眼 / 自填实地
+    if (cfg.eyeGuard && f.ownEye) s -= 40;
+    if (cfg.terrGuard && f.ownTerr > 0) s -= 6 + Math.min(f.ownTerr, 20) * 0.9;
+    // 线位（布局）
+    var b = g.board, lx = Math.min(f.x, b.n - 1 - f.x), ly = Math.min(f.y, b.n - 1 - f.y);
+    var line = Math.min(lx, ly) + 1;
+    if (g.moves.length < 40) {
+      var p3 = b.n >= 17 ? (line === 3 || line === 4 ? 1 : (line === 2 ? 0.2 : -1.0))
+        : (line === 3 ? 1 : (line === 2 ? 0.3 : -1.0));
+      s += p3 * 9;
+    } else if (line === 1) s -= 2;
+    // 噪声
+    if (cfg.noise) s += (cfg.noise > 0 ? (((ctx && ctx.rng ? ctx.rng.next() : 0.5) * 2 - 1)) : 0) * cfg.noise;
+    return s;
+  }
+
+  /* 危险块（本方气≤2、规模≥3） */
+  function dangerBlock(g, me) {
+    var b = g.board, n = b.n, mark = {}, worst = null;
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) {
+      var p = b.idx(x, y);
+      if (b.stones[p] !== me || mark[p]) continue;
+      var gr = b.groupAt(p), sz = gr.stones.length;
+      for (var i = 0; i < sz; i++) mark[gr.stones[i]] = 1;
+      if (sz < 3 || gr.libs.length > 2) continue;
+      if (!worst || gr.libs.length < worst.libs || (gr.libs.length === worst.libs && sz > worst.size))
+        worst = { libs: gr.libs.length, size: sz, libPts: gr.libs.slice() };
+    }
+    return worst;
+  }
+
+  /* 是否可以虚手（中高级）：无有效着法 */
+  function shouldPass(g, bests, cfg, ctx) {
+    if (!bests.length) return true;
+    if (g.moves.length < 2) return false;
+    // 高级/中级：最佳手仅为「自填实地」或「自撞气」→ 虚手
+    var best = bests[0];
+    if (best.score < 4) return true;
+    if (cfg.eyeGuard && best.ownEye) return true;
+    if (best.selfAtari) return true;
+    if (g.passes >= 1 && best.score < 8) return true;
+    return false;
+  }
+
+  var NODES = 0, T0 = 0;
+  function searchBest(g, cfg, ctx, me, depth) {
+    var cands = collect(g, cfg, ctx, cfg.topK);
+    if (!cands.length) return null;
+    var best = null, bestV = -1e9;
+    for (var i = 0; i < cands.length; i++) {
+      var f = cands[i];
+      var r = g.move(f.x, f.y);
+      if (!r.ok) continue;
+      var v;
+      if (depth <= 0 || NODES > ctx.nodeCap || Date.now() - T0 > ctx.timeCap) {
+        v = -staticEval(g, other(me));
+      } else {
+        NODES++;
+        v = -searchValue(g, cfg, ctx, other(me), depth - 1);
+      }
+      g.undo(1);
+      if (v > bestV) { bestV = v; best = f; }
+    }
+    return best;
+  }
+  function searchValue(g, cfg, ctx, me, depth) {
+    var cands = collect(g, cfg, ctx, Math.min(cfg.topK, 6));
+    if (!cands.length) return staticEval(g, me);
+    var bestV = -1e9;
+    for (var i = 0; i < cands.length; i++) {
+      var f = cands[i];
+      var r = g.move(f.x, f.y);
+      if (!r.ok) continue;
+      var v;
+      if (depth <= 0 || NODES > ctx.nodeCap || Date.now() - T0 > ctx.timeCap) {
+        v = -staticEval(g, other(me));
+      } else {
+        NODES++;
+        v = -searchValue(g, cfg, ctx, other(me), depth - 1);
+      }
+      g.undo(1);
+      if (v > bestV) bestV = v;
+    }
+    return bestV;
+  }
+
+  /* 静态局面评估（me 视角） */
+  function staticEval(g, me) {
+    var b = g.board, n = b.n, opp = other(me), y, x, p;
+    var terr = 0, mark = {};
+    // 空区归属（唯一触碰方）
+    for (y = 0; y < n; y++) for (x = 0; x < n; x++) {
+      p = b.idx(x, y);
+      if (b.stones[p] !== 0 || mark[p]) continue;
+      var stack = [p], pts = 0, tB = false, tW = false, region = [];
+      mark[p] = 1;
+      while (stack.length) {
+        var q = stack.pop(); pts++; region.push(q);
+        var nbq = b.nbT[q];
+        for (var i = 0; i < nbq.length; i++) {
+          var r = nbq[i], v = b.stones[r];
+          if (v === 0) { if (!mark[r]) { mark[r] = 1; stack.push(r); } }
+          else if (v === BLACK) tB = true; else tW = true;
+        }
+      }
+      if (tB && !tW) terr += (me === BLACK ? pts : -pts);
+      else if (tW && !tB) terr += (me === BLACK ? -pts : pts);
+      // 双方都触碰的中立空区不计分：按「最近距离各计半」会在空旷盘面产生
+      // 数点级噪声，把提子（每子约 1 子）的价值完全淹没，导致浅层搜索放弃提吃要点。
+    }
+    // 棋子差
+    var sd = 0;
+    for (y = 0; y < n; y++) for (x = 0; x < n; x++) {
+      var sv = b.stones[b.idx(x, y)];
+      if (sv === me) sd++; else if (sv === opp) sd--;
+    }
+    // 块状态
+    var dangerSelf = 0, dangerOpp = 0, eyeSelf = 0, eyeOpp = 0, mark2 = {};
+    for (y = 0; y < n; y++) for (x = 0; x < n; x++) {
+      p = b.idx(x, y);
+      if (b.stones[p] === 0 || mark2[p]) continue;
+      var gr = b.groupAt(p), sz = gr.stones.length, lib = gr.libs.length, col = gr.color;
+      for (var k = 0; k < sz; k++) mark2[gr.stones[k]] = 1;
+      var isMe = (col === me);
+      var eyes = blockEyes(b, gr);
+      var eyeVal = eyes >= 2 ? Math.min(sz, 12) * 0.7 : (eyes === 1 ? 0.5 : 0);
+      if (isMe) eyeSelf += eyeVal; else eyeOpp += eyeVal;
+      if (lib === 1) { if (isMe) dangerSelf += sz; else dangerOpp += sz; }
+      else if (lib === 2 && sz >= 3) { if (isMe) dangerSelf += sz * 0.4; else dangerOpp += sz * 0.4; }
+    }
+    var capDiff = (g.captures ? (g.captures[me] || 0) - (g.captures[opp] || 0) : 0);
+    return terr + sd + capDiff * 1.4 + (dangerOpp - dangerSelf) * 1.2 + (eyeSelf - eyeOpp) * 1.4;
+  }
+  function nearestDist(b, p, c) {
+    // 小盘直接 BFS
+    var q = [p], d = 0, seen = {}; seen[p] = 1;
+    while (q.length) {
+      var nq = [];
+      for (var i = 0; i < q.length; i++) {
+        var cur = q[i], nb = b.nbT[cur];
+        for (var j = 0; j < nb.length; j++) {
+          var r = nb[j];
+          if (seen[r]) continue;
+          if (b.stones[r] === c) return d + 1;
+          seen[r] = 1; nq.push(r);
+        }
+      }
+      q = nq; d++;
+      if (d > 6) return 99;
+    }
+    return 99;
+  }
+
+  /* 收集候选（已过滤非法 + 禁手） */
+  function collect(g, cfg, ctx, K) {
+    var b = g.board, n = b.n, out = [];
+    for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) {
+      if (b.stones[b.idx(x, y)] !== 0) continue;
+      var f = features(g, x, y);
+      if (!f) continue;
+      // 禁手过滤
+      if (cfg.eyeGuard && f.ownEye) continue;
+      if (cfg.terrGuard && f.ownTerr > 0 && f.capture === 0 && f.save === 0) continue;
+      if (!cfg.allowBad && f.selfAtari) continue;
+      if (!cfg.allowBad && f.squeeze > 0) continue;
+      // P1-01 硬门槛：中级档禁止「自紧己方棋块至1气」的纯送吃手（squeeze>0 即己方
+      // 已有块被压到 1 气）。注意只剔除「危及既有己方块」的手；孤子扑入（扑/送一子破眼）
+      // 属合法战术（squeeze=0），若一并剔除会杀掉死活题的必杀手（见 tsumego P4 回归）。
+      // 提子 / 救子的手始终保留。
+      if (cfg.hardNoGive && f.squeeze > 0 && f.capture === 0 && f.save === 0) continue;
+      f.score = scoreMove(g, f, cfg, ctx);
+      out.push(f);
+    }
+    out.sort(function (a, c) { return c.score - a.score; });
+    // 救援优先级（中高级）
+    if (ctx.danger) {
+      for (var i = 0; i < out.length; i++) {
+        if (ctx.danger.libPts.indexOf(out[i].p) >= 0) out[i].score += 40;
+        else if (out[i].ownNb === 0 && out[i].oppNb === 0) out[i].score -= 15;
+      }
+      out.sort(function (a, c) { return c.score - a.score; });
+    }
+    return K ? out.slice(0, K) : out;
+  }
+
+  function choose(g, level, rng) {
+    var cfg = LEVELS[level] || LEVELS.medium;
+    NODES = 0; T0 = Date.now();
+    var ctx = {
+      moveNum: g.moves.length, area: g.size * g.size, rng: rng || new RNG(7),
+      nodeCap: level === 'hard' ? 2800 : 400,
+      timeCap: level === 'hard' ? 4200 : 800
+    };
+    ctx.danger = cfg.rescue ? dangerBlock(g, g.toPlay) : null;
+
+    var cands = collect(g, cfg, ctx, 0);
+    if (!cands.length) return { pass: true };
+
+    // 初级：在自己的噪声池里随机（允许明显失误）
+    if (level === 'easy') {
+      if (shouldPass(g, cands, cfg, ctx) && g.moves.length > 4) return { pass: true };
+      // 初级：失误来自「明确坏手池」定向抽取——即自撞气、自紧己方块至 1 气、自填真眼、
+      // 自填实地这四类。规格要求初级「会走出自撞气、平白送吃 1–2 子的随手棋，每局多处可见」，
+      // 因此这里按 45% 概率直接从坏手池取子，其余取高分池，保证失误可稳定复现（可测）。
+      var badPool = [];
+      for (var ib = 0; ib < cands.length; ib++) {
+        var cb = cands[ib];
+        if (cb.selfAtari || cb.squeeze > 0 || cb.ownEye || cb.ownTerr > 0) badPool.push(cb);
+      }
+      var pool;
+      if (badPool.length && rng.next() < cfg.badProb) pool = badPool;
+      else pool = cands.slice(0, Math.min(4, cands.length));
+      var pick = pool[rng.int(pool.length)];
+      if (g.check(pick.x, pick.y).ok) return { x: pick.x, y: pick.y };
+      for (var i0 = 0; i0 < cands.length; i0++) if (g.check(cands[i0].x, cands[i0].y).ok) return { x: cands[i0].x, y: cands[i0].y };
+      return { pass: true };
+    }
+
+    if (shouldPass(g, cands, cfg, ctx)) return { pass: true };
+
+    if (cfg.depth > 0) {
+      var best = searchBest(g, cfg, ctx, g.toPlay, cfg.depth);
+      if (best && g.check(best.x, best.y).ok) return { x: best.x, y: best.y };
+    }
+    for (var i = 0; i < cands.length; i++) if (g.check(cands[i].x, cands[i].y).ok) return { x: cands[i].x, y: cands[i].y };
+    return { pass: true };
+  }
+
+  return { LEVELS: LEVELS, RNG: RNG, choose: choose, features: features, staticEval: staticEval, blockEyes: blockEyes, isRealEye: isRealEye };
+});</script>
+<script>/* ===== 界面层（WQUI） =====
+ * 依赖：WQRules（规则引擎）、WQAI（策略层）
+ * 原则：所有落子经 Game.check 校验；所有文案中文；零外链。
+ */
+(function () {
+  'use strict';
+  var R = window.WQRules, AI = window.WQAI;
+  var BLACK = R.BLACK, WHITE = R.WHITE;
+
+  function $(id) { return document.getElementById(id); }
+
+  /* ---------- 运行状态 ---------- */
+  var cfg = { size: 19, human: BLACK, level: 'medium', handicap: 0 };
+  var game = null;
+  var rng = null;
+  var aiThinking = false;
+  var aiTimer = null;
+  var markMode = false;
+  var deadSet = {};
+  var finalResult = null;
+  var view = { px: 0, pad: 0, cell: 0, dpr: 1 };
+  var stats = { illegalAI: 0, aiMoves: 0, maxThinkMs: 0 };
+
+  /* ---------- 提示 ---------- */
+  var toastTimer = null;
+  function toast(msg) {
+    var t = $('toast');
+    t.textContent = msg;
+    t.classList.add('on');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('on'); }, 2200);
+  }
+  function hint(msg, kind) {
+    var h = $('hintBox');
+    h.textContent = msg;
+    h.className = 'hintBox' + (kind ? ' ' + kind : '');
+  }
+
+  /* ---------- 弹窗 ---------- */
+  var modalCb = null;
+  function askConfirm(title, text, okText, onOk) {
+    $('mdTitle').textContent = title;
+    $('mdText').textContent = text;
+    $('mdOk').textContent = okText || '确认';
+    modalCb = onOk;
+    $('modal').classList.add('on');
+  }
+  function closeModal() { $('modal').classList.remove('on'); modalCb = null; }
+  $('mdCancel').onclick = closeModal;
+  $('mdOk').onclick = function () {
+    var cb = modalCb; closeModal();
+    if (cb) cb();
+  };
+  $('modal').onclick = function (e) { if (e.target === $('modal')) closeModal(); };
+
+  /* ---------- 配置面板 ---------- */
+  function bindOpts(id, key, cast, after) {
+    var box = $(id);
+    box.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('.opt') : null;
+      if (!btn || btn.disabled) return;
+      var kids = box.querySelectorAll('.opt');
+      for (var i = 0; i < kids.length; i++) kids[i].classList.remove('on');
+      btn.classList.add('on');
+      cfg[key] = cast(btn.getAttribute('data-v'));
+      if (after) after();
+      syncConfigUI();
+    });
+  }
+  /* 把当前 cfg 回写到配置面板的选中态（含程序化开局场景） */
+  function markSelected(boxId, value) {
+    var btns = $(boxId).querySelectorAll('.opt');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.toggle('on', btns[i].getAttribute('data-v') === String(value));
+    }
+  }
+  var _handicapFellBack = 0; // P2-01：记录因小棋盘星位不足而回落的原让子数，用于提示
+  function syncConfigUI() {
+    markSelected('optSize', cfg.size);
+    markSelected('optColor', cfg.human);
+    markSelected('optLevel', cfg.level);
+    markSelected('optHandicap', cfg.handicap);
+    var mx = R.maxHandicap(cfg.size);
+    var hcBtns = $('optHandicap').querySelectorAll('.opt');
+    for (var i = 0; i < hcBtns.length; i++) {
+      var v = +hcBtns[i].getAttribute('data-v');
+      var dis = v > mx;
+      hcBtns[i].disabled = dis;
+      hcBtns[i].style.opacity = dis ? '.34' : '';
+      hcBtns[i].style.cursor = dis ? 'not-allowed' : '';
+      hcBtns[i].title = dis ? (cfg.size + ' 路仅 ' + mx + ' 个星位，最多让 ' + mx + ' 子') : '';
+    }
+    if (cfg.handicap > mx) {
+      // P2-01：小棋盘上原先已选的高让子数会静默回落为 0，补一句中文说明告知用户
+      _handicapFellBack = cfg.handicap;
+      cfg.handicap = 0;
+      var all = $('optHandicap').querySelectorAll('.opt');
+      for (var j = 0; j < all.length; j++) all[j].classList.remove('on');
+      $('optHandicap').querySelector('.opt[data-v="0"]').classList.add('on');
+    } else {
+      _handicapFellBack = 0;
+    }
+    var km = R.KOMI_TABLE[cfg.size];
+    if (_handicapFellBack) {
+      $('komiNote').textContent = '原选的 ' + _handicapFellBack + ' 子让子不适用于 ' + cfg.size +
+        ' 路（该尺寸仅 ' + mx + ' 个星位），已自动改为不让子；请重新选择让子数。';
+    } else if (cfg.handicap > 1) {
+      $('komiNote').textContent = '让子局不贴目（KM=0），黑方在星位预摆 ' + cfg.handicap + ' 子，白方先行。';
+    } else {
+      $('komiNote').textContent = '中国规则数子法：黑贴 ' + km + ' 目（' + R.fmtZi(km / 2) + ' 子），黑方需超过 ' +
+        ((cfg.size * cfg.size + km) / 2) + ' 子判胜。';
+    }
+  }
+  bindOpts('optSize', 'size', function (v) { return +v; });
+  bindOpts('optColor', 'human', function (v) { return +v; });
+  bindOpts('optLevel', 'level', function (v) { return v; });
+  bindOpts('optHandicap', 'handicap', function (v) { return +v; });
+
+  function levelName(lv) { return (AI.LEVELS[lv] || AI.LEVELS.medium).name; }
+
+  /* ---------- 开局 ---------- */
+  function startGame() {
+    game = new R.Game({ size: cfg.size, handicap: cfg.handicap });
+    rng = new AI.RNG((Date.now() ^ (cfg.size * 977)) >>> 0 || 7);
+    markMode = false; deadSet = {}; finalResult = null;
+    aiThinking = false;
+    if (aiTimer) { clearTimeout(aiTimer); aiTimer = null; }
+    stats = { illegalAI: 0, aiMoves: 0, maxThinkMs: 0 };
+    $('configPanel').style.display = 'none';
+    $('gamePanel').style.display = 'flex';
+    $('btnBackCfg').style.display = '';
+    $('resultBox').classList.remove('on');
+    $('markBar').classList.remove('on');
+    hint('点击棋盘交叉点落子。' + (cfg.handicap > 1
+      ? '（让子局：黑方已预摆 ' + game.handicap + ' 子，白方先行）' : ''));
+    resizeBoard();
+    render();
+    updateSidebar();
+    if (game.toPlay !== cfg.human) scheduleAI();
+  }
+
+  function backToConfig() {
+    $('gamePanel').style.display = 'none';
+    $('configPanel').style.display = 'flex';
+    $('btnBackCfg').style.display = 'none';
+    if (aiTimer) { clearTimeout(aiTimer); aiTimer = null; }
+    aiThinking = false;
+    game = null;
+    syncConfigUI();
+  }
+
+  /* ---------- 画布 ---------- */
+  function resizeBoard() {
+    if (!game) return;
+    var wrap = document.querySelector('.boardWrap');
+    var availW = wrap.clientWidth - 30;
+    var availH = wrap.clientHeight - 30;
+    var side = Math.max(200, Math.min(availW, availH));
+    var n = game.size;
+    var cell = Math.floor((side - 24) / (n - 1));
+    if (cell < 8) cell = 8;
+    var pad = Math.max(14, Math.round(cell * 1.1));
+    var px = cell * (n - 1) + pad * 2;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    var cv = $('board');
+    cv.style.width = px + 'px';
+    cv.style.height = px + 'px';
+    cv.width = Math.round(px * dpr);
+    cv.height = Math.round(px * dpr);
+    view = { px: px, pad: pad, cell: cell, dpr: dpr };
+  }
+
+  function pt(i) { return view.pad + i * view.cell; }
+
+  function drawStone(ctx, cx, cy, r, color) {
+    ctx.save();
+    ctx.shadowColor = 'rgba(0,0,0,.42)';
+    ctx.shadowBlur = r * 0.5;
+    ctx.shadowOffsetY = r * 0.16;
+    var grd = ctx.createRadialGradient(cx - r * 0.32, cy - r * 0.36, r * 0.1, cx, cy, r * 1.05);
+    if (color === BLACK) {
+      grd.addColorStop(0, '#6e6e6e'); grd.addColorStop(0.42, '#333'); grd.addColorStop(1, '#050505');
+    } else {
+      grd.addColorStop(0, '#ffffff'); grd.addColorStop(0.55, '#f4f4f2'); grd.addColorStop(1, '#c9c9c5');
+    }
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = grd;
+    ctx.fill();
+    ctx.restore();
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.lineWidth = Math.max(1, r * 0.055);
+    ctx.strokeStyle = color === BLACK ? 'rgba(255,255,255,.14)' : 'rgba(0,0,0,.26)';
+    ctx.stroke();
+  }
+
+  function render() {
+    if (!game) return;
+    var cv = $('board'), ctx = cv.getContext('2d');
+    var n = game.size, px = view.px, pad = view.pad, cell = view.cell, dpr = view.dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, px, px);
+
+    var wood = ctx.createLinearGradient(0, 0, px, px);
+    wood.addColorStop(0, '#e8c078'); wood.addColorStop(0.45, '#e2b565'); wood.addColorStop(1, '#d3a252');
+    ctx.fillStyle = wood;
+    ctx.fillRect(0, 0, px, px);
+    ctx.save();
+    ctx.globalAlpha = 0.055;
+    for (var g = 0; g < 26; g++) {
+      var yy = (g / 26) * px + Math.sin(g * 2.7) * 6;
+      ctx.strokeStyle = '#7d5a1e';
+      ctx.lineWidth = 1 + (g % 3) * 0.7;
+      ctx.beginPath();
+      ctx.moveTo(0, yy);
+      ctx.bezierCurveTo(px * 0.33, yy + 5, px * 0.66, yy - 5, px, yy + 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+
+    ctx.strokeStyle = '#8a6224';
+    ctx.lineWidth = n >= 17 ? 1 : 1.35;
+    ctx.beginPath();
+    for (var i = 0; i < n; i++) {
+      var v = Math.round(pt(i)) + 0.5;
+      ctx.moveTo(Math.round(pad) + 0.5, v); ctx.lineTo(Math.round(px - pad) + 0.5, v);
+      ctx.moveTo(v, Math.round(pad) + 0.5); ctx.lineTo(v, Math.round(px - pad) + 0.5);
+    }
+    ctx.stroke();
+
+    ctx.strokeStyle = '#7a551d';
+    ctx.lineWidth = Math.max(1.4, cell * 0.075);
+    ctx.strokeRect(pad, pad, px - pad * 2, px - pad * 2);
+
+    var stars = R.starPoints(n), sr = Math.max(2.2, cell * 0.1);
+    ctx.fillStyle = '#5f431a';
+    for (var s = 0; s < stars.length; s++) {
+      ctx.beginPath();
+      ctx.arc(pt(stars[s][0]), pt(stars[s][1]), sr, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    var r = cell * 0.465;
+    for (var y = 0; y < n; y++) {
+      for (var x = 0; x < n; x++) {
+        var c = game.board.get(x, y);
+        if (!c) continue;
+        drawStone(ctx, pt(x), pt(y), r, c);
+      }
+    }
+
+    var lm = null;
+    for (var k = game.moves.length - 1; k >= 0; k--) {
+      if (!game.moves[k].pass) { lm = game.moves[k]; break; }
+    }
+    if (lm) {
+      var cx = pt(lm.x), cy = pt(lm.y);
+      ctx.beginPath();
+      ctx.arc(cx, cy, Math.max(2.4, r * 0.3), 0, Math.PI * 2);
+      ctx.fillStyle = lm.c === BLACK ? '#ff8a4c' : '#d94f2b';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(cx, cy, Math.max(2.4, r * 0.3), 0, Math.PI * 2);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255,255,255,.55)';
+      ctx.stroke();
+    }
+
+    if (markMode) {
+      for (var key in deadSet) {
+        if (!deadSet[key]) continue;
+        var xy = key.split(','), dx = pt(+xy[0]), dy = pt(+xy[1]);
+        var half = r * 0.55;
+        ctx.strokeStyle = 'rgba(200,40,40,.92)';
+        ctx.lineWidth = Math.max(1.6, r * 0.14);
+        ctx.beginPath();
+        ctx.moveTo(dx - half, dy - half); ctx.lineTo(dx + half, dy + half);
+        ctx.moveTo(dx + half, dy - half); ctx.lineTo(dx - half, dy + half);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(dx, dy, r, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(200,40,40,.55)';
+        ctx.lineWidth = Math.max(1.2, r * 0.09);
+        ctx.stroke();
+      }
+    }
+  }
+
+  /* ---------- 侧栏 ---------- */
+  function updateSidebar() {
+    if (!game) return;
+    var dot = $('turnDot'), txt = $('turnText'), tag = $('turnTag');
+    if (game.ended) {
+      dot.style.visibility = 'hidden';
+      txt.textContent = '对局结束';
+      tag.textContent = '';
+    } else {
+      dot.style.visibility = 'visible';
+      dot.className = 'stoneDot ' + (game.toPlay === BLACK ? 'b' : 'w');
+      txt.textContent = (game.toPlay === BLACK ? '黑棋' : '白棋');
+      tag.textContent = '（' + (game.toPlay === cfg.human ? '你' : 'AI') + '行棋）';
+    }
+    $('stMoves').textContent = game.moves.length;
+    $('stCapB').textContent = game.captures[BLACK];
+    $('stCapW').textContent = game.captures[WHITE];
+    $('stKomi').textContent = game.komi > 0
+      ? game.komi + ' 目（' + R.fmtZi(game.komi / 2) + ' 子）'
+      : '不贴目';
+    $('stLevel').textContent = levelName(cfg.level);
+    if (game.handicap > 1) {
+      $('rowHc').style.display = '';
+      $('stHc').textContent = game.handicap + ' 子';
+    } else {
+      $('rowHc').style.display = 'none';
+    }
+    $('thinkTag').classList.toggle('on', aiThinking);
+    $('board').classList.toggle('locked', aiThinking || markMode || game.ended);
+    $('btnUndo').disabled = aiThinking || !game.moves.length;
+    $('btnPass').disabled = aiThinking || game.ended || markMode;
+    $('btnResign').disabled = aiThinking || game.ended || markMode;
+    $('btnNewGame').disabled = aiThinking;
+  }
+
+  /* ---------- 非法提示 ---------- */
+  var REASON = {
+    occupied: '该交叉点已有棋子，请换一处落子。',
+    suicide: '禁着点：此处落子后己方棋子无气，且不能提掉对方棋子。',
+    ko: '劫争：需先在别处落子，不能立即回提。',
+    ended: '对局已结束，无法继续落子。',
+    out: '落子位置超出棋盘范围。'
+  };
+
+  /* ---------- 玩家落子 ---------- */
+  function tryPlay(x, y) {
+    if (!game || game.ended || aiThinking) return { ok: false, reason: 'busy' };
+    if (game.toPlay !== cfg.human) return { ok: false, reason: 'notyour' };
+    var chk = game.check(x, y);
+    if (!chk.ok) {
+      var msg = REASON[chk.reason] || '此处不能落子。';
+      hint(msg, 'err'); toast(msg);
+      return chk;
+    }
+    var mv = game.move(x, y);
+    if (!mv.ok) { hint(REASON[mv.reason] || '此处不能落子。', 'err'); return mv; }
+    var caps = mv.captured.length;
+    hint(caps > 0 ? '落子成功，提掉对方 ' + caps + ' 子。' : '落子成功。', caps > 0 ? 'ok' : '');
+    render(); updateSidebar();
+    if (game.ended) { enterMarkMode(); return mv; }
+    scheduleAI();
+    return mv;
+  }
+
+  /* ---------- AI ---------- */
+  function scheduleAI() {
+    if (!game || game.ended) return;
+    if (game.toPlay === cfg.human) return;
+    aiThinking = true;
+    updateSidebar();
+    if (aiTimer) clearTimeout(aiTimer);
+    aiTimer = setTimeout(runAI, 30);
+  }
+
+  function runAI() {
+    aiTimer = null;
+    if (!game || game.ended) { aiThinking = false; updateSidebar(); return; }
+    if (game.toPlay === cfg.human) { aiThinking = false; updateSidebar(); return; }
+    var t0 = Date.now();
+    var mv = AI.choose(game, cfg.level, rng);
+    var dt = Date.now() - t0;
+    if (dt > stats.maxThinkMs) stats.maxThinkMs = dt;
+
+    if (!mv || mv.pass) { applyAIMove(null); return; }
+    var chk = game.check(mv.x, mv.y);
+    if (!chk.ok) {
+      // 兜底：AI 不得下非法手。取一个合法点，否则虚手。
+      stats.illegalAI++;
+      var legal = [];
+      for (var y = 0; y < game.size; y++) for (var x = 0; x < game.size; x++) {
+        if (game.check(x, y).ok) legal.push([x, y]);
+      }
+      if (legal.length) {
+        var lp = legal[rng.int(legal.length)];
+        applyAIMove({ x: lp[0], y: lp[1] });
+      } else applyAIMove(null);
+      return;
+    }
+    applyAIMove(mv);
+  }
+
+  function applyAIMove(mv) {
+    stats.aiMoves++;
+    var res;
+    if (!mv) res = game.pass();
+    else {
+      res = game.move(mv.x, mv.y);
+      if (!res.ok) res = game.pass();
+    }
+    aiThinking = false;
+    if (mv) {
+      var caps = (res.captured || []).length;
+      hint('AI（' + levelName(cfg.level) + '）落子' + (caps ? '，提掉你 ' + caps + ' 子' : '') + '。', caps ? 'warn' : '');
+    } else {
+      hint('AI（' + levelName(cfg.level) + '）虚手。', '');
+    }
+    render(); updateSidebar();
+    if (game.ended) { enterMarkMode(); return; }
+    if (game.toPlay !== cfg.human) scheduleAI();
+  }
+
+  /* ---------- 玩家虚手 ---------- */
+  function playerPass() {
+    if (!game || game.ended || aiThinking || markMode) return null;
+    if (game.toPlay !== cfg.human) return null;
+    var res = game.pass();
+    hint('你选择虚手。' + (game.passes >= 1 ? '（双方连续虚手即进入终局）' : ''), '');
+    render(); updateSidebar();
+    if (game.ended) { enterMarkMode(); return res; }
+    scheduleAI();
+    return res;
+  }
+
+  /* ---------- 悔棋 ---------- */
+  function undoRound() {
+    if (!game || aiThinking || !game.moves.length) return 0;
+    markMode = false; deadSet = {}; finalResult = null;
+    $('markBar').classList.remove('on');
+    $('resultBox').classList.remove('on');
+    game.undo(1);
+    var guard = 0;
+    while (game.moves.length > 0 && game.toPlay !== cfg.human && guard < 8) {
+      game.undo(1); guard++;
+    }
+    hint('已悔棋，回到你行棋的局面。', '');
+    render(); updateSidebar();
+    if (!game.ended && game.toPlay !== cfg.human) scheduleAI();
+    return 1;
+  }
+
+  /* ---------- 终局与数子 ---------- */
+  function enterMarkMode() {
+    markMode = true; deadSet = {}; finalResult = null;
+    var autoUsed = false;
+    if (cfg.level === 'hard') {
+      var est = game.estimateDead();
+      for (var k in est) if (est[k]) { deadSet[k] = true; autoUsed = true; }
+    }
+    $('markBar').classList.add('on');
+    $('resultBox').classList.remove('on');
+    $('markTip').textContent = autoUsed
+      ? '终局：高级档已预标明显死子（红叉）。点棋子可增删标记，确认后数子。'
+      : '终局：点击棋子标记死子（再点一次取消），确认后按数子法计算。';
+    hint('双方连续虚手，进入终局。请核对死子标记。', 'on');
+    render(); updateSidebar();
+  }
+
+  function autoDead() {
+    if (!game || !markMode) return;
+    var est = game.estimateDead();
+    deadSet = {};
+    for (var k in est) if (est[k]) deadSet[k] = true;
+    hint('已自动预估死子 ' + Object.keys(deadSet).length + ' 子，可继续手动调整。', '');
+    render();
+  }
+
+  function confirmScore() {
+    if (!game || !markMode) return null;
+    var res = game.score(deadSet);
+    finalResult = { type: 'score', res: res, winner: res.winner };
+    markMode = false;
+    $('markBar').classList.remove('on');
+    var title;
+    if (res.winner === 0) title = '和棋';
+    else title = (res.winner === BLACK ? '黑棋' : '白棋') + '胜 ' + R.fmtMu(res.margin) + ' 目';
+    var detail = '黑方 <b>' + R.fmtZi(res.black) + '</b> 子 ｜ 白方 <b>' + R.fmtZi(res.white) + '</b> 子<br>' +
+      '贴目：<b>' + (res.komi > 0 ? R.fmtMu(res.komi) + ' 目（' + R.fmtZi(res.komi / 2) + ' 子）' : '不贴目') + '</b><br>' +
+      '标注死子：黑 ' + res.dead[BLACK] + ' 子、白 ' + res.dead[WHITE] + ' 子' +
+      (res.neutral ? '<br>公气（各半）：' + res.neutral + ' 点' : '') +
+      (res.winner !== 0 ? '<br>胜负：<b>' + (res.winner === BLACK ? '黑' : '白') + '胜 ' + R.fmtZi(res.margin / 2) + ' 子</b>' : '');
+    $('resultTitle').textContent = title;
+    $('resultDetail').innerHTML = detail;
+    $('resultBox').classList.add('on');
+    hint('数子完成，可导出棋谱留存。', 'ok');
+    render(); updateSidebar();
+    return res;
+  }
+
+  function resign() {
+    if (!game || game.ended || aiThinking) return;
+    askConfirm('确认认输', '认输后本局立即结束，胜负将写入棋谱。确定吗？', '认输', function () {
+      var loser = game.toPlay;
+      var winner = R.other(loser);
+      game.ended = true;
+      game.result = { type: 'resign', loser: loser, winner: winner };
+      finalResult = { type: 'resign', winner: winner, loser: loser };
+      if (aiTimer) { clearTimeout(aiTimer); aiTimer = null; }
+      aiThinking = false; markMode = false;
+      $('markBar').classList.remove('on');
+      $('resultTitle').textContent = (winner === BLACK ? '黑棋' : '白棋') + '中盘胜';
+      $('resultDetail').innerHTML = (loser === BLACK ? '黑方' : '白方') + '认输（' +
+        (loser === cfg.human ? '你' : 'AI') + '）。<br>已下 <b>' + game.moves.length + '</b> 手，棋谱可完整导出。';
+      $('resultBox').classList.add('on');
+      hint('对局因认输结束。', 'on');
+      render(); updateSidebar();
+    });
+  }
+
+  /* ---------- SGF 导出 ---------- */
+  function pad2(v) { return (v < 10 ? '0' : '') + v; }
+  function dateStamp() {
+    var d = new Date();
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+  function fileStamp() {
+    var d = new Date();
+    return '' + d.getFullYear() + pad2(d.getMonth() + 1) + pad2(d.getDate()) + '-' + pad2(d.getHours()) + pad2(d.getMinutes());
+  }
+  function buildSGF() {
+    if (!game) return '';
+    var re = '';
+    if (finalResult) {
+      if (finalResult.type === 'resign') re = (finalResult.winner === BLACK ? 'B' : 'W') + '+R';
+      else re = R.resultSGF(finalResult.res);
+    }
+    return R.toSGF(game, {
+      pb: '玩家',
+      pw: 'AI·' + levelName(cfg.level),
+      re: re,
+      dt: dateStamp()
+    });
+  }
+  function exportName() {
+    var tail = '未终局';
+    if (finalResult) {
+      if (finalResult.type === 'resign') tail = (finalResult.winner === BLACK ? '黑' : '白') + '中盘胜';
+      else if (finalResult.type === 'score') {
+        tail = finalResult.winner === 0 ? '和棋'
+          : (finalResult.winner === BLACK ? '黑' : '白') + '胜' + R.fmtMu(finalResult.res.margin) + '目';
+      }
+    }
+    return '围棋-' + fileStamp() + '-' + tail + '.sgf';
+  }
+  function doExport() {
+    if (!game) return null;
+    var text = buildSGF();
+    if (!text) return null;
+    var name = exportName();
+    var blob = new Blob([text], { type: 'application/x-go-sgf;charset=utf-8' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () {
+      URL.revokeObjectURL(url);
+      if (a.parentNode) a.parentNode.removeChild(a);
+    }, 2000);
+    hint('棋谱已导出：' + name + '（' + text.length + ' 字节）', 'ok');
+    toast('已导出 ' + name);
+    return { name: name, text: text };
+  }
+
+  /* ---------- 事件绑定 ---------- */
+  $('btnStart').onclick = startGame;
+  $('btnBackCfg').onclick = function () {
+    askConfirm('返回配置界面', '返回配置界面将放弃当前对局（进度不保存），确定吗？', '返回配置', backToConfig);
+  };
+  $('btnNewGame').onclick = function () {
+    askConfirm('重新开局', '重新开局将放弃当前对局（进度不保存），并回到配置界面。确定吗？', '重新开局', backToConfig);
+  };
+  $('btnPass').onclick = function () { playerPass(); };
+  $('btnUndo').onclick = function () { undoRound(); };
+  $('btnResign').onclick = resign;
+  $('btnExport').onclick = function () { doExport(); };
+  $('btnAutoDead').onclick = autoDead;
+  $('btnConfirmScore').onclick = confirmScore;
+
+  var cv = $('board');
+  cv.addEventListener('click', function (e) {
+    if (!game) return;
+    var rect = cv.getBoundingClientRect();
+    var cxp = e.clientX - rect.left, cyp = e.clientY - rect.top;
+    var gx = Math.round((cxp - view.pad) / view.cell);
+    var gy = Math.round((cyp - view.pad) / view.cell);
+    if (gx < 0 || gy < 0 || gx >= game.size || gy >= game.size) return;
+    var dx = cxp - pt(gx), dy = cyp - pt(gy);
+    if (Math.sqrt(dx * dx + dy * dy) > view.cell * 0.62) return;
+    if (markMode) {
+      var p = game.board.get(gx, gy);
+      if (!p) { hint('请点击有棋子的交叉点来标记或取消死子。', 'err'); return; }
+      var key = gx + ',' + gy;
+      if (deadSet[key]) delete deadSet[key]; else deadSet[key] = true;
+      hint('已标记死子 ' + Object.keys(deadSet).length + ' 子，确认后数子。', '');
+      render();
+      return;
+    }
+    tryPlay(gx, gy);
+  });
+
+  window.addEventListener('resize', function () {
+    if (!game) return;
+    resizeBoard(); render();
+  });
+
+  /* ---------- 自动化/质检接口 ---------- */
+  window.WQ = {
+    rules: R, ai: AI,
+    get game() { return game; },
+    get config() { return { size: cfg.size, human: cfg.human, level: cfg.level, handicap: cfg.handicap }; },
+    get stats() { return stats; },
+    levelName: levelName,
+    start: function (opt) {
+      if (opt) {
+        if (opt.size) cfg.size = opt.size;
+        if (opt.human) cfg.human = opt.human;
+        if (opt.level) cfg.level = opt.level;
+        if (opt.handicap !== undefined) cfg.handicap = opt.handicap;
+      }
+      syncConfigUI();
+      startGame();
+      return game;
+    },
+    /* 构造预置局面（不改界面状态，供自动化用例） */
+    inject: function (opt) {
+      var n = opt.size || 9;
+      var g = new R.Game({ size: n, komi: opt.komi !== undefined ? opt.komi : R.KOMI_TABLE[n] });
+      var blacks = opt.blacks || [], whites = opt.whites || [];
+      for (var i = 0; i < blacks.length; i++) g.board.stones[g.board.idx(blacks[i][0], blacks[i][1])] = BLACK;
+      for (var j = 0; j < whites.length; j++) g.board.stones[g.board.idx(whites[j][0], whites[j][1])] = WHITE;
+      g.board.hash = 0;
+      for (var y = 0; y < n; y++) for (var x = 0; x < n; x++) {
+        var v = g.board.stones[g.board.idx(x, y)];
+        if (v) g.board.hash ^= g.board.z.stone[v][g.board.idx(x, y)];
+      }
+      g.toPlay = opt.toPlay || BLACK;
+      g.moves = []; g.history = [g.board.positionHash(g.toPlay)];
+      g.captures = { 1: opt.capB || 0, 2: opt.capW || 0 };
+      g.passes = 0; g.ended = false; g.result = null;
+      g.handicap = 0;
+      return g;
+    },
+    pick: function (g, level, seed) {
+      return AI.choose(g, level, new AI.RNG(seed || 12345));
+    },
+    /* 调试装局：把预置局面装入界面层（规格第七章允许的调试入口，不计入功能清单） */
+    debugLoad: function (opt) {
+      var g = window.WQ.inject(opt);
+      game = g; rng = new AI.RNG(424242);
+      cfg.size = g.size; cfg.handicap = 0;
+      markMode = false; deadSet = {}; finalResult = null; aiThinking = false;
+      if (aiTimer) { clearTimeout(aiTimer); aiTimer = null; }
+      $('configPanel').style.display = 'none';
+      $('gamePanel').style.display = 'flex';
+      $('btnBackCfg').style.display = '';
+      $('resultBox').classList.remove('on');
+      $('markBar').classList.remove('on');
+      resizeBoard(); render(); updateSidebar();
+      return g;
+    },
+    exportSGF: function () { return buildSGF(); },
+    exportName: exportName,
+    download: function () { return doExport(); },
+    score: function (dead) { return game ? game.score(dead || {}) : null; },
+    ui: {
+      tryPlay: tryPlay, undoRound: undoRound, playerPass: playerPass,
+      confirmScore: confirmScore, autoDead: autoDead, enterMarkMode: enterMarkMode,
+      resignNow: function () {
+        if (!game || game.ended) return;
+        var loser = game.toPlay, winner = R.other(loser);
+        game.ended = true;
+        game.result = { type: 'resign', loser: loser, winner: winner };
+        finalResult = { type: 'resign', winner: winner, loser: loser };
+        aiThinking = false;
+        if (aiTimer) { clearTimeout(aiTimer); aiTimer = null; }
+        $('resultTitle').textContent = (winner === BLACK ? '黑棋' : '白棋') + '中盘胜';
+        $('resultBox').classList.add('on');
+        render(); updateSidebar();
+      },
+      isMarkMode: function () { return markMode; },
+      deadSet: function () { return deadSet; },
+      finalResult: function () { return finalResult; },
+      setDead: function (keys) { deadSet = {}; for (var i = 0; i < keys.length; i++) deadSet[keys[i]] = true; render(); },
+      view: function () { return view; }
+    }
+  };
+
+  syncConfigUI();
+})();
+</script>
+</body>
+</html>
