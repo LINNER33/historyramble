@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="utf-8">
-<meta name="robots" content="noindex, follow">
+    <meta name="robots" content="noindex, follow">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>离线麻将 · 1 真人 + 3 AI</title>
 <style>
@@ -120,6 +120,39 @@ body{
 .tile.tiny .suit{font-size:7px;margin-top:0}
 .tile.hidden{background:linear-gradient(150deg,#2e7d5b,#1d5c41);color:transparent}
 .tile.hidden .num,.tile.hidden .suit{visibility:hidden}
+
+/* ===== 仿真牌面皮肤（纯内联 SVG，零外链） ===== */
+.tile.face-real{
+  background:linear-gradient(180deg,#fffdf6,#f6efdc 62%,#e8ddc2);
+  padding:0;overflow:hidden;
+  box-shadow:0 2px 0 rgba(0,0,0,.3),inset 0 0 0 1px rgba(80,60,25,.22),inset 0 -4px 6px rgba(120,95,45,.16);
+}
+.tile.face-real .faceSvg{width:100%;height:100%;display:block}
+.tile.face-real::after{ /* 牌面高光 */
+  content:"";position:absolute;left:3px;right:3px;top:2px;height:34%;
+  border-radius:4px 4px 40% 40%/4px 4px 14% 14%;
+  background:linear-gradient(180deg,rgba(255,255,255,.55),rgba(255,255,255,0));
+  pointer-events:none;
+}
+/* SVG 里的汉字：离线系统字体，不引入任何外部字体 */
+.fch{font-family:'Noto Serif CJK SC','Songti SC','SimSun','Source Han Serif SC',serif;font-weight:700}
+/* 仿真牌背：墨绿底 + 菱形几何纹理 + 金线框 */
+.tileback.rb{
+  background:
+    repeating-linear-gradient(45deg,rgba(255,255,255,.06) 0 2px,transparent 2px 9px),
+    repeating-linear-gradient(-45deg,rgba(255,255,255,.06) 0 2px,transparent 2px 9px),
+    radial-gradient(120% 100% at 30% 18%,#17704f 0%,#0d4c36 55%,#07301f 100%);
+  border:1px solid rgba(0,0,0,.45);
+  box-shadow:inset 0 0 0 2px rgba(255,255,255,.1),inset 0 0 0 4px rgba(0,0,0,.28),0 2px 0 rgba(0,0,0,.35);
+}
+.tileback.rb::after{
+  inset:6px;border:1px solid rgba(217,180,91,.32);border-radius:2px;
+}
+.tileback.rb.mini::after{inset:3px;border-color:rgba(217,180,91,.26)}
+/* 中央牌垛（牌山剩余的可视化牌背） */
+.wallstack{display:none;justify-content:center;margin:1px 0 3px}
+.wallstack .wb{margin-left:-15px;flex:none}
+.wallstack .wb:first-child{margin-left:0}
 
 /* 弃牌河 */
 .river{display:flex;flex-wrap:wrap;gap:3px;align-content:flex-start}
@@ -281,6 +314,7 @@ body{
   <div class="spacer"></div>
   <button class="tbtn" id="btnSound">音效 关</button>
   <button class="tbtn" id="btnTheme">深色</button>
+  <button class="tbtn" id="btnSkin">牌面 仿真</button>
   <button class="tbtn" id="btnTenpai">听牌提示 关</button>
   <button class="tbtn" id="btnDiff">难度 普通</button>
   <button class="tbtn" id="btnHelp">帮助</button>
@@ -302,6 +336,7 @@ body{
     <div class="river-bottom" id="river0"></div>
     <div class="center-box">
       <div class="wall">牌山剩余</div>
+      <div class="wallstack" id="wallStack"></div>
       <div class="wallnum" id="wallNum">84</div>
       <div class="turn" id="turnTip">等待开局</div>
       <div class="meta" id="metaInfo">第 1 局 · 庄家 —</div>
@@ -597,7 +632,11 @@ body{
     var c = allTilesOf(hand, melds);
 
     var isSeven = (meldCount === 0) && C.isSevenPairs(hand);
-    var isPungs = C.canWinAllPungs(hand, meldCount);
+    /* 碰碰胡前置判定：明牌区只要有任意一副「吃」，和牌必含顺子，不可能全刻子。
+       副露的张数只反映面子数量，不反映类型——必须按类型逐条判，否则
+       「3 刻子 + 将 + 一副吃」会被误判为碰碰胡（番数虚高 2 番）。 */
+    var hasChiMeld = melds.some(function (m) { return m.type === 'chi'; });
+    var isPungs = !hasChiMeld && C.canWinAllPungs(hand, meldCount);
     if (!isSeven && !C.canWin(hand, meldCount)) return null;
 
     var fans = [];
@@ -766,9 +805,31 @@ body{
     return false;
   }
 
+  /* 自我杠策略（A-05「能杠则杠」）：AI 摸牌后如存在暗杠 / 补杠机会则执行。
+     仅读可见信息：手牌计数、已碰副露、牌山剩余数量。 */
+  function shouldKong(view, opt) {
+    if (!opt) return false;
+    if (view.wallRemaining <= 0) return false;   // 牌山空不允许杠（与 selfKongOptions 一致）
+    var cc = C.countsOf(view.handTiles);
+    if (opt.kind === 'ankong') {
+      // 暗杠：手里确有 4 张同牌
+      return cc[opt.tile] === 4;
+    }
+    if (opt.kind === 'bugang') {
+      // 补杠：已有该牌的碰，且手里还有第 4 张
+      if (cc[opt.tile] < 1) return false;
+      for (var i = 0; i < view.players[view.seat].melds.length; i++) {
+        var m = view.players[view.seat].melds[i];
+        if (m.type === 'peng' && m.tile === opt.tile) return true;
+      }
+      return false;
+    }
+    return false;
+  }
+
   root.MJAI = {
     delayFor: delayFor, chooseDiscard: chooseDiscard, shouldReact: shouldReact,
-    tileValue: tileValue, dangerOf: dangerOf
+    shouldKong: shouldKong, tileValue: tileValue, dangerOf: dangerOf
   };
   root.AI = root.MJAI;   // engine 内部引用的别名
 })(typeof window !== 'undefined' ? window : (typeof globalThis !== 'undefined' ? globalThis : this));
@@ -916,14 +977,29 @@ body{
       this.onAsk(G.pending);
       return;
     }
-    this.askAIDiscard(seat);
+    /* AI 座位：摸牌后必须先过「自我杠机会检查」，再进入出牌决策。
+       原实现直接 askAIDiscard，导致 AI 在 60 局 2228 次决策中从不暗杠 / 补杠
+       （A-05「能杠则杠」）。 */
+    this._afterDraw(seat);
   };
 
   Game.prototype._afterDraw = function (seat) {
-    /* 供 AI 摸牌后自动决策 */
-    var p = this.G.players[seat];
+    /* AI 摸牌后：先查暗杠 / 补杠机会，命中则执行杠并补牌，否则进入出牌决策 */
+    var G = this.G, p = G.players[seat];
+    if (G.phase !== 'discard' || G.turn !== seat) return;
     var opts = this.selfKongOptions(seat);
-    if (opts.length) return this.doKong(seat, opts[0].kind, opts[0].tile);
+    if (opts.length > 0 && G.wall.length > 0) {
+      var view = makeAIView(G, seat, this.cfg.difficulty);
+      for (var i = 0; i < opts.length; i++) {
+        if (AI.shouldKong(view, opts[i])) {
+          /* doKong 的返回约定：false = 明确失败（校验不过），应继续试下一项；
+             true / undefined 均表示杠已落地（后续由 _kongDraw 接管：可能继续杠、
+             可能出牌、可能和牌/结束，个别接管路径无返回值）。此处必须按
+             !== false 判断，否则杠落地后会被误判为失败而重复调度出牌。 */
+          if (this.doKong(seat, opts[i].kind, opts[i].tile, opts[i].meldIndex) !== false) return;
+        }
+      }
+    }
     this.askAIDiscard(seat);
   };
 
@@ -1149,7 +1225,8 @@ body{
       this.emit('ask', { kind: 'discard', seat: 0 });
       this.onAsk(G.pending);
     } else {
-      this.askAIDiscard(seat);
+      /* AI 补牌后同样要过杠机会检查（允许连续杠），否则补牌后直接出牌 */
+      this._afterDraw(seat);
     }
   };
 
@@ -1477,6 +1554,7 @@ body{
 
   var state = {
     diff: 'normal', sound: false, theme: 'light', tenpaiHint: false,
+    skin: 'real',
     round: 1, dealer: 0, totals: [0, 0, 0, 0],
     selIdx: -1, displayList: [], newIdx: -1,
     pendingChi: null, playing: false, lastDecisionMs: 0,
@@ -1491,13 +1569,14 @@ body{
       if (typeof p.sound === 'boolean') state.sound = p.sound;
       if (p.theme) state.theme = p.theme;
       if (typeof p.tenpaiHint === 'boolean') state.tenpaiHint = p.tenpaiHint;
+      if (p.skin === 'real' || p.skin === 'plain') state.skin = p.skin;
     } catch (e) {}
   }
   function loadTotals() {
     try { var t = JSON.parse(localStorage.getItem(LS_TOTAL) || 'null'); if (t && t.length === 4) state.totals = t; } catch (e) {}
   }
   function savePrefs() {
-    try { localStorage.setItem(LS_PREF, JSON.stringify({ diff: state.diff, sound: state.sound, theme: state.theme, tenpaiHint: state.tenpaiHint })); } catch (e) {}
+    try { localStorage.setItem(LS_PREF, JSON.stringify({ diff: state.diff, sound: state.sound, theme: state.theme, tenpaiHint: state.tenpaiHint, skin: state.skin })); } catch (e) {}
   }
   function saveTotals() { try { localStorage.setItem(LS_TOTAL, JSON.stringify(state.totals)); } catch (e) {} }
 
@@ -1521,14 +1600,130 @@ body{
 
   /* ---------- 牌 DOM ---------- */
   function suitCls(t) { return t < 27 ? ['m', 's', 'p'][Math.floor(t / 9)] : 'z'; }
+
+  /* ===== 仿真牌面：按牌种生成内联 SVG，结果缓存复用（零外链、无位图） ===== */
+  var FC = {
+    wan: '#15306b', bamD: '#0a4422', bamM: '#1c8f4e', bamL: '#5ed18a',
+    blue: '#1b4f9c', green: '#0f6b34', red: '#b3261e', frame: '#1b3f8f'
+  };
+  var REAL_ZI = ['東', '南', '西', '北', '中', '發', '白'];
+
+  /* 条：每张牌的竹条位置 [x, y, 宽, 高] */
+  var BAM_L = {
+    1: [[50, 72, 27, 114]],
+    2: [[33, 70, 21, 92], [67, 70, 21, 92]],
+    3: [[34, 40, 19, 54], [50, 70, 19, 54], [66, 100, 19, 54]],
+    4: [[33, 46, 18, 60], [67, 46, 18, 60], [33, 102, 18, 60], [67, 102, 18, 60]],
+    5: [[28, 38, 16, 46], [72, 38, 16, 46], [50, 70, 16, 46], [28, 102, 16, 46], [72, 102, 16, 46]],
+    6: [[34, 34, 17, 38], [66, 34, 17, 38], [34, 72, 17, 38], [66, 72, 17, 38], [34, 110, 17, 38], [66, 110, 17, 38]],
+    7: [[50, 28, 14, 38], [24, 76, 14, 40], [50, 76, 14, 40], [76, 76, 14, 40],
+        [24, 116, 14, 40], [50, 116, 14, 40], [76, 116, 14, 40]],
+    8: [[34, 30, 13, 30], [66, 30, 13, 30], [34, 64, 13, 30], [66, 64, 13, 30],
+        [34, 96, 13, 30], [66, 96, 13, 30], [34, 126, 13, 28], [66, 126, 13, 28]],
+    9: [[26, 32, 13, 38], [50, 32, 13, 38], [74, 32, 13, 38],
+        [26, 74, 13, 38], [50, 74, 13, 38], [74, 74, 13, 38],
+        [26, 112, 13, 38], [50, 112, 13, 38], [74, 112, 13, 38]]
+  };
+  /* 筒：每张牌的圆点位置 [x, y, 半径, 颜色] */
+  var DOT_L = {
+    1: [[50, 70, 40, FC.red]],
+    2: [[50, 44, 27, FC.blue], [50, 100, 27, FC.blue]],
+    3: [[30, 36, 23, FC.blue], [52, 70, 23, FC.green], [72, 106, 23, FC.blue]],
+    4: [[33, 42, 23, FC.blue], [67, 42, 23, FC.green], [33, 100, 23, FC.green], [67, 100, 23, FC.blue]],
+    5: [[30, 38, 21, FC.blue], [70, 38, 21, FC.blue], [50, 70, 21, FC.red], [30, 102, 21, FC.blue], [70, 102, 21, FC.blue]],
+    6: [[26, 46, 19, FC.blue], [50, 46, 19, FC.green], [74, 46, 19, FC.blue],
+        [26, 98, 19, FC.green], [50, 98, 19, FC.red], [74, 98, 19, FC.green]],
+    7: [[28, 36, 17, FC.blue], [50, 36, 17, FC.green], [72, 36, 17, FC.blue],
+        [20, 102, 15, FC.green], [42, 102, 15, FC.blue], [62, 102, 15, FC.green], [82, 102, 15, FC.blue]],
+    8: [[36, 30, 14, FC.blue], [64, 30, 14, FC.green], [36, 62, 14, FC.green], [64, 62, 14, FC.blue],
+        [36, 94, 14, FC.blue], [64, 94, 14, FC.green], [36, 124, 14, FC.green], [64, 124, 14, FC.blue]],
+    9: [[24, 32, 17, FC.blue], [50, 32, 17, FC.green], [76, 32, 17, FC.blue],
+        [24, 72, 17, FC.green], [50, 72, 17, FC.red], [76, 72, 17, FC.green],
+        [24, 110, 17, FC.blue], [50, 110, 17, FC.green], [76, 110, 17, FC.blue]]
+  };
+
+  function svgOf(inner) {
+    return '<svg class="faceSvg" viewBox="0 0 100 140" preserveAspectRatio="xMidYMid meet">' + inner + '</svg>';
+  }
+  function fch(ch, x, y, size, color) {
+    return '<text class="fch" x="' + x + '" y="' + y + '" font-size="' + size + '" fill="' + color +
+      '" text-anchor="middle" dominant-baseline="central">' + ch + '</text>';
+  }
+  /* 竹条：深底 + 侧高光 + 两道竹节，避免渐变引用 */
+  function bamStick(x, y, w, h, deep) {
+    var hw = w / 2, top = Math.round(y - h / 2), d = deep ? FC.bamD : FC.bamM, l = deep ? FC.bamM : FC.bamL;
+    var k1 = top + h * 0.32, k2 = top + h * 0.7, rx = Math.min(hw, 6);
+    return '<rect x="' + (x - hw) + '" y="' + top + '" width="' + w + '" height="' + h + '" rx="' + rx + '" fill="' + d + '"/>' +
+      '<rect x="' + (x - hw + w * 0.2) + '" y="' + (top + h * 0.08) + '" width="' + Math.max(1.6, w * 0.22) +
+      '" height="' + (h * 0.8) + '" rx="' + (w * 0.1) + '" fill="' + l + '" opacity=".5"/>' +
+      '<line x1="' + (x - hw + 1.5) + '" y1="' + k1 + '" x2="' + (x + hw - 1.5) + '" y2="' + k1 + '" stroke="' + FC.bamD + '" stroke-width="1.5" opacity=".8"/>' +
+      '<line x1="' + (x - hw + 1.5) + '" y1="' + k2 + '" x2="' + (x + hw - 1.5) + '" y2="' + k2 + '" stroke="' + FC.bamD + '" stroke-width="1.5" opacity=".8"/>';
+  }
+  /* 筒子：外环 + 内环 + 中心点 */
+  function dotBall(x, y, r, c) {
+    return '<circle cx="' + x + '" cy="' + y + '" r="' + r + '" fill="#fffaf0" stroke="' + c + '" stroke-width="' + (r * 0.24) + '"/>' +
+      '<circle cx="' + x + '" cy="' + y + '" r="' + (r * 0.56) + '" fill="none" stroke="' + c + '" stroke-width="' + (r * 0.14) + '"/>' +
+      '<circle cx="' + x + '" cy="' + y + '" r="' + (r * 0.2) + '" fill="' + c + '"/>';
+  }
+  /* 一筒的花心射线 */
+  function dotRays(cx, cy, rad) {
+    var out = '', i, a, c1 = Math.cos(Math.PI / 4), c2 = Math.sin(Math.PI / 4);
+    var pts = [[1, 0], [c1, c2], [0, 1], [-c1, c2], [-1, 0], [-c1, -c2], [0, -1], [c1, -c2]];
+    for (i = 0; i < 8; i++) {
+      a = pts[i];
+      out += '<line x1="' + (cx + a[0] * rad * 0.86) + '" y1="' + (cy + a[1] * rad * 1.02) + '" x2="' +
+        (cx + a[0] * rad * 1.14) + '" y2="' + (cy + a[1] * rad * 1.3) + '" stroke="' + FC.red +
+        '" stroke-width="2.4" stroke-linecap="round" opacity=".85"/>';
+    }
+    return out;
+  }
+
+  function faceInner(t) {
+    if (t >= 27) {
+      var i = t - 27;
+      if (i === 4) return fch('中', 50, 72, 94, FC.red);
+      if (i === 5) return fch('發', 50, 72, 94, FC.green);
+      if (i === 6) {
+        return '<rect x="18" y="26" width="64" height="88" rx="4" fill="none" stroke="' + FC.frame + '" stroke-width="6.5"/>' +
+          '<rect x="26" y="35" width="48" height="70" rx="2" fill="none" stroke="' + FC.frame + '" stroke-width="2.6" opacity=".7"/>';
+      }
+      return fch(REAL_ZI[i], 50, 72, 88, FC.wan);
+    }
+    var n = C.rankOf(t), s = C.suitOf(t), k, l, out = '';
+    if (s === 0) {                    /* 万：下方大字 + 右上小字 */
+      return fch(C.NUM_CN[n], 50, 90, 76, FC.wan) + fch('萬', 79, 32, 28, FC.wan);
+    }
+    if (s === 1) {                    /* 条：竹条排布 */
+      l = BAM_L[n];
+      for (k = 0; k < l.length; k++) out += bamStick(l[k][0], l[k][1], l[k][2], l[k][3], k % 3 === 2);
+      return out;
+    }
+    l = DOT_L[n];                     /* 筒：圆点排布 */
+    for (k = 0; k < l.length; k++) out += dotBall(l[k][0], l[k][1], l[k][2], l[k][3]);
+    if (n === 1) out += dotRays(50, 70, 40);
+    return out;
+  }
+
+  var FACE_CACHE = {};
+  function faceSVG(t) {
+    if (FACE_CACHE[t] === undefined) FACE_CACHE[t] = svgOf(faceInner(t));
+    return FACE_CACHE[t];
+  }
+
   function tileHTML(t, size, extra) {
     var s = suitCls(t), num, suit;
+    if (state.skin === 'real') {
+      return '<div class="tile ' + s + ' face-real ' + (size || '') + ' ' + (extra || '') + '" data-t="' + t + '">' +
+        faceSVG(t) + '</div>';
+    }
     if (t < 27) { num = C.NUM_CN[C.rankOf(t)]; suit = C.SUIT_CN[C.SUITS[C.suitOf(t)]]; }
     else { num = C.ZI_CN[t - 27]; suit = ''; }
     return '<div class="tile ' + s + ' ' + (size || '') + ' ' + (extra || '') + '" data-t="' + t + '">' +
       '<div class="num">' + num + '</div>' + (suit ? '<div class="suit">' + suit + '</div>' : '') + '</div>';
   }
-  function backHTML(size) { return '<div class="tileback ' + (size || '') + '"></div>'; }
+  function backHTML(size) {
+    return '<div class="tileback ' + (state.skin === 'real' ? 'rb ' : '') + (size || '') + '"></div>';
+  }
 
   /* ---------- 展示列表：已排序手牌，新摸的牌置最右 ---------- */
   function buildDisplay() {
@@ -1641,6 +1836,17 @@ body{
     var wn = document.getElementById('wallNum');
     wn.textContent = G.wall.length;
     wn.className = 'wallnum' + (G.wall.length < 10 ? ' low' : '');
+    /* 牌垛：仿真皮肤下用叠放的牌背表示牌山（4 摞，按剩余量示意） */
+    var ws = document.getElementById('wallStack');
+    if (ws) {
+      if (state.skin === 'real') {
+        var piles = G.wall.length > 0 ? Math.min(4, Math.max(1, Math.ceil(G.wall.length / 34))) : 0;
+        var h2 = '';
+        for (var w = 0; w < piles; w++) h2 += backHTML('mini wb');
+        ws.innerHTML = h2;
+        ws.style.display = piles ? 'flex' : 'none';
+      } else { ws.innerHTML = ''; ws.style.display = 'none'; }
+    }
     var tip = document.getElementById('turnTip');
     if (G.phase === 'end') { tip.textContent = '本局结束'; tip.className = 'turn'; }
     else if (G.turn === 0) { tip.textContent = '该你出牌'; tip.className = 'turn you'; }
@@ -2037,6 +2243,8 @@ body{
     $('btnSound').classList.toggle('on', st.sound);
     $('btnTheme').textContent = st.theme === 'dark' ? '浅色' : '深色';
     $('btnTheme').classList.toggle('on', st.theme === 'dark');
+    $('btnSkin').textContent = '牌面 ' + (st.skin === 'real' ? '仿真' : '简洁');
+    $('btnSkin').classList.toggle('on', st.skin === 'real');
     $('btnTenpai').textContent = '听牌提示 ' + (st.tenpaiHint ? '开' : '关');
     $('btnTenpai').classList.toggle('on', st.tenpaiHint);
     $('btnDiff').textContent = '难度 ' + (st.diff === 'hard' ? '困难' : '普通');
@@ -2063,6 +2271,10 @@ body{
     $('btnTheme').onclick = function () {
       st.theme = st.theme === 'dark' ? 'light' : 'dark';
       UI.savePrefs(); updateToggles();
+    };
+    $('btnSkin').onclick = function () {
+      st.skin = st.skin === 'real' ? 'plain' : 'real';
+      UI.savePrefs(); updateToggles(); UI.renderAll();
     };
     $('btnTenpai').onclick = function () {
       st.tenpaiHint = !st.tenpaiHint;
@@ -2164,7 +2376,9 @@ body{
     window.__MJ = {
       start: startNewMatch, state: st, game: function () { return UI.getGame(); },
       discard: humanDiscard, act: humanAction, nextRound: nextRound, end: endMatch,
-      openHelp: openHelp, closeHelp: closeHelp, render: UI.renderAll
+      openHelp: openHelp, closeHelp: closeHelp, render: UI.renderAll,
+      setSkin: function (k) { st.skin = (k === 'plain' ? 'plain' : 'real'); UI.savePrefs(); updateToggles(); UI.renderAll(); },
+      tileHTML: UI.tileHTML, backHTML: UI.backHTML
     };
   }
 
