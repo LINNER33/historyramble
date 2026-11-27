@@ -79,6 +79,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://historyramble.org/romaji.html</loc>
+    <lastmod>2026-11-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://historyramble.org/tools.html</loc>
     <lastmod>2026-11-22</lastmod>
     <changefreq>weekly</changefreq>
@@ -110,6 +116,12 @@
   </url>
   <url>
     <loc>https://historyramble.org/junqi.html</loc>
+    <lastmod>2026-11-22</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  <url>
+    <loc>https://historyramble.org/mahjong.html</loc>
     <lastmod>2026-11-22</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.3</priority>

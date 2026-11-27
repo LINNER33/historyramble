@@ -81,6 +81,7 @@ const navHtml = (prefix, active) => {
     ['jinian.html', '纪年换算'],
     ['nianhao.html', '年号速查'],
     ['duliang.html', '度量衡换算'],
+    ['romaji.html', '罗马音转换'],
   ];
   const isTool = TOOLS.some(([href]) => href === active);
   const toolItems = TOOLS.map(
@@ -109,6 +110,7 @@ ${toolItems}
     ['gomoku.html', '五子棋'],
     ['weiqi.html', '围棋'],
     ['junqi.html', '军棋'],
+    ['mahjong.html', '麻将'],
   ];
   const isGame = GAMES.some(([href]) => href === active);
   const gameItems = GAMES.map(
@@ -945,12 +947,14 @@ const staticPages = [
   ['jinian.html', '0.5'],
   ['nianhao.html', '0.5'],
   ['duliang.html', '0.5'],
+  ['romaji.html', '0.5'],
   ['tools.html', '0.5'],
   ['chess.html', '0.3'],
   ['chess-korean.html', '0.3'],
   ['gomoku.html', '0.3'],
   ['weiqi.html', '0.3'],
   ['junqi.html', '0.3'],
+  ['mahjong.html', '0.3'],
   ['about.html', '0.5'],
   ['subscribe.html', '0.4'],
 ];
