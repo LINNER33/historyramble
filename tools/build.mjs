@@ -403,6 +403,19 @@ for (const c of collections) {
   }
 }
 
+// 参考出处：条目正文实际用到的古籍与研究；只列书名与卷次，不编页码
+const sourcesBlock = (item) => {
+  const list = (item.sources || []).map((s) => String(s).trim()).filter(Boolean);
+  if (!list.length) return '';
+  return (
+    `<section class="refs">` +
+    `<h2 class="refs-title">参考出处</h2>` +
+    `<ul class="refs-list">${list.map((s) => `<li>${esc(s)}</li>`).join('')}</ul>` +
+    `<p class="refs-note">引用依通行点校本；卷次之外的页码从略。</p>` +
+    `</section>`
+  );
+};
+
 const relatedHtml = (item, collKey) => {
   const tags = new Set(item.tags || []);
   if (!tags.size) return '';
@@ -437,7 +450,7 @@ for (const c of collections) {
       `
             <div class="post-footer">
                 <a href="../${c.listPage}">← 返回${c.listLabel}列表</a>
-            </div>${prevNext(list, i, '../', c.dir)}${relatedHtml(item, c.key)}`;
+            </div>${prevNext(list, i, '../', c.dir)}${relatedHtml(item, c.key)}${sourcesBlock(item)}`;
 
     const itemLd = {
       '@type': c.key === 'snippets' ? 'Quotation' : 'Article',
@@ -520,6 +533,35 @@ const countOccur = (hay, needle) => {
   return n;
 };
 
+// 书页：出版信息行与三段正文（内容由维护流程补充；缺字段时不留空标题）
+const bookEditionLine = (b) => {
+  const bits = [];
+  if (b.press) bits.push(esc(b.press));
+  if (b.year) bits.push(String(b.year) + ' 年');
+  return bits.length ? `<p class="book-edition">${bits.join(' · ')}</p>` : '';
+};
+
+// 书页正文是纯文本（无 <p> 标记）：按空行/换行拆段，交给模板缩进
+const bookPara = (text) =>
+  String(text)
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => `<p>${esc(line)}</p>`)
+    .join('\n');
+
+const bookBodySections = (b) => {
+  const sec = (title, text, cls) =>
+    text
+      ? `<section class="book-section ${cls}"><h2 class="book-section-title">${title}</h2>${bookPara(text)}</section>`
+      : '';
+  return [
+    sec('内容概要', b.about, 'book-about'),
+    sec('阅读意见', b.reading, 'book-reading'),
+    sec('适合谁读', b.audience, 'book-audience'),
+  ].join('');
+};
+
 const bookRelatedHtml = (b) => {
   const title = String(b.title || '').replace(/[《》]/g, '');
   const author = String(b.author || '');
@@ -559,8 +601,10 @@ for (const b of data.books) {
                     <p class="book-detail-author">${esc(b.author)}</p>
                     <p class="book-detail-rating" aria-label="评分 ${b.rating} 分，满分 5 分"><span aria-hidden="true">${bookStars(b.rating)}</span><span class="rating-text">${b.rating} / 5</span></p>
                     <p class="book-detail-desc">${esc(b.desc)}</p>
+                    ${bookEditionLine(b)}
                 </div>
             </div>
+            ${bookBodySections(b)}
             <div class="post-footer">
                 <a href="../books.html">← 返回书单</a>
             </div>${bookRelatedHtml(b)}`;
@@ -1050,3 +1094,5 @@ if (pre.status !== 0) process.exitCode = 1;
 console.log(`✓ 生成 ${generated} 个详情页`);
 console.log(`✓ 生成 sitemap.xml（${staticPages.length + sitemapUrls.length} 条 URL）`);
 console.log(`✓ 资源版本号 css=${V.css} data=${V.data} index=${V.dataIndex} main=${V.main}（更新 ${stamped} 个页面）`);
+
+
