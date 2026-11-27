@@ -1,1 +1,492 @@
-{}
+{
+  "fernel-braudel": {
+    "press": "商务印书馆",
+    "year": 2017,
+    "isbn": "9787100121132"
+  },
+  "kun-huantian": {
+    "press": "上海人民出版社",
+    "year": 2005,
+    "isbn": "9787208055605"
+  },
+  "qianmu": {
+    "press": "商务印书馆",
+    "year": 2025,
+    "isbn": "9787100240093"
+  },
+  "yu-yingshi": {
+    "press": "上海人民出版社",
+    "year": 2013,
+    "isbn": "9787208112902"
+  },
+  "wanli-15nian": {
+    "press": "生活·读书·新知三联书店",
+    "year": 1997,
+    "isbn": "9787108009821"
+  },
+  "what-is-history": {
+    "press": "商务印书馆",
+    "year": 2007,
+    "isbn": "9787100051774"
+  },
+  "modern-china": {
+    "press": "四川人民出版社",
+    "year": 2019,
+    "isbn": "9787220109737"
+  },
+  "autumn-middle-ages": {
+    "press": "广西师范大学出版社",
+    "year": 2008,
+    "isbn": "9787563376476"
+  },
+  "history-three-keys": {
+    "press": "社会科学文献出版社",
+    "year": 2015,
+    "isbn": "9787509776223"
+  },
+  "soulstealers": {
+    "press": "生活·读书·新知三联书店 上海三联书店",
+    "year": 2014,
+    "isbn": "9787542643216"
+  },
+  "orientalism": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2019,
+    "isbn": "9787108065742"
+  },
+  "zhaizi-zhongguo": {
+    "press": "中华书局",
+    "year": 2011,
+    "isbn": "9787101077643"
+  },
+  "wangshi-zhi-si": {
+    "press": "南海出版公司",
+    "year": 2024,
+    "isbn": "9787573509475"
+  },
+  "montaillou": {
+    "press": "商务印书馆",
+    "year": 2023,
+    "isbn": "9787100215626"
+  },
+  "great-divergence": {
+    "press": "北京日报出版社",
+    "year": 2021,
+    "isbn": "9787547737750"
+  },
+  "empire-of-cotton": {
+    "press": "民主与建设出版社",
+    "year": 2019,
+    "isbn": "9787513923927"
+  },
+  "zuzong-zhifa": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2014,
+    "isbn": "9787108049988"
+  },
+  "silk-roads": {
+    "press": "浙江大学出版社",
+    "year": 2016,
+    "isbn": "9787308161459"
+  },
+  "steppe-empire": {
+    "press": "台海出版社",
+    "year": 2025,
+    "isbn": "9787516841105"
+  },
+  "collapse-of-celestial-empire": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2014,
+    "isbn": "9787108050656"
+  },
+  "eastern-jin-politics": {
+    "press": "北京大学出版社",
+    "year": 2012,
+    "isbn": "9787301204351"
+  },
+  "discovering-history-in-china": {
+    "press": "社会科学文献出版社",
+    "year": 2017,
+    "isbn": "9787520106054"
+  },
+  "tang-political-history": {
+    "press": "上海古籍出版社",
+    "year": 2020,
+    "isbn": "9787532596652"
+  },
+  "imagined-communities": {
+    "press": "上海人民出版社",
+    "year": 2016,
+    "isbn": "9787208138490"
+  },
+  "age-of-extremes": {
+    "press": "中信出版社",
+    "year": 2017,
+    "isbn": "9787508674629"
+  },
+  "wang-fansen-power": {
+    "press": "北京大学出版社",
+    "year": 2015,
+    "isbn": "9787301261484"
+  },
+  "cheese-and-worms": {
+    "press": "广西师范大学出版社",
+    "year": 2021,
+    "isbn": "9787559838056"
+  },
+  "return-of-martin-guerre": {
+    "press": "北京大学出版社",
+    "year": 2009,
+    "isbn": "9787301148518"
+  },
+  "metahistory": {
+    "press": "译林出版社",
+    "year": 2013,
+    "isbn": "9787544727006"
+  },
+  "the-idea-of-history": {
+    "press": "北京大学出版社",
+    "year": 2010,
+    "isbn": "9787301162057"
+  },
+  "apologie-pour-lhistoire": {
+    "press": "四川人民出版社",
+    "year": 2025,
+    "isbn": "9787220140372"
+  },
+  "the-invention-of-tradition": {
+    "press": "译林出版社",
+    "year": 2020,
+    "isbn": "9787544780223"
+  },
+  "whig-interpretation": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2013,
+    "isbn": "9787108043627"
+  },
+  "southeast-asia-trade": {
+    "press": "商务印书馆",
+    "year": 2013,
+    "isbn": "9787100093026"
+  },
+  "law-and-society-china": {
+    "press": "中华书局",
+    "year": 2003,
+    "isbn": "9787101036640"
+  },
+  "chinese-gentry": {
+    "press": "上海社会科学院出版社",
+    "year": 1991,
+    "isbn": "9787805156484"
+  },
+  "shang-civilization": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2019,
+    "isbn": "9787108063854"
+  },
+  "western-zhou-history": {
+    "press": "上海人民出版社",
+    "year": 2016,
+    "isbn": "9787208138247"
+  },
+  "ladder-of-success": {
+    "press": "中华书局",
+    "year": 2019,
+    "isbn": "9787101140293"
+  },
+  "boci-tongzuan": {
+    "press": "科学出版社",
+    "year": 1983,
+    "isbn": ""
+  },
+  "guantang-jilin": {
+    "press": "中华书局",
+    "year": 2004,
+    "isbn": "9787101008661"
+  },
+  "ancient-china-archaeology": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2013,
+    "isbn": "9787108043382"
+  },
+  "archaeology-six-lectures": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2013,
+    "isbn": "9787108043825"
+  },
+  "pre-qin-history": {
+    "press": "上海古籍出版社",
+    "year": 2005,
+    "isbn": "9787532540297"
+  },
+  "tang-historical-geography": {
+    "press": "山西人民出版社",
+    "year": 2026,
+    "isbn": "9787203142522"
+  },
+  "historical-atlas-china": {
+    "press": "中国地图出版社",
+    "year": 1982,
+    "isbn": "9787503118449"
+  },
+  "korean-history-new": {
+    "press": "国际文化出版公司",
+    "year": 1994,
+    "isbn": "9787801051509"
+  },
+  "tang-goguryeo-baekje-migrants": {
+    "press": "中国社会科学出版社",
+    "year": 2012,
+    "isbn": "9787516109502"
+  },
+  "east-asian-world-formation": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2024,
+    "isbn": "9787108074492"
+  },
+  "tang-silla-relations": {
+    "press": "中国社会科学出版社",
+    "year": 2003,
+    "isbn": "9787500438915"
+  },
+  "sui-tang-empire-formation": {
+    "press": "上海古籍出版社",
+    "year": 2011,
+    "isbn": "9787532558995"
+  },
+  "tang-jimi-prefectures": {
+    "press": "西北大学出版社",
+    "year": 1998,
+    "isbn": "9787560412986"
+  },
+  "sui-tang-history": {
+    "press": "商务印书馆",
+    "year": 2015,
+    "isbn": "9787100085410"
+  },
+  "tang-historical-sources": {
+    "press": "中华书局",
+    "year": 2025,
+    "isbn": "9787101171983"
+  },
+  "tang-keju-institution": {
+    "press": "北京大学出版社",
+    "year": 2022,
+    "isbn": "9787301335024"
+  },
+  "tang-fanzhen-study": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2023,
+    "isbn": "9787108075390"
+  },
+  "tang-fiscal-history": {
+    "press": "社会科学文献出版社",
+    "year": 2007,
+    "isbn": "9787802304253"
+  },
+  "high-tang-northeast-asia": {
+    "press": "上海辞书出版社",
+    "year": 2003,
+    "isbn": "9787532612802"
+  },
+  "liang-qichao-methods": {
+    "press": "岳麓书社",
+    "year": 2010,
+    "isbn": "9787807613503"
+  },
+  "liang-qichao-academic": {
+    "press": "中华书局",
+    "year": 2020,
+    "isbn": "9787101139402"
+  },
+  "liu-yizheng-guoshi": {
+    "press": "商务印书馆",
+    "year": 2011,
+    "isbn": "9787100084451"
+  },
+  "xiang-da-changan": {
+    "press": "广东旅游出版社",
+    "year": 2025,
+    "isbn": "9787557035341"
+  },
+  "chenyinke-institutions": {
+    "press": "上海古籍出版社",
+    "year": 2020,
+    "isbn": "9787532596645"
+  },
+  "xu-zhuoyun-han-agriculture": {
+    "press": "江苏人民出版社",
+    "year": 2012,
+    "isbn": "9787214071361"
+  },
+  "xie-guozhen-parties": {
+    "press": "北京出版社",
+    "year": 2014,
+    "isbn": "9787200110456"
+  },
+  "qi-xia-song-economy": {
+    "press": "南开大学出版社",
+    "year": 2019,
+    "isbn": "9787310058242"
+  },
+  "tang-changru-weijin": {
+    "press": "中华书局",
+    "year": 2026,
+    "isbn": "9787101175448"
+  },
+  "deng-guangming-wanganshi": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2007,
+    "isbn": "9787108026484"
+  },
+  "yan-gengwang-traffic": {
+    "press": "北京联合出版公司",
+    "year": 2021,
+    "isbn": "9787559635983"
+  },
+  "rong-xinjiang-foreign": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2014,
+    "isbn": "9787108035530"
+  },
+  "zhang-guangda-documents": {
+    "press": "广西师范大学出版社",
+    "year": 2008,
+    "isbn": "9787563375219"
+  },
+  "wu-yugui-tujue": {
+    "press": "商务印书馆",
+    "year": 2017,
+    "isbn": "9787100138871"
+  },
+  "ma-changshou-northern": {
+    "press": "广西师范大学出版社",
+    "year": 2006,
+    "isbn": "9787563360475"
+  },
+  "zhu-zongbin-prime-minister": {
+    "press": "北京大学出版社",
+    "year": 2017,
+    "isbn": "9787301279601"
+  },
+  "yan-buke-rank": {
+    "press": "中华书局",
+    "year": 2023,
+    "isbn": "9787101160239"
+  },
+  "wang-zengyu-song-military": {
+    "press": "中华书局",
+    "year": 1983,
+    "isbn": ""
+  },
+  "chen-xulu-metabolism": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2017,
+    "isbn": "9787108060136"
+  },
+  "yu-yingshi-shi-culture": {
+    "press": "上海人民出版社",
+    "year": 2013,
+    "isbn": "9787208112902"
+  },
+  "gushi-bian": {
+    "press": "上海古籍出版社",
+    "year": 1982,
+    "isbn": "9787544309943"
+  },
+  "yuanbai-shijianzhenggao": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2001,
+    "isbn": "9787108009425"
+  },
+  "weijin-suitang-sanlun": {
+    "press": "中华书局",
+    "year": 2026,
+    "isbn": "9787101174922"
+  },
+  "qinhan-weijin-tanwei": {
+    "press": "中华书局",
+    "year": 2023,
+    "isbn": "9787101160222"
+  },
+  "weijin-zhaji": {
+    "press": "商务印书馆",
+    "year": 2026,
+    "isbn": "9787100244879"
+  },
+  "songshi-shijiang": {
+    "press": "中华书局",
+    "year": 2008,
+    "isbn": "9787101063325"
+  },
+  "mingqing-shehui-jingji": {
+    "press": "中华书局",
+    "year": 2007,
+    "isbn": "9787101055863"
+  },
+  "mingdai-liangzhang": {
+    "press": "中华书局",
+    "year": 2025,
+    "isbn": "9787101169799"
+  },
+  "mingchu-renkou": {
+    "press": "中华书局",
+    "year": 2017,
+    "isbn": "9787101094138"
+  },
+  "xiandaihua-xinlun": {
+    "press": "商务印书馆",
+    "year": 2004,
+    "isbn": "9787100039031"
+  },
+  "zhonghua-diguo-panluan": {
+    "press": "中国社会科学出版社",
+    "year": 1990,
+    "isbn": "9787500404804"
+  },
+  "zhuxi-lishi-shijie": {
+    "press": "生活·读书·新知三联书店",
+    "year": 2011,
+    "isbn": "9787108037008"
+  },
+  "jindai-sixiang-xueshu": {
+    "press": "上海三联书店",
+    "year": 2018,
+    "isbn": "9787542661081"
+  },
+  "zhongguo-sixiangshi": {
+    "press": "商务印书馆",
+    "year": 2025,
+    "isbn": "9787100240468"
+  },
+  "chaju-zhidu-bianqian": {
+    "press": "北京师范大学出版社",
+    "year": 2021,
+    "isbn": "9787303264094"
+  },
+  "handai-zhengzhi-chunqiu": {
+    "press": "中国广播电视出版社",
+    "year": 2001,
+    "isbn": "9787504336729"
+  },
+  "heizhan-beiwei": {
+    "press": "上海三联书店",
+    "year": 2022,
+    "isbn": "9787542676511"
+  },
+  "dunhuangxue-shibajiang": {
+    "press": "北京大学出版社",
+    "year": 2024,
+    "isbn": "9787301353226"
+  },
+  "tangli-zheyi": {
+    "press": "商务印书馆",
+    "year": 2002,
+    "isbn": "9787100035446"
+  },
+  "changan-hebei": {
+    "press": "北京师范大学出版社",
+    "year": 2018,
+    "isbn": "9787303240739"
+  }
+}

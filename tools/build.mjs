@@ -540,6 +540,7 @@ const bookEditionLine = (b) => {
   const bits = [];
   if (b.press) bits.push(esc(b.press));
   if (b.year) bits.push(String(b.year) + ' 年');
+  if (b.isbn) bits.push('ISBN ' + esc(b.isbn));
   return bits.length ? `<p class="book-edition">${bits.join(' · ')}</p>` : '';
 };
 
